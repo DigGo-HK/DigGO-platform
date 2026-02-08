@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能OCR掃描 - DigGO</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tesseract.js OCR 庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <!-- 用於文件預覽 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body>
+    <!-- 狀態欄 -->
+    <div class="status-bar">
+        <div class="time" id="currentTime">10:30</div>
+        <div class="status-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="app-container">
+        <!-- 頂部導航 -->
+        <header class="ocr-header">
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>返回</span>
+            </a>
+            <h1 class="page-title">
+                <i class="fas fa-file-medical"></i>
+                智能OCR掃描
+            </h1>
+            <div class="header-actions">
+                <button class="help-btn" onclick="showHelp()">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 步驟指示器 -->
+        <div class="steps-indicator">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label">上傳文件</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">OCR識別</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">填寫表格</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label">發送預約</span>
+            </div>
+        </div>
+
+        <!-- 步驟1：文件上傳 -->
+        <section id="step1" class="step-section active">
+            <div class="upload-section">
+                <div class="upload-header">
+                    <h2><i class="fas fa-cloud-upload-alt"></i> 上轉醫療文件</h2>
+                    <p class="upload-subtitle">支援 JPG, PNG, PDF 格式</p>
+                </div>
+
+                <div class="upload-options">
+                    <!-- 拍攝照片 -->
+                    <div class="upload-option" onclick="capturePhoto()">
+                        <div class="option-icon camera">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="option-info">
+                            <h3>拍攝照片</h3>
+                            <p>使用手機相機拍攝文件</p>
+                        </div>
+                        <i class="fas fa-chevron-right option-arrow"></i>
+                    </div>
+
+                    <!-- 選擇文件 -->
+                    <div class="upload-option" onclick="document.getElementById('fileInput').click()">
+                        <div class="option-icon gallery">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <div class="option-info">
+                            <h3>選擇文件</h3>
+                            <p>從相簿選擇圖片或PDF</p>
+                        </div>
+                        <i class="fas fa-chevron-right option-arrow"></i>
+                    </div>
+
+                    <!-- 文件夾 -->
+                    <div class="upload-option" onclick="openFileFolder()">
+                        <div class="option-icon folder">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="option-info">
+                            <h3>文件夾</h3>
+                            <p>從DigGO文件庫選擇</p>
+                        </div>
+                        <i class="fas fa-chevron-right option-arrow"></i>
+                    </div>
+                </div>
+
+                <!-- 隱藏的文件輸入 -->
+                <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none" 
+                       onchange="handleFileSelect(event)">
+
+                <!-- 文件預覽區 -->
+                <div id="previewArea" class="preview-area" style="display:none;">
+                    <div class="preview-header">
+                        <h3>文件預覽</h3>
+                        <button class="btn-remove" onclick="removeFile()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="preview-container">
+                        <img id="imagePreview" class="preview-image" alt="文件預覽">
+                        <div id="pdfPreview" class="pdf-preview" style="display:none;">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>PDF 文件已加載</p>
+                            <span class="pdf-pages">共 <span id="pageCount">0</span> 頁</span>
+                        </div>
+                    </div>
+                    <div class="preview-actions">
+                        <button class="btn-secondary" onclick="rotateImage()">
+                            <i class="fas fa-redo"></i> 旋轉
+                        </button>
+                        <button class="btn-secondary" onclick="cropImage()">
+                            <i class="fas fa-crop"></i> 裁剪
+                        </button>
+                        <button class="btn-primary" onclick="processOCR()">
+                            <i class="fas fa-search"></i> 開始識別
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 支持的文件類型 -->
+                <div class="supported-files">
+                    <h4><i class="fas fa-check-circle"></i> 支持的文件類型：</h4>
+                    <div class="file-types">
+                        <span class="file-type-tag">
+                            <i class="fas fa-file-medical"></i> 醫管局轉介信
+                        </span>
+                        <span class="file-type-tag">
+                            <i class="fas fa-file-prescription"></i> 醫生轉介信
+                        </span>
+                        <span class="file-type-tag">
+                            <i class="fas fa-file-medical-alt"></i> 化驗報告
+                        </span>
+                        <span class="file-type-tag">
+                            <i class="fas fa-file-medical"></i> 醫療記錄
+                        </span>
+                        <span class="file-type-tag">
+                            <i class="fas fa-receipt"></i> 收據單據
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 步驟2：OCR識別結果 -->
+        <section id="step2" class="step-section">
+            <div class="ocr-results-section">
+                <div class="results-header">
+                    <h2><i class="fas fa-search"></i> OCR識別結果</h2>
+                    <div class="confidence-badge">
+                        <span class="confidence-label">準確度</span>
+                        <span class="confidence-value" id="confidenceValue">85%</span>
+                    </div>
+                </div>
+
+                <!-- 原始文本顯示 -->
+                <div class="raw-text-container">
+                    <div class="text-header">
+                        <h3>識別出的原始文本</h3>
+                        <button class="btn-copy" onclick="copyRawText()">
+                            <i class="fas fa-copy"></i> 複製
+                        </button>
+                    </div>
+                    <textarea id="rawText" class="raw-text-area" readonly 
+                              placeholder="OCR識別結果將顯示在這裡..."></textarea>
+                    <div class="text-actions">
+                        <button class="btn-secondary" onclick="clearText()">
+                            <i class="fas fa-trash"></i> 清空
+                        </button>
+                        <button class="btn-secondary" onclick="correctText()">
+                            <i class="fas fa-edit"></i> 編輯
+                        </button>
+                        <button class="btn-primary" onclick="extractToForm()">
+                            <i class="fas fa-table"></i> 自動填表
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 識別出的關鍵信息 -->
+                <div class="extracted-info">
+                    <h3><i class="fas fa-star"></i> 已識別的關鍵信息</h3>
+                    <div class="info-grid" id="extractedInfo">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 步驟3：智能表格填寫 -->
+        <section id="step3" class="step-section">
+            <div class="form-section">
+                <div class="form-header">
+                    <h2><i class="fas fa-edit"></i> 智能表格填寫</h2>
+                    <p class="form-subtitle">檢查並確認自動填寫的信息</p>
+                </div>
+
+                <form id="appointmentForm" class="appointment-form">
+                    <!-- 患者信息 -->
+                    <div class="form-section-group">
+                        <h3 class="form-group-title">
+                            <i class="fas fa-user"></i> 患者信息
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="patientName">姓名</label>
+                                <input type="text" id="patientName" 
+                                       placeholder="自動識別或手動輸入">
+                                <div class="auto-fill-badge">
+                                    <i class="fas fa-robot"></i> 自動識別
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="patientID">身份證號碼</label>
+                                <input type="text" id="patientID" 
+                                       placeholder="自動識別或手動輸入">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="birthDate">出生日期</label>
+                                <input type="date" id="birthDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="phoneNumber">聯絡電話</label>
+                                <input type="tel" id="phoneNumber" 
+                                       placeholder="自動識別或手動輸入">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">住址</label>
+                            <input type="text" id="address" 
+                                   placeholder="自動識別或手動輸入">
+                        </div>
+                    </div>
+
+                    <!-- 醫療信息 -->
+                    <div class="form-section-group">
+                        <h3 class="form-group-title">
+                            <i class="fas fa-stethoscope"></i> 醫療信息
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label for="referringDoctor">轉介醫生</label>
+                            <input type="text" id="referringDoctor" 
+                                   placeholder="自動識別或手動輸入">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hospitalClinic">醫院/診所</label>
+                            <input type="text" id="hospitalClinic" 
+                                   placeholder="自動識別或手動輸入">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="medicalNumber">醫療檔案編號</label>
+                            <input type="text" id="medicalNumber" 
+                                   placeholder="自動識別或手動輸入">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="diagnosis">診斷/症狀</label>
+                            <textarea id="diagnosis" rows="3" 
+                                      placeholder="自動識別或手動輸入"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recommendedTests">建議檢查項目</label>
+                            <textarea id="recommendedTests" rows="3" 
+                                      placeholder="自動識別或手動輸入"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 預約信息 -->
+                    <div class="form-section-group">
+                        <h3 class="form-group-title">
+                            <i class="fas fa-calendar-check"></i> 預約信息
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label for="preferredDate">首選日期</label>
+                            <input type="date" id="preferredDate" 
+                                   min="2024-01-01">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="preferredTime">首選時間</label>
+                            <select id="preferredTime">
+                                <option value="">選擇時間段</option>
+                                <option value="morning">上午 (9:00-12:00)</option>
+                                <option value="afternoon">下午 (2:00-5:00)</option>
+                                <option value="evening">傍晚 (6:00-8:00)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="urgencyLevel">緊急程度</label>
+                            <select id="urgencyLevel">
+                                <option value="routine">常規</option>
+                                <option value="urgent">緊急</option>
+                                <option value="emergency">急症</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">備註</label>
+                            <textarea id="notes" rows="2" 
+                                      placeholder="其他需要說明的事項"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 表格操作按鈕 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-redo"></i> 重置表格
+                        </button>
+                        <button type="button" class="btn-primary" onclick="goToStep4()">
+                            <i class="fas fa-arrow-right"></i> 下一步：選擇診所
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- 步驟4：選擇診所並發送 -->
+        <section id="step4" class="step-section">
+            <div class="clinic-selection-section">
+                <div class="selection-header">
+                    <h2><i class="fas fa-hospital"></i> 選擇診所/化驗中心</h2>
+                    <p class="selection-subtitle">選擇要發送預約請求的醫療機構</p>
+                </div>
+
+                <!-- 搜索和篩選 -->
+                <div class="search-filter">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="clinicSearch" 
+                               placeholder="搜索診所、化驗中心或地區...">
+                    </div>
+                    <button class="btn-filter" onclick="showFilters()">
+                        <i class="fas fa-filter"></i> 篩選
+                    </button>
+                </div>
+
+                <!-- 推薦診所 -->
+                <div class="recommended-clinics">
+                    <h3><i class="fas fa-star"></i> 智能推薦</h3>
+                    <div class="clinic-list" id="recommendedClinics">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+
+                <!-- 附近診所 -->
+                <div class="nearby-clinics">
+                    <h3><i class="fas fa-map-marker-alt"></i> 附近診所</h3>
+                    <div class="clinic-list" id="nearbyClinics">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+
+                <!-- 預約確認 -->
+                <div class="appointment-confirmation">
+                    <h3><i class="fas fa-check-circle"></i> 預約確認</h3>
+                    <div class="confirmation-details">
+                        <div class="detail-item">
+                            <span class="detail-label">患者姓名：</span>
+                            <span id="confirmPatientName" class="detail-value"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">預約類型：</span>
+                            <span id="confirmAppointmentType" class="detail-value">專科門診</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">首選時間：</span>
+                            <span id="confirmPreferredTime" class="detail-value"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">發送至：</span>
+                            <span id="confirmClinicName" class="detail-value">未選擇</span>
+                        </div>
+                    </div>
+
+                    <!-- 發送選項 -->
+                    <div class="send-options">
+                        <h4>發送方式：</h4>
+                        <div class="option-buttons">
+                            <button class="send-option-btn active" data-method="whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                                WhatsApp
+                            </button>
+                            <button class="send-option-btn" data-method="email">
+                                <i class="fas fa-envelope"></i>
+                                電郵
+                            </button>
+                            <button class="send-option-btn" data-method="fax">
+                                <i class="fas fa-fax"></i>
+                                傳真
+                            </button>
+                            <button class="send-option-btn" data-method="api">
+                                <i class="fas fa-plug"></i>
+                                API直連
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 最終確認 -->
+                    <div class="final-actions">
+                        <button class="btn-secondary" onclick="saveAsDraft()">
+                            <i class="fas fa-save"></i> 保存草稿
+                        </button>
+                        <button class="btn-success" onclick="sendAppointment()">
+                            <i class="fas fa-paper-plane"></i> 發送預約請求
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 底部導航 -->
+    <nav class="bottom-nav">
+        <button class="nav-item" onclick="goToStep(1)">
+            <i class="fas fa-upload"></i>
+            <span>上傳</span>
+        </button>
+        <button class="nav-item" onclick="goToStep(2)">
+            <i class="fas fa-search"></i>
+            <span>識別</span>
+        </button>
+        <button class="nav-item" onclick="goToStep(3)">
+            <i class="fas fa-edit"></i>
+            <span>填表</span>
+        </button>
+        <button class="nav-item" onclick="goToStep(4)">
+            <i class="fas fa-paper-plane"></i>
+            <span>發送</span>
+        </button>
+    </nav>
+
+    <!-- 加載動畫 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3 id="loadingTitle">OCR處理中</h3>
+            <p id="loadingMessage">正在識別文本，請稍候...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span class="progress-text" id="progressText">0%</span>
+        </div>
+    </div>
+
+    <!-- 成功提示 -->
+    <div id="successToast" class="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <div class="toast-message">
+                <strong id="toastTitle">成功！</strong>
+                <span id="toastMessage">操作已完成</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="ocr-appointment.js"></script>
+</body>
+</html>
