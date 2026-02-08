@@ -1,215 +1,229 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigGO - Discover & Explore</title>
+    <title>DigGO - 智能醫療平台</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-compass"></i>
-                <h1>Dig<span>GO</span></h1>
-            </div>
-            <div class="nav-links">
-                <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
-                <a href="#"><i class="fas fa-search"></i> Explore</a>
-                <a href="#"><i class="fas fa-map-marked-alt"></i> Map</a>
-                <a href="#"><i class="fas fa-heart"></i> Saved</a>
-                <a href="#"><i class="fas fa-user"></i> Profile</a>
-            </div>
-            <button class="btn-login"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    <!-- 頂部狀態欄 -->
+    <div class="status-bar">
+        <div class="time">3:35</div>
+        <div class="status-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
         </div>
-    </nav>
+    </div>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h2>Discover Hidden Gems Around You</h2>
-                <p>DigGO helps you explore unique places, events, and experiences tailored to your interests.</p>
-                
-                <!-- Search Box -->
-                <div class="search-box">
-                    <div class="search-input">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="What are you looking for today?">
-                    </div>
-                    <div class="search-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <input type="text" placeholder="Location" value="Hong Kong">
-                    </div>
-                    <button class="btn-search"><i class="fas fa-digging"></i> Dig Now!</button>
+    <!-- 主內容區 -->
+    <div class="app-container">
+        <!-- 標題區 -->
+        <header class="app-header">
+            <div class="logo-container">
+                <i class="fas fa-heartbeat logo-icon"></i>
+                <h1 class="logo-text">HA Go</h1>
+            </div>
+            <div class="language-switch">
+                <button class="lang-btn active">繁</button>
+                <button class="lang-btn">简</button>
+                <button class="lang-btn">EN</button>
+            </div>
+        </header>
+
+        <!-- 登入區 -->
+        <main class="login-container">
+            <div class="welcome-message">
+                <h2>歡迎來到</h2>
+                <h1 class="platform-name">HA Go</h1>
+            </div>
+
+            <div class="auth-buttons">
+                <button id="loginBtn" class="auth-btn login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>登入</span>
+                </button>
+                <button id="registerBtn" class="auth-btn register-btn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>立即登記</span>
+                </button>
+            </div>
+
+            <!-- 快速服務入口 -->
+            <div class="quick-services">
+                <div class="section-title">
+                    <h3>我要</h3>
+                    <a href="#" class="view-all">查看全部 <i class="fas fa-chevron-right"></i></a>
                 </div>
                 
-                <div class="quick-tags">
-                    <span class="tag"><i class="fas fa-utensils"></i> Food & Dining</span>
-                    <span class="tag"><i class="fas fa-hiking"></i> Outdoor Adventures</span>
-                    <span class="tag"><i class="fas fa-music"></i> Events & Music</span>
-                    <span class="tag"><i class="fas fa-gem"></i> Hidden Gems</span>
+                <div class="services-grid">
+                    <div class="service-item">
+                        <div class="service-icon appointment">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <span class="service-label">預約通</span>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon payment">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <span class="service-label">繳費服務</span>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon schedule">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <span class="service-label">日程</span>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon wifi">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <span class="service-label">HA Go Wi-Fi</span>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon visit">
+                            <i class="fas fa-hospital-user"></i>
+                        </div>
+                        <span class="service-label">醫院探訪</span>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-icon navigation">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <span class="service-label">院內導航</span>
+                    </div>
                 </div>
             </div>
-            <div class="hero-image">
-                <div class="image-placeholder">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <p>Interactive Map View</p>
+
+            <!-- 通知橫幅 -->
+            <div class="notification-banner">
+                <div class="banner-header">
+                    <span class="badge">請支持</span>
+                    <span class="date">2025年10月推出</span>
                 </div>
+                <h4 class="banner-title">專科門診服務</h4>
+                <p class="banner-subtitle">From Oct 2025</p>
+                
+                <div class="survey-section">
+                    <div class="survey-header">
+                        <i class="fas fa-bell notification-bell"></i>
+                        <span class="survey-title">HA Go推送問卷</span>
+                    </div>
+                    <h5 class="survey-topic">簡短調查</h5>
+                    <p class="survey-description">Short Survey on Specialist Outpatient Service</p>
+                    <p class="survey-detail">8條問題 • Your valuable feedback will help us enhance our services!</p>
+                    <p class="survey-help">你的寶貴意見將有助我們提升服務質素！</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部導航 -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>最新消息</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>所有服務</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-headset"></i>
+                <span>支援</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-ellipsis-h"></i>
+                <span>更多</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 登入彈窗 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>登入 HA Go</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- OTP 登入表單 -->
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="phoneNumber" class="form-label">手機號碼</label>
+                        <div class="phone-input-group">
+                            <div class="country-code">+852</div>
+                            <input type="tel" 
+                                   id="phoneNumber" 
+                                   class="phone-input"
+                                   placeholder="輸入手機號碼"
+                                   pattern="[0-9]{8}"
+                                   required>
+                        </div>
+                        <p class="input-hint">請輸入8位數字的香港手機號碼</p>
+                    </div>
+
+                    <button type="button" id="sendOtpBtn" class="btn-primary send-otp-btn">
+                        發送驗證碼
+                    </button>
+
+                    <div id="otpSection" class="otp-section" style="display: none;">
+                        <div class="form-group">
+                            <label for="otpCode" class="form-label">驗證碼</label>
+                            <input type="text" 
+                                   id="otpCode" 
+                                   class="otp-input"
+                                   placeholder="輸入6位驗證碼"
+                                   maxlength="6"
+                                   pattern="[0-9]{6}"
+                                   required>
+                            <div class="otp-timer">
+                                <i class="fas fa-clock"></i>
+                                <span id="timer">60</span>秒
+                            </div>
+                        </div>
+
+                        <button type="button" id="verifyOtpBtn" class="btn-success verify-btn">
+                            <i class="fas fa-check-circle"></i>
+                            驗證並登入
+                        </button>
+                    </div>
+
+                    <!-- 其他登入方式 -->
+                    <div class="login-divider">
+                        <span>或</span>
+                    </div>
+
+                    <div class="alternative-login">
+                        <button type="button" class="alt-login-btn ehealth-btn">
+                            <i class="fas fa-hospital-alt"></i>
+                            以醫健通 eHealth 繼續
+                        </button>
+                        <button type="button" class="alt-login-btn smartid-btn">
+                            <i class="fas fa-id-card-alt"></i>
+                            以智方便繼續
+                        </button>
+                        <div class="more-info">
+                            <a href="#" class="info-link">
+                                了解更多「智方便」
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Features Section -->
-    <section class="features">
-        <div class="container">
-            <h3>Why Choose DigGO?</h3>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-bullseye"></i>
-                    </div>
-                    <h4>Personalized Discovery</h4>
-                    <p>AI-powered recommendations based on your preferences and past explorations.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h4>Community Driven</h4>
-                    <p>Real reviews and tips from our community of explorers. Trust real experiences.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-map-signs"></i>
-                    </div>
-                    <h4>Offline Maps</h4>
-                    <p>Download maps and guides for exploration without internet connection.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h4>Safe Exploration</h4>
-                    <p>Verified locations and safety ratings for worry-free adventures.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- 註冊彈窗 -->
+    <div id="registerModal" class="modal">
+        <!-- 註冊表單將由 JavaScript 動態加載 -->
+    </div>
 
-    <!-- Popular Discoveries -->
-    <section class="discoveries">
-        <div class="container">
-            <h3>Popular Discoveries in Hong Kong</h3>
-            <div class="discoveries-grid">
-                <div class="discovery-card">
-                    <div class="discovery-image food">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                    <div class="discovery-tag">Food & Drink</div>
-                    <h4>Hidden Cafe Alley</h4>
-                    <p>Charming hidden cafes in Central's backstreets with unique brews.</p>
-                    <div class="discovery-rating">
-                        <span class="stars">★★★★★</span>
-                        <span class="rating-text">4.8 (124 reviews)</span>
-                    </div>
-                </div>
-                
-                <div class="discovery-card">
-                    <div class="discovery-image nature">
-                        <i class="fas fa-mountain"></i>
-                    </div>
-                    <div class="discovery-tag">Outdoor</div>
-                    <h4>Dragon's Back Hike</h4>
-                    <p>Breathtaking coastal trail with panoramic views of Hong Kong Island.</p>
-                    <div class="discovery-rating">
-                        <span class="stars">★★★★★</span>
-                        <span class="rating-text">4.9 (356 reviews)</span>
-                    </div>
-                </div>
-                
-                <div class="discovery-card">
-                    <div class="discovery-image art">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                    <div class="discovery-tag">Art & Culture</div>
-                    <h4>Street Art Tour</h4>
-                    <p>Guided tour of Sheung Wan's vibrant street art and murals.</p>
-                    <div class="discovery-rating">
-                        <span class="stars">★★★★☆</span>
-                        <span class="rating-text">4.7 (89 reviews)</span>
-                    </div>
-                </div>
-                
-                <div class="discovery-card">
-                    <div class="discovery-image shopping">
-                        <i class="fas fa-store"></i>
-                    </div>
-                    <div class="discovery-tag">Shopping</div>
-                    <h4>Vintage Market</h4>
-                    <p>Hidden treasures in Mong Kok's underground vintage markets.</p>
-                    <div class="discovery-rating">
-                        <span class="stars">★★★★☆</span>
-                        <span class="rating-text">4.6 (203 reviews)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="logo">
-                        <i class="fas fa-compass"></i>
-                        <h3>Dig<span>GO</span></h3>
-                    </div>
-                    <p>Your gateway to unique discoveries and unforgettable experiences.</p>
-                    <div class="github-badge">
-                        <i class="fab fa-github"></i>
-                        <span>Hosted on GitHub</span>
-                    </div>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Explore</h4>
-                    <a href="#"><i class="fas fa-chevron-right"></i> Popular Spots</a>
-                    <a href="#"><i class="fas fa-chevron-right"></i> New Discoveries</a>
-                    <a href="#"><i class="fas fa-chevron-right"></i> Local Guides</a>
-                    <a href="#"><i class="fas fa-chevron-right"></i> Seasonal Events</a>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Company</h4>
-                    <a href="#"><i class="fas fa-chevron-right"></i> About Us</a>
-                    <a href="#"><i class="fas fa-chevron-right"></i> Careers</a>
-                    <a href="#"><i class="fas fa-chevron-right"></i> Blog</a>
-                    <a href="#"><i class="fas fa-chevron-right"></i> Contact</a>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Connect</h4>
-                    <div class="social-icons">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                    <p class="copyright">© 2025 DigGO Platform. Created by DigGo-HK</p>
-                    <p class="github-link">
-                        <i class="fab fa-github"></i>
-                        <a href="https://github.com/DigGo-HK/DigGO-platform">View on GitHub</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    <!-- 載入 JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
