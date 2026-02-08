@@ -23,16 +23,31 @@
     <div class="app-container">
         <!-- 標題區 -->
         <header class="app-header">
-            <div class="logo-container">
-                <i class="fas fa-heartbeat logo-icon"></i>
-                <h1 class="logo-text">DigGO</h1>
+    <!-- Zolair + DigGO 雙標誌 -->
+    <div class="dual-logo-container">
+        <div class="zolair-logo-compact">
+            <div class="zolair-icon">🩺</div>
+            <div class="zolair-text-group">
+                <div class="zolair-brand">Zolair</div>
+                <div class="nursing-brand">Nursing</div>
             </div>
-            <div class="language-switch">
-                <button class="lang-btn active" data-lang="zh-HK">繁</button>
-                <button class="lang-btn" data-lang="zh-CN">简</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-            </div>
-        </header>
+        </div>
+        
+        <div class="logo-divider-vertical"></div>
+        
+        <div class="diggo-logo-compact">
+            <i class="fas fa-heartbeat"></i>
+            <div class="diggo-brand">DigGO</div>
+        </div>
+    </div>
+    
+    <!-- 語言切換保持不變 -->
+    <div class="language-switch">
+        <button class="lang-btn active" data-lang="zh-HK">繁</button>
+        <button class="lang-btn" data-lang="zh-CN">简</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+</header>
 
         <!-- 登入區 -->
         <main class="login-container">
