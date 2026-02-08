@@ -11,7 +11,7 @@
 <body>
     <!-- 頂部狀態欄 -->
     <div class="status-bar">
-        <div class="time">3:35</div>
+        <div class="time" id="currentTime">3:35</div>
         <div class="status-icons">
             <i class="fas fa-signal"></i>
             <i class="fas fa-wifi"></i>
@@ -25,76 +25,78 @@
         <header class="app-header">
             <div class="logo-container">
                 <i class="fas fa-heartbeat logo-icon"></i>
-                <h1 class="logo-text">HA Go</h1>
+                <h1 class="logo-text">DigGO</h1>
             </div>
             <div class="language-switch">
-                <button class="lang-btn active">繁</button>
-                <button class="lang-btn">简</button>
-                <button class="lang-btn">EN</button>
+                <button class="lang-btn active" data-lang="zh-HK">繁</button>
+                <button class="lang-btn" data-lang="zh-CN">简</button>
+                <button class="lang-btn" data-lang="en">EN</button>
             </div>
         </header>
 
         <!-- 登入區 -->
         <main class="login-container">
             <div class="welcome-message">
-                <h2>歡迎來到</h2>
-                <h1 class="platform-name">HA Go</h1>
+                <h2 id="welcomeText">歡迎來到</h2>
+                <h1 class="platform-name">DigGO</h1>
             </div>
 
             <div class="auth-buttons">
                 <button id="loginBtn" class="auth-btn login-btn">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>登入</span>
+                    <span id="loginText">登入</span>
                 </button>
                 <button id="registerBtn" class="auth-btn register-btn">
                     <i class="fas fa-user-plus"></i>
-                    <span>立即登記</span>
+                    <span id="registerText">立即登記</span>
                 </button>
             </div>
 
             <!-- 快速服務入口 -->
             <div class="quick-services">
                 <div class="section-title">
-                    <h3>我要</h3>
-                    <a href="#" class="view-all">查看全部 <i class="fas fa-chevron-right"></i></a>
+                    <h3 id="iWantText">我要</h3>
+                    <a href="#" class="view-all" id="viewAllText">
+                        查看全部 <i class="fas fa-chevron-right"></i>
+                    </a>
                 </div>
                 
                 <div class="services-grid">
-                    <div class="service-item">
+                    <div class="service-item" onclick="showFeatureComing('預約通')">
                         <div class="service-icon appointment">
                             <i class="fas fa-calendar-check"></i>
                         </div>
-                        <span class="service-label">預約通</span>
+                        <span class="service-label" id="service1Text">預約通</span>
                     </div>
-                    <div class="service-item">
+                    <div class="service-item" onclick="showFeatureComing('繳費服務')">
                         <div class="service-icon payment">
                             <i class="fas fa-credit-card"></i>
                         </div>
-                        <span class="service-label">繳費服務</span>
+                        <span class="service-label" id="service2Text">繳費服務</span>
                     </div>
-                    <div class="service-item">
+                    <div class="service-item" onclick="showFeatureComing('日程')">
                         <div class="service-icon schedule">
                             <i class="fas fa-calendar-alt"></i>
                         </div>
-                        <span class="service-label">日程</span>
+                        <span class="service-label" id="service3Text">日程</span>
                     </div>
-                    <div class="service-item">
+                    <div class="service-item" onclick="showFeatureComing('DigGO Wi-Fi')">
                         <div class="service-icon wifi">
                             <i class="fas fa-wifi"></i>
                         </div>
-                        <span class="service-label">HA Go Wi-Fi</span>
+                        <span class="service-label" id="service4Text">DigGO Wi-Fi</span>
                     </div>
-                    <div class="service-item">
+                    <div class="service-item" onclick="showFeatureComing('醫院探訪')">
                         <div class="service-icon visit">
                             <i class="fas fa-hospital-user"></i>
                         </div>
-                        <span class="service-label">醫院探訪</span>
+                        <span class="service-label" id="service5Text">醫院探訪</span>
                     </div>
-                    <div class="service-item">
+                    <div class="service-item" onclick="showFeatureComing('院內導航')">
                         <div class="service-icon navigation">
                             <i class="fas fa-map-marked-alt"></i>
                         </div>
-                        <span class="service-label">院內導航</span>
+                        <span class="service-label" id="service6Text">院內導航</span>
                     </div>
                 </div>
             </div>
@@ -102,21 +104,25 @@
             <!-- 通知橫幅 -->
             <div class="notification-banner">
                 <div class="banner-header">
-                    <span class="badge">請支持</span>
-                    <span class="date">2025年10月推出</span>
+                    <span class="badge" id="supportText">請支持</span>
+                    <span class="date" id="launchDateText">2025年10月推出</span>
                 </div>
-                <h4 class="banner-title">專科門診服務</h4>
-                <p class="banner-subtitle">From Oct 2025</p>
+                <h4 class="banner-title" id="clinicServiceText">專科門診服務</h4>
+                <p class="banner-subtitle" id="fromDateText">From Oct 2025</p>
                 
                 <div class="survey-section">
                     <div class="survey-header">
                         <i class="fas fa-bell notification-bell"></i>
-                        <span class="survey-title">HA Go推送問卷</span>
+                        <span class="survey-title" id="surveyTitleText">DigGO推送問卷</span>
                     </div>
-                    <h5 class="survey-topic">簡短調查</h5>
-                    <p class="survey-description">Short Survey on Specialist Outpatient Service</p>
-                    <p class="survey-detail">8條問題 • Your valuable feedback will help us enhance our services!</p>
-                    <p class="survey-help">你的寶貴意見將有助我們提升服務質素！</p>
+                    <h5 class="survey-topic" id="surveyTopicText">簡短調查</h5>
+                    <p class="survey-description" id="surveyDescText">Short Survey on Specialist Outpatient Service</p>
+                    <p class="survey-detail" id="surveyDetailText">8條問題 • Your valuable feedback will help us enhance our services!</p>
+                    <p class="survey-help" id="surveyHelpText">你的寶貴意見將有助我們提升服務質素！</p>
+                    <button class="btn-survey" onclick="participateSurvey()">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span id="surveyBtnText">參與調查</span>
+                    </button>
                 </div>
             </div>
         </main>
@@ -125,19 +131,19 @@
         <nav class="bottom-nav">
             <a href="#" class="nav-item active">
                 <i class="fas fa-home"></i>
-                <span>最新消息</span>
+                <span id="nav1Text">最新消息</span>
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-th-large"></i>
-                <span>所有服務</span>
+                <span id="nav2Text">所有服務</span>
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-headset"></i>
-                <span>支援</span>
+                <span id="nav3Text">支援</span>
             </a>
             <a href="#" class="nav-item">
                 <i class="fas fa-ellipsis-h"></i>
-                <span>更多</span>
+                <span id="nav4Text">更多</span>
             </a>
         </nav>
     </div>
@@ -146,14 +152,14 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>登入 HA Go</h2>
+                <h2 id="modalTitleText">登入 DigGO</h2>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
                 <!-- OTP 登入表單 -->
                 <form id="loginForm" class="login-form">
                     <div class="form-group">
-                        <label for="phoneNumber" class="form-label">手機號碼</label>
+                        <label for="phoneNumber" class="form-label" id="phoneLabelText">手機號碼</label>
                         <div class="phone-input-group">
                             <div class="country-code">+852</div>
                             <input type="tel" 
@@ -161,18 +167,19 @@
                                    class="phone-input"
                                    placeholder="輸入手機號碼"
                                    pattern="[0-9]{8}"
-                                   required>
+                                   required
+                                   maxlength="8">
                         </div>
-                        <p class="input-hint">請輸入8位數字的香港手機號碼</p>
+                        <p class="input-hint" id="phoneHintText">請輸入8位數字的香港手機號碼</p>
                     </div>
 
                     <button type="button" id="sendOtpBtn" class="btn-primary send-otp-btn">
-                        發送驗證碼
+                        <span id="sendOtpText">發送驗證碼</span>
                     </button>
 
                     <div id="otpSection" class="otp-section" style="display: none;">
                         <div class="form-group">
-                            <label for="otpCode" class="form-label">驗證碼</label>
+                            <label for="otpCode" class="form-label" id="otpLabelText">驗證碼</label>
                             <input type="text" 
                                    id="otpCode" 
                                    class="otp-input"
@@ -182,36 +189,54 @@
                                    required>
                             <div class="otp-timer">
                                 <i class="fas fa-clock"></i>
-                                <span id="timer">60</span>秒
+                                <span id="timer">60</span>
+                                <span id="secondsText">秒</span>
                             </div>
+                            <p class="otp-hint" id="otpHintText">
+                                <i class="fas fa-info-circle"></i>
+                                測試模式：驗證碼是 <strong>123456</strong>
+                            </p>
                         </div>
 
                         <button type="button" id="verifyOtpBtn" class="btn-success verify-btn">
                             <i class="fas fa-check-circle"></i>
-                            驗證並登入
+                            <span id="verifyOtpText">驗證並登入</span>
                         </button>
                     </div>
 
                     <!-- 其他登入方式 -->
                     <div class="login-divider">
-                        <span>或</span>
+                        <span id="orText">或</span>
                     </div>
 
                     <div class="alternative-login">
-                        <button type="button" class="alt-login-btn ehealth-btn">
+                        <button type="button" class="alt-login-btn ehealth-btn" onclick="showFeatureComing('醫健通登入')">
                             <i class="fas fa-hospital-alt"></i>
-                            以醫健通 eHealth 繼續
+                            <span id="ehealthText">以醫健通 eHealth 繼續</span>
                         </button>
-                        <button type="button" class="alt-login-btn smartid-btn">
+                        <button type="button" class="alt-login-btn smartid-btn" onclick="showFeatureComing('智方便登入')">
                             <i class="fas fa-id-card-alt"></i>
-                            以智方便繼續
+                            <span id="smartidText">以智方便繼續</span>
                         </button>
                         <div class="more-info">
-                            <a href="#" class="info-link">
-                                了解更多「智方便」
+                            <a href="#" class="info-link" onclick="showFeatureComing('智方便介紹')">
+                                <span id="learnMoreText">了解更多「智方便」</span>
                                 <i class="fas fa-chevron-right"></i>
                             </a>
                         </div>
+                    </div>
+
+                    <div class="login-footer">
+                        <p>
+                            <span id="firstTimeText">首次使用？</span>
+                            <a href="#" id="switchToRegisterText">立即登記</a>
+                        </p>
+                        <p class="terms">
+                            <span id="agreeText">登入即表示同意我們的</span>
+                            <a href="#" onclick="showFeatureComing('服務條款')" id="termsText">服務條款</a>
+                            <span id="andText">及</span>
+                            <a href="#" onclick="showFeatureComing('私隱政策')" id="privacyText">私隱政策</a>
+                        </p>
                     </div>
                 </form>
             </div>
@@ -220,7 +245,81 @@
 
     <!-- 註冊彈窗 -->
     <div id="registerModal" class="modal">
-        <!-- 註冊表單將由 JavaScript 動態加載 -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="registerTitleText">立即登記</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" class="register-form">
+                    <div class="form-group">
+                        <label class="form-label" id="regPhoneLabelText">手機號碼</label>
+                        <input type="tel" 
+                               class="form-input" 
+                               id="regPhoneNumber"
+                               placeholder="輸入手機號碼" 
+                               required
+                               maxlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" id="regNameLabelText">姓名</label>
+                        <input type="text" 
+                               class="form-input" 
+                               id="regName"
+                               placeholder="輸入中文姓名" 
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" id="regDobLabelText">出生日期</label>
+                        <input type="date" 
+                               class="form-input" 
+                               id="regDob"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" id="regTypeLabelText">用戶類型</label>
+                        <div class="user-type-selector">
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="patient" checked>
+                                <span id="selfUseText">本人使用</span>
+                            </label>
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="caregiver">
+                                <span id="caregiverText">照顧者</span>
+                            </label>
+                            <label class="user-type-option">
+                                <input type="radio" name="userType" value="family">
+                                <span id="familyText">家庭成員</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="button" 
+                            id="registerSubmitBtn" 
+                            class="btn-primary"
+                            onclick="registerUser()">
+                        <span id="regSendOtpText">發送驗證碼</span>
+                    </button>
+                    
+                    <div class="register-footer">
+                        <p>
+                            <span id="haveAccountText">已有帳戶？</span>
+                            <a href="#" id="switchToLoginText">立即登入</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功登入提示 -->
+    <div id="successToast" class="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <div class="toast-message">
+                <strong id="loginSuccessText">登入成功！</strong>
+                <span id="welcomeUserText">歡迎回來</span>
+            </div>
+        </div>
     </div>
 
     <!-- 載入 JavaScript -->
