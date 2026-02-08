@@ -93,15 +93,7 @@ body {
     font-size: 13px;
 }
 
-/* ===== 主容器 ===== */
-.app-container {
-    background-color: var(--bg-white);
-    min-height: calc(100vh - 44px);
-    position: relative;
-    padding-bottom: 80px;
-}
-
-/* ===== 應用標題欄 ===== */
+/* ===== Zolair + DigGO 雙標誌 ===== */
 .app-header {
     display: flex;
     justify-content: space-between;
@@ -111,33 +103,96 @@ body {
     background-color: var(--bg-white);
 }
 
-.logo-container {
+.dual-logo-container {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    cursor: pointer;
+    gap: 15px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.95) 100%);
+    padding: 10px 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
 }
 
-.logo-icon {
-    font-size: 28px;
-    color: var(--diggo-blue);
-    background-color: var(--diggo-light-blue);
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-md);
+.zolair-logo-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.zolair-icon {
+    font-size: 22px;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition-normal);
+    box-shadow: 0 3px 10px rgba(44, 62, 80, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.logo-icon:hover {
-    transform: scale(1.05);
-    box-shadow: var(--shadow-light);
+.zolair-text-group {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
 }
 
-.logo-text {
-    font-size: 24px;
+.zolair-brand {
+    font-size: 16px;
+    font-weight: 900;
+    color: #2c3e50;
+    letter-spacing: -0.3px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.nursing-brand {
+    font-size: 10px;
+    font-weight: 700;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 3px;
+    opacity: 0.9;
+}
+
+.logo-divider-vertical {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, 
+        transparent 0%, 
+        rgba(0, 0, 0, 0.15) 20%, 
+        rgba(0, 0, 0, 0.15) 80%, 
+        transparent 100%);
+}
+
+.diggo-logo-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.diggo-logo-compact i {
+    font-size: 22px;
+    color: var(--diggo-blue);
+    background: linear-gradient(135deg, var(--diggo-light-blue) 0%, #d4e4ff 100%);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0, 82, 165, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.diggo-brand {
+    font-size: 20px;
     font-weight: 800;
     color: var(--diggo-blue);
     letter-spacing: -0.5px;
@@ -145,6 +200,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
 }
 
 .language-switch {
@@ -1216,4 +1272,215 @@ body {
     bottom: 100px;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background-color: var(--diggo
+    background-color: var(--diggo-blue);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 82, 165, 0.3);
+    z-index: 3000;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    max-width: 90%;
+    text-align: center;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.toast-icon {
+    font-size: 24px;
+    color: white;
+}
+
+.toast-message {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.toast-message strong {
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.toast-message span {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* ===== 響應式調整 ===== */
+@media (max-width: 450px) {
+    .dual-logo-container {
+        padding: 8px 15px;
+        gap: 12px;
+    }
+    
+    .zolair-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+    }
+    
+    .zolair-brand {
+        font-size: 14px;
+    }
+    
+    .nursing-brand {
+        font-size: 9px;
+        letter-spacing: 0.6px;
+    }
+    
+    .diggo-logo-compact i {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+    }
+    
+    .diggo-brand {
+        font-size: 18px;
+    }
+    
+    .logo-divider-vertical {
+        height: 35px;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    .service-label {
+        font-size: 13px;
+    }
+    
+    .welcome-message h2 {
+        font-size: 16px;
+    }
+    
+    .platform-name {
+        font-size: 36px;
+    }
+    
+    .auth-btn {
+        padding: 18px;
+        font-size: 17px;
+    }
+    
+    .modal-content {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 380px) {
+    .dual-logo-container {
+        padding: 6px 12px;
+        gap: 10px;
+    }
+    
+    .zolair-brand {
+        font-size: 13px;
+    }
+    
+    .diggo-brand {
+        font-size: 16px;
+    }
+    
+    .logo-divider-vertical {
+        height: 30px;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .service-item {
+        padding: 15px 8px;
+    }
+    
+    .service-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 22px;
+    }
+    
+    .service-label {
+        font-size: 12px;
+    }
+    
+    .platform-name {
+        font-size: 32px;
+    }
+    
+    .auth-btn {
+        padding: 16px;
+        font-size: 16px;
+    }
+    
+    .modal-header {
+        padding: 20px 20px 15px;
+    }
+    
+    .modal-header h2 {
+        font-size: 20px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+}
+
+/* ===== 動畫效果 ===== */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.service-item:hover .service-icon {
+    animation: pulse 0.5s ease;
+}
+
+/* ===== 錯誤狀態 ===== */
+.input-error {
+    border-color: var(--diggo-red) !important;
+    background-color: #fff5f5 !important;
+}
+
+.error-message {
+    color: var(--diggo-red);
+    font-size: 12px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ===== 成功狀態 ===== */
+.input-success {
+    border-color: var(--diggo-green) !important;
+    background-color: #f0fff4 !important;
+}
+
+.success-message {
+    color: var(--diggo-green);
+    font-size: 12px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
