@@ -3,17 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能OCR掃描 - DigGO</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>智能OCR掃描 - DigGO 數碼政務平台</title>
+    
+    <!-- 樣式文件 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tesseract.js OCR 庫 -->
+    <link rel="stylesheet" href="css/diggo-styles.css">
+    <link rel="stylesheet" href="css/ocr-styles.css">
+    
+    <!-- PDF.js 查看器樣式 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+    
+    <!-- JavaScript 庫 -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-    <!-- 用於文件預覽 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- 狀態欄 -->
-    <div class="status-bar">
+    <div class="status-bar diggo-status-bar">
         <div class="time" id="currentTime">10:30</div>
         <div class="status-icons">
             <i class="fas fa-signal"></i>
@@ -25,470 +32,2465 @@
     <!-- 主容器 -->
     <div class="app-container">
         <!-- 頂部導航 -->
-        <header class="ocr-header">
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                <span>返回</span>
-            </a>
-            <h1 class="page-title">
-                <i class="fas fa-file-medical"></i>
-                智能OCR掃描
-            </h1>
-            <div class="header-actions">
-                <button class="help-btn" onclick="showHelp()">
-                    <i class="fas fa-question-circle"></i>
-                </button>
+        <header class="ocr-header diggo-header">
+            <div class="header-content">
+                <a href="index.html" class="back-btn diggo-btn-secondary">
+                    <i class="fas fa-chevron-left"></i>
+                    <span>返回主頁</span>
+                </a>
+                <h1 class="page-title">
+                    <i class="fas fa-file-medical"></i>
+                    智能OCR醫療文件掃描
+                </h1>
+                <div class="header-actions">
+                    <button class="help-btn diggo-btn-secondary" id="helpBtn">
+                        <i class="fas fa-question-circle"></i>
+                        <span class="btn-text">幫助</span>
+                    </button>
+                    <button class="lang-btn diggo-btn-secondary" id="langBtn">
+                        <i class="fas fa-language"></i>
+                        <span class="btn-text">中/EN</span>
+                    </button>
+                </div>
             </div>
         </header>
 
         <!-- 步驟指示器 -->
-        <div class="steps-indicator">
+        <div class="steps-indicator diggo-steps">
             <div class="step active" data-step="1">
-                <div class="step-circle">1</div>
+                <div class="step-circle">
+                    <i class="fas fa-cloud-upload-alt step-icon"></i>
+                    <span class="step-number">1</span>
+                </div>
                 <span class="step-label">上傳文件</span>
             </div>
+            
             <div class="step-line"></div>
+            
             <div class="step" data-step="2">
-                <div class="step-circle">2</div>
+                <div class="step-circle">
+                    <i class="fas fa-search step-icon"></i>
+                    <span class="step-number">2</span>
+                </div>
                 <span class="step-label">OCR識別</span>
             </div>
+            
             <div class="step-line"></div>
+            
             <div class="step" data-step="3">
-                <div class="step-circle">3</div>
+                <div class="step-circle">
+                    <i class="fas fa-edit step-icon"></i>
+                    <span class="step-number">3</span>
+                </div>
                 <span class="step-label">填寫表格</span>
             </div>
+            
             <div class="step-line"></div>
+            
             <div class="step" data-step="4">
-                <div class="step-circle">4</div>
+                <div class="step-circle">
+                    <i class="fas fa-paper-plane step-icon"></i>
+                    <span class="step-number">4</span>
+                </div>
                 <span class="step-label">發送預約</span>
             </div>
         </div>
 
-        <!-- 步驟1：文件上傳 -->
-        <section id="step1" class="step-section active">
-            <div class="upload-section">
-                <div class="upload-header">
-                    <h2><i class="fas fa-cloud-upload-alt"></i> 上轉醫療文件</h2>
-                    <p class="upload-subtitle">支援 JPG, PNG, PDF 格式</p>
-                </div>
+        <!-- 步驟內容容器 -->
+        <main class="steps-container">
+            <!-- 步驟1：文件上傳 -->
+            <section id="step1" class="step-section active" data-step="1">
+                <div class="upload-section diggo-card">
+                    <div class="section-header">
+                        <h2><i class="fas fa-file-medical-alt"></i> 上傳醫療文件</h2>
+                        <p class="section-subtitle">支援 JPG, PNG, PDF 格式 • 最大 10MB</p>
+                    </div>
 
-                <div class="upload-options">
-                    <!-- 拍攝照片 -->
-                    <div class="upload-option" onclick="capturePhoto()">
-                        <div class="option-icon camera">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <div class="option-info">
+                    <!-- 上傳方式選擇 -->
+                    <div class="upload-methods">
+                        <div class="method-card active" data-method="camera" onclick="openCamera()">
+                            <div class="method-icon camera">
+                                <i class="fas fa-camera"></i>
+                            </div>
                             <h3>拍攝照片</h3>
-                            <p>使用手機相機拍攝文件</p>
+                            <p>使用相機直接拍攝文件</p>
+                            <div class="method-badge">推薦</div>
                         </div>
-                        <i class="fas fa-chevron-right option-arrow"></i>
-                    </div>
 
-                    <!-- 選擇文件 -->
-                    <div class="upload-option" onclick="document.getElementById('fileInput').click()">
-                        <div class="option-icon gallery">
-                            <i class="fas fa-images"></i>
+                        <div class="method-card" data-method="gallery" onclick="openGallery()">
+                            <div class="method-icon gallery">
+                                <i class="fas fa-images"></i>
+                            </div>
+                            <h3>從相簿選擇</h3>
+                            <p>選擇已有的照片或圖片</p>
                         </div>
-                        <div class="option-info">
-                            <h3>選擇文件</h3>
-                            <p>從相簿選擇圖片或PDF</p>
-                        </div>
-                        <i class="fas fa-chevron-right option-arrow"></i>
-                    </div>
 
-                    <!-- 文件夾 -->
-                    <div class="upload-option" onclick="openFileFolder()">
-                        <div class="option-icon folder">
-                            <i class="fas fa-folder-open"></i>
-                        </div>
-                        <div class="option-info">
-                            <h3>文件夾</h3>
-                            <p>從DigGO文件庫選擇</p>
-                        </div>
-                        <i class="fas fa-chevron-right option-arrow"></i>
-                    </div>
-                </div>
-
-                <!-- 隱藏的文件輸入 -->
-                <input type="file" id="fileInput" accept="image/*,.pdf" style="display:none" 
-                       onchange="handleFileSelect(event)">
-
-                <!-- 文件預覽區 -->
-                <div id="previewArea" class="preview-area" style="display:none;">
-                    <div class="preview-header">
-                        <h3>文件預覽</h3>
-                        <button class="btn-remove" onclick="removeFile()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="preview-container">
-                        <img id="imagePreview" class="preview-image" alt="文件預覽">
-                        <div id="pdfPreview" class="pdf-preview" style="display:none;">
-                            <i class="fas fa-file-pdf"></i>
-                            <p>PDF 文件已加載</p>
-                            <span class="pdf-pages">共 <span id="pageCount">0</span> 頁</span>
+                        <div class="method-card" data-method="file" onclick="openFilePicker()">
+                            <div class="method-icon file">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <h3>上傳文件</h3>
+                            <p>選擇電腦或手機中的文件</p>
                         </div>
                     </div>
-                    <div class="preview-actions">
-                        <button class="btn-secondary" onclick="rotateImage()">
-                            <i class="fas fa-redo"></i> 旋轉
-                        </button>
-                        <button class="btn-secondary" onclick="cropImage()">
-                            <i class="fas fa-crop"></i> 裁剪
-                        </button>
-                        <button class="btn-primary" onclick="processOCR()">
-                            <i class="fas fa-search"></i> 開始識別
-                        </button>
-                    </div>
-                </div>
 
-                <!-- 支持的文件類型 -->
-                <div class="supported-files">
-                    <h4><i class="fas fa-check-circle"></i> 支持的文件類型：</h4>
-                    <div class="file-types">
-                        <span class="file-type-tag">
-                            <i class="fas fa-file-medical"></i> 醫管局轉介信
-                        </span>
-                        <span class="file-type-tag">
-                            <i class="fas fa-file-prescription"></i> 醫生轉介信
-                        </span>
-                        <span class="file-type-tag">
-                            <i class="fas fa-file-medical-alt"></i> 化驗報告
-                        </span>
-                        <span class="file-type-tag">
-                            <i class="fas fa-file-medical"></i> 醫療記錄
-                        </span>
-                        <span class="file-type-tag">
-                            <i class="fas fa-receipt"></i> 收據單據
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </section>
+                    <!-- 隱藏的文件輸入 -->
+                    <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx" 
+                           multiple style="display:none" onchange="handleFileSelect(event)">
 
-        <!-- 步驟2：OCR識別結果 -->
-        <section id="step2" class="step-section">
-            <div class="ocr-results-section">
-                <div class="results-header">
-                    <h2><i class="fas fa-search"></i> OCR識別結果</h2>
-                    <div class="confidence-badge">
-                        <span class="confidence-label">準確度</span>
-                        <span class="confidence-value" id="confidenceValue">85%</span>
+                    <!-- 相機預覽（開始時隱藏） -->
+                    <div id="cameraPreview" class="camera-preview" style="display:none;">
+                        <div class="camera-container">
+                            <video id="cameraStream" autoplay playsinline></video>
+                            <div class="camera-overlay">
+                                <div class="document-guide"></div>
+                            </div>
+                        </div>
+                        <div class="camera-controls">
+                            <button class="control-btn secondary" onclick="closeCamera()">
+                                <i class="fas fa-times"></i> 取消
+                            </button>
+                            <button class="control-btn primary" onclick="capturePhoto()">
+                                <i class="fas fa-camera"></i> 拍攝
+                            </button>
+                            <button class="control-btn secondary" onclick="toggleFlash()">
+                                <i class="fas fa-bolt"></i> 閃光燈
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- 原始文本顯示 -->
-                <div class="raw-text-container">
-                    <div class="text-header">
-                        <h3>識別出的原始文本</h3>
-                        <button class="btn-copy" onclick="copyRawText()">
-                            <i class="fas fa-copy"></i> 複製
-                        </button>
-                    </div>
-                    <textarea id="rawText" class="raw-text-area" readonly 
-                              placeholder="OCR識別結果將顯示在這裡..."></textarea>
-                    <div class="text-actions">
-                        <button class="btn-secondary" onclick="clearText()">
-                            <i class="fas fa-trash"></i> 清空
-                        </button>
-                        <button class="btn-secondary" onclick="correctText()">
-                            <i class="fas fa-edit"></i> 編輯
-                        </button>
-                        <button class="btn-primary" onclick="extractToForm()">
-                            <i class="fas fa-table"></i> 自動填表
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 識別出的關鍵信息 -->
-                <div class="extracted-info">
-                    <h3><i class="fas fa-star"></i> 已識別的關鍵信息</h3>
-                    <div class="info-grid" id="extractedInfo">
-                        <!-- 動態生成 -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 步驟3：智能表格填寫 -->
-        <section id="step3" class="step-section">
-            <div class="form-section">
-                <div class="form-header">
-                    <h2><i class="fas fa-edit"></i> 智能表格填寫</h2>
-                    <p class="form-subtitle">檢查並確認自動填寫的信息</p>
-                </div>
-
-                <form id="appointmentForm" class="appointment-form">
-                    <!-- 患者信息 -->
-                    <div class="form-section-group">
-                        <h3 class="form-group-title">
-                            <i class="fas fa-user"></i> 患者信息
-                        </h3>
+                    <!-- 文件預覽區域 -->
+                    <div id="previewArea" class="preview-area" style="display:none;">
+                        <div class="preview-header">
+                            <h3><i class="fas fa-eye"></i> 文件預覽</h3>
+                            <div class="preview-actions">
+                                <button class="btn-icon" onclick="removeFile()" title="刪除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <button class="btn-icon" onclick="rotateImage()" title="旋轉">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                                <button class="btn-icon" onclick="toggleFullscreen()" title="全屏">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="patientName">姓名</label>
-                                <input type="text" id="patientName" 
-                                       placeholder="自動識別或手動輸入">
-                                <div class="auto-fill-badge">
-                                    <i class="fas fa-robot"></i> 自動識別
+                        <div class="preview-content">
+                            <!-- 圖片預覽 -->
+                            <div id="imagePreviewContainer" class="preview-container">
+                                <img id="imagePreview" class="preview-image" alt="文件預覽">
+                                <div class="image-overlay">
+                                    <div class="image-info">
+                                        <span id="imageResolution">1920x1080</span>
+                                        <span id="imageSize">2.4 MB</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="patientID">身份證號碼</label>
-                                <input type="text" id="patientID" 
-                                       placeholder="自動識別或手動輸入">
+                            
+                            <!-- PDF預覽 -->
+                            <div id="pdfPreviewContainer" class="preview-container" style="display:none;">
+                                <div class="pdf-header">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span id="pdfFileName">document.pdf</span>
+                                    <span class="pdf-pages" id="pdfPageInfo">第 <span id="currentPage">1</span> 頁，共 <span id="totalPages">10</span> 頁</span>
+                                </div>
+                                <div class="pdf-viewer" id="pdfViewer"></div>
+                                <div class="pdf-controls">
+                                    <button class="pdf-btn" onclick="prevPage()">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <input type="range" id="pageSlider" min="1" max="10" value="1" 
+                                           oninput="goToPage(this.value)">
+                                    <button class="pdf-btn" onclick="nextPage()">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="birthDate">出生日期</label>
-                                <input type="date" id="birthDate">
-                            </div>
-                            <div class="form-group">
-                                <label for="phoneNumber">聯絡電話</label>
-                                <input type="tel" id="phoneNumber" 
-                                       placeholder="自動識別或手動輸入">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="address">住址</label>
-                            <input type="text" id="address" 
-                                   placeholder="自動識別或手動輸入">
-                        </div>
-                    </div>
-
-                    <!-- 醫療信息 -->
-                    <div class="form-section-group">
-                        <h3 class="form-group-title">
-                            <i class="fas fa-stethoscope"></i> 醫療信息
-                        </h3>
                         
-                        <div class="form-group">
-                            <label for="referringDoctor">轉介醫生</label>
-                            <input type="text" id="referringDoctor" 
-                                   placeholder="自動識別或手動輸入">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="hospitalClinic">醫院/診所</label>
-                            <input type="text" id="hospitalClinic" 
-                                   placeholder="自動識別或手動輸入">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="medicalNumber">醫療檔案編號</label>
-                            <input type="text" id="medicalNumber" 
-                                   placeholder="自動識別或手動輸入">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="diagnosis">診斷/症狀</label>
-                            <textarea id="diagnosis" rows="3" 
-                                      placeholder="自動識別或手動輸入"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="recommendedTests">建議檢查項目</label>
-                            <textarea id="recommendedTests" rows="3" 
-                                      placeholder="自動識別或手動輸入"></textarea>
+                        <div class="preview-footer">
+                            <div class="file-info">
+                                <span id="fileName">未命名文件.jpg</span>
+                                <span class="file-type" id="fileType">JPG</span>
+                            </div>
+                            <button class="diggo-btn-primary" onclick="processOCR()">
+                                <i class="fas fa-search"></i> 開始OCR識別
+                            </button>
                         </div>
                     </div>
 
-                    <!-- 預約信息 -->
-                    <div class="form-section-group">
-                        <h3 class="form-group-title">
-                            <i class="fas fa-calendar-check"></i> 預約信息
-                        </h3>
+                    <!-- 文件類別標籤 -->
+                    <div class="file-categories">
+                        <h4><i class="fas fa-tags"></i> 支持的醫療文件類型：</h4>
+                        <div class="category-tags">
+                            <span class="category-tag" data-category="referral">
+                                <i class="fas fa-file-medical"></i> 醫管局轉介信
+                            </span>
+                            <span class="category-tag" data-category="prescription">
+                                <i class="fas fa-prescription"></i> 醫生處方
+                            </span>
+                            <span class="category-tag" data-category="report">
+                                <i class="fas fa-file-medical-alt"></i> 化驗報告
+                            </span>
+                            <span class="category-tag" data-category="record">
+                                <i class="fas fa-clipboard-list"></i> 醫療記錄
+                            </span>
+                            <span class="category-tag" data-category="receipt">
+                                <i class="fas fa-receipt"></i> 醫療收據
+                            </span>
+                            <span class="category-tag" data-category="id">
+                                <i class="fas fa-id-card"></i> 身份證明文件
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 上傳提示 -->
+                    <div class="upload-tips diggo-tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> 上傳提示：</h4>
+                        <ul>
+                            <li>確保文件清晰、光線充足</li>
+                            <li>對齊文件邊緣，避免陰影</li>
+                            <li>文件需包含完整資訊</li>
+                            <li>建議使用高清拍攝（最少 300 DPI）</li>
+                            <li>支援繁體中文、英文識別</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 步驟2：OCR識別結果 -->
+            <section id="step2" class="step-section" data-step="2">
+                <div class="ocr-section diggo-card">
+                    <div class="section-header">
+                        <h2><i class="fas fa-search"></i> OCR文字識別結果</h2>
+                        <div class="confidence-indicator">
+                            <span class="confidence-label">識別準確度</span>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidenceFill" style="width: 85%"></div>
+                            </div>
+                            <span class="confidence-value" id="confidenceValue">85%</span>
+                        </div>
+                    </div>
+
+                    <!-- 處理進度 -->
+                    <div id="processingIndicator" class="processing-indicator" style="display:none;">
+                        <div class="processing-spinner"></div>
+                        <div class="processing-text">
+                            <h4>正在識別文字...</h4>
+                            <p id="processingMessage">初始化 OCR 引擎</p>
+                        </div>
+                        <div class="processing-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                            </div>
+                            <span class="progress-text" id="progressText">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- 原始文本顯示 -->
+                    <div id="textResults" style="display:none;">
+                        <div class="text-container">
+                            <div class="text-header">
+                                <h3><i class="fas fa-font"></i> 識別出的原始文本</h3>
+                                <div class="text-actions">
+                                    <button class="text-action-btn" onclick="copyRawText()" title="複製文本">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                    <button class="text-action-btn" onclick="clearText()" title="清空文本">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="text-action-btn" onclick="correctText()" title="編輯文本">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-action-btn" onclick="translateText()" title="翻譯">
+                                        <i class="fas fa-language"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea id="rawText" class="raw-text-area" 
+                                      placeholder="OCR識別結果將顯示在這裡..."
+                                      readonly></textarea>
+                            <div class="text-info">
+                                <span id="charCount">0 個字符</span>
+                                <span id="wordCount">0 個詞語</span>
+                                <span id="lineCount">0 行</span>
+                            </div>
+                        </div>
+
+                        <!-- 識別出的關鍵信息 -->
+                        <div class="extracted-info">
+                            <h3><i class="fas fa-star"></i> 已識別的關鍵醫療信息</h3>
+                            <div class="info-grid" id="extractedInfo">
+                                <!-- 動態生成信息卡片 -->
+                                <div class="info-card" data-field="patient-name">
+                                    <div class="info-header">
+                                        <i class="fas fa-user"></i>
+                                        <h4>患者姓名</h4>
+                                        <span class="confidence-badge high">高準確度</span>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-value" id="infoPatientName">未識別</span>
+                                        <button class="info-edit-btn" onclick="editInfo('patient-name')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="info-card" data-field="patient-id">
+                                    <div class="info-header">
+                                        <i class="fas fa-id-card"></i>
+                                        <h4>身份證號碼</h4>
+                                        <span class="confidence-badge medium">中準確度</span>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-value" id="infoPatientID">未識別</span>
+                                        <button class="info-edit-btn" onclick="editInfo('patient-id')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="info-card" data-field="medical-number">
+                                    <div class="info-header">
+                                        <i class="fas fa-hospital"></i>
+                                        <h4>醫療檔案號</h4>
+                                        <span class="confidence-badge low">低準確度</span>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-value" id="infoMedicalNumber">未識別</span>
+                                        <button class="info-edit-btn" onclick="editInfo('medical-number')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="info-card" data-field="referring-doctor">
+                                    <div class="info-header">
+                                        <i class="fas fa-user-md"></i>
+                                        <h4>轉介醫生</h4>
+                                        <span class="confidence-badge medium">中準確度</span>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-value" id="infoReferringDoctor">未識別</span>
+                                        <button class="info-edit-btn" onclick="editInfo('referring-doctor')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="info-card" data-field="hospital">
+                                    <div class="info-header">
+                                        <i class="fas fa-hospital-alt"></i>
+                                        <h4>醫院/診所</h4>
+                                        <span class="confidence-badge high">高準確度</span>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-value" id="infoHospital">未識別</span>
+                                        <button class="info-edit-btn" onclick="editInfo('hospital')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="info-card" data-field="diagnosis">
+                                    <div class="info-header">
+                                        <i class="fas fa-stethoscope"></i>
+                                        <h4>診斷/症狀</h4>
+                                        <span class="confidence-badge low">低準確度</span>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-value" id="infoDiagnosis">未識別</span>
+                                        <button class="info-edit-btn" onclick="editInfo('diagnosis')">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 操作按鈕 -->
+                        <div class="step-actions">
+                            <button class="diggo-btn-secondary" onclick="reprocessOCR()">
+                                <i class="fas fa-redo"></i> 重新識別
+                            </button>
+                            <button class="diggo-btn-primary" onclick="autoFillForm()">
+                                <i class="fas fa-magic"></i> 智能填表
+                            </button>
+                            <button class="diggo-btn-success" onclick="goToStep(3)">
+                                下一步：填寫表格 <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 步驟3：智能表格填寫 -->
+            <section id="step3" class="step-section" data-step="3">
+                <div class="form-section diggo-card">
+                    <div class="section-header">
+                        <h2><i class="fas fa-edit"></i> 智能表格填寫</h2>
+                        <p class="section-subtitle">檢查並確認自動填寫的信息</p>
+                        <div class="auto-fill-status">
+                            <i class="fas fa-robot"></i>
+                            <span>已自動填充 <span id="filledFields">0</span> 個字段</span>
+                        </div>
+                    </div>
+
+                    <form id="appointmentForm" class="appointment-form">
+                        <!-- 患者基本信息 -->
+                        <div class="form-section-group">
+                            <h3 class="form-group-title">
+                                <i class="fas fa-user-circle"></i> 患者基本信息
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="patientName">
+                                        <i class="fas fa-user"></i> 姓名 *
+                                    </label>
+                                    <input type="text" id="patientName" class="diggo-input" 
+                                           placeholder="例如：陳大文" required
+                                           data-auto-filled="false">
+                                    <div class="input-status" id="nameStatus"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="patientID">
+                                        <i class="fas fa-id-card"></i> 身份證號碼 *
+                                    </label>
+                                    <input type="text" id="patientID" class="diggo-input" 
+                                           placeholder="例如：A123456(7)" required
+                                           pattern="[A-Z]{1,2}[0-9]{6}\([0-9A]\)"
+                                           data-auto-filled="false">
+                                    <div class="input-hint">格式：英文字母+6位數字+括號內數字或字母</div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="birthDate">
+                                        <i class="fas fa-birthday-cake"></i> 出生日期 *
+                                    </label>
+                                    <input type="date" id="birthDate" class="diggo-input" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="gender">
+                                        <i class="fas fa-venus-mars"></i> 性別 *
+                                    </label>
+                                    <select id="gender" class="diggo-select" required>
+                                        <option value="">請選擇</option>
+                                        <option value="male">男</option>
+                                        <option value="female">女</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phoneNumber">
+                                        <i class="fas fa-phone"></i> 聯絡電話 *
+                                    </label>
+                                    <input type="tel" id="phoneNumber" class="diggo-input" 
+                                           placeholder="例如：9123 4567" required
+                                           pattern="[0-9]{8}">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="email">
+                                        <i class="fas fa-envelope"></i> 電子郵件
+                                    </label>
+                                    <input type="email" id="email" class="diggo-input" 
+                                           placeholder="例如：example@email.com">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="address">
+                                    <i class="fas fa-home"></i> 住址
+                                </label>
+                                <input type="text" id="address" class="diggo-input" 
+                                       placeholder="例如：香港九龍旺角道...">
+                            </div>
+                        </div>
+
+                        <!-- 醫療信息 -->
+                        <div class="form-section-group">
+                            <h3 class="form-group-title">
+                                <i class="fas fa-stethoscope"></i> 醫療信息
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="referringDoctor">
+                                        <i class="fas fa-user-md"></i> 轉介醫生 *
+                                    </label>
+                                    <input type="text" id="referringDoctor" class="diggo-input" 
+                                           placeholder="例如：張醫生" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="hospitalClinic">
+                                        <i class="fas fa-hospital-alt"></i> 醫院/診所 *
+                                    </label>
+                                    <input type="text" id="hospitalClinic" class="diggo-input" 
+                                           placeholder="例如：瑪麗醫院" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="medicalNumber">
+                                    <i class="fas fa-file-medical"></i> 醫療檔案編號
+                                </label>
+                                <input type="text" id="medicalNumber" class="diggo-input" 
+                                       placeholder="例如：MH12345678">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="diagnosis">
+                                    <i class="fas fa-diagnoses"></i> 診斷/症狀 *
+                                </label>
+                                <textarea id="diagnosis" class="diggo-textarea" 
+                                          rows="3" placeholder="請描述主要症狀..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="recommendedTests">
+                                    <i class="fas fa-vial"></i> 建議檢查項目
+                                </label>
+                                <textarea id="recommendedTests" class="diggo-textarea" 
+                                          rows="3" placeholder="建議進行的檢查項目..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="existingConditions">
+                                    <i class="fas fa-heartbeat"></i> 現有疾病/過敏史
+                                </label>
+                                <textarea id="existingConditions" class="diggo-textarea" 
+                                          rows="2" placeholder="如有，請註明..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 預約信息 -->
+                        <div class="form-section-group">
+                            <h3 class="form-group-title">
+                                <i class="fas fa-calendar-check"></i> 預約信息
+                            </h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="preferredDate">
+                                        <i class="fas fa-calendar-day"></i> 首選日期 *
+                                    </label>
+                                    <input type="date" id="preferredDate" class="diggo-input" 
+                                           min="" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="preferredTime">
+                                        <i class="fas fa-clock"></i> 首選時間段 *
+                                    </label>
+                                    <select id="preferredTime" class="diggo-select" required>
+                                        <option value="">選擇時間段</option>
+                                        <option value="morning">上午 (9:00-12:00)</option>
+                                        <option value="afternoon">下午 (2:00-5:00)</option>
+                                        <option value="evening">傍晚 (6:00-8:00)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="urgencyLevel">
+                                        <i class="fas fa-exclamation-triangle"></i> 緊急程度 *
+                                    </label>
+                                    <select id="urgencyLevel" class="diggo-select" required>
+                                        <option value="routine">常規</option>
+                                        <option value="urgent">緊急</option>
+                                        <option value="emergency">急症</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="appointmentType">
+                                        <i class="fas fa-user-md"></i> 預約類型 *
+                                    </label>
+                                    <select id="appointmentType" class="diggo-select" required>
+                                        <option value="general">普通科門診</option>
+                                        <option value="specialist">專科門診</option>
+                                        <option value="lab">化驗檢查</option>
+                                        <option value="xray">X光檢查</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notes">
+                                    <i class="fas fa-sticky-note"></i> 備註/特殊要求
+                                </label>
+                                <textarea id="notes" class="diggo-textarea" 
+                                          rows="3" placeholder="其他需要說明的事項..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 表格驗證和操作 -->
+                        <div class="form-validation">
+                            <div class="validation-summary">
+                                <i class="fas fa-clipboard-check"></i>
+                                <span>表格完成度：<span id="formCompletion">0%</span></span>
+                                <div class="completion-bar">
+                                    <div class="completion-fill" id="completionFill"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="diggo-btn-secondary" onclick="resetForm()">
+                                    <i class="fas fa-redo"></i> 重置表格
+                                </button>
+                                <button type="button" class="diggo-btn-secondary" onclick="saveDraft()">
+                                    <i class="fas fa-save"></i> 保存草稿
+                                </button>
+                                <button type="button" class="diggo-btn-primary" onclick="validateForm()">
+                                    <i class="fas fa-check-circle"></i> 驗證表格
+                                </button>
+                                <button type="button" class="diggo-btn-success" onclick="goToStep(4)">
+                                    下一步：選擇診所 <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 步驟4：選擇診所並發送 -->
+            <section id="step4" class="step-section" data-step="4">
+                <div class="clinic-section diggo-card">
+                    <div class="section-header">
+                        <h2><i class="fas fa-hospital"></i> 選擇診所/化驗中心</h2>
+                        <p class="section-subtitle">選擇要發送預約請求的醫療機構</p>
+                    </div>
+
+                    <!-- 搜索和篩選 -->
+                    <div class="search-filter-section">
+                        <div class="search-box diggo-search">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="clinicSearch" class="search-input" 
+                                   placeholder="搜索診所、化驗中心或地區...">
+                            <button class="search-clear" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
                         
-                        <div class="form-group">
-                            <label for="preferredDate">首選日期</label>
-                            <input type="date" id="preferredDate" 
-                                   min="2024-01-01">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="preferredTime">首選時間</label>
-                            <select id="preferredTime">
-                                <option value="">選擇時間段</option>
-                                <option value="morning">上午 (9:00-12:00)</option>
-                                <option value="afternoon">下午 (2:00-5:00)</option>
-                                <option value="evening">傍晚 (6:00-8:00)</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="urgencyLevel">緊急程度</label>
-                            <select id="urgencyLevel">
-                                <option value="routine">常規</option>
-                                <option value="urgent">緊急</option>
-                                <option value="emergency">急症</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="notes">備註</label>
-                            <textarea id="notes" rows="2" 
-                                      placeholder="其他需要說明的事項"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- 表格操作按鈕 -->
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="resetForm()">
-                            <i class="fas fa-redo"></i> 重置表格
-                        </button>
-                        <button type="button" class="btn-primary" onclick="goToStep4()">
-                            <i class="fas fa-arrow-right"></i> 下一步：選擇診所
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- 步驟4：選擇診所並發送 -->
-        <section id="step4" class="step-section">
-            <div class="clinic-selection-section">
-                <div class="selection-header">
-                    <h2><i class="fas fa-hospital"></i> 選擇診所/化驗中心</h2>
-                    <p class="selection-subtitle">選擇要發送預約請求的醫療機構</p>
-                </div>
-
-                <!-- 搜索和篩選 -->
-                <div class="search-filter">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="clinicSearch" 
-                               placeholder="搜索診所、化驗中心或地區...">
-                    </div>
-                    <button class="btn-filter" onclick="showFilters()">
-                        <i class="fas fa-filter"></i> 篩選
-                    </button>
-                </div>
-
-                <!-- 推薦診所 -->
-                <div class="recommended-clinics">
-                    <h3><i class="fas fa-star"></i> 智能推薦</h3>
-                    <div class="clinic-list" id="recommendedClinics">
-                        <!-- 動態生成 -->
-                    </div>
-                </div>
-
-                <!-- 附近診所 -->
-                <div class="nearby-clinics">
-                    <h3><i class="fas fa-map-marker-alt"></i> 附近診所</h3>
-                    <div class="clinic-list" id="nearbyClinics">
-                        <!-- 動態生成 -->
-                    </div>
-                </div>
-
-                <!-- 預約確認 -->
-                <div class="appointment-confirmation">
-                    <h3><i class="fas fa-check-circle"></i> 預約確認</h3>
-                    <div class="confirmation-details">
-                        <div class="detail-item">
-                            <span class="detail-label">患者姓名：</span>
-                            <span id="confirmPatientName" class="detail-value"></span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">預約類型：</span>
-                            <span id="confirmAppointmentType" class="detail-value">專科門診</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">首選時間：</span>
-                            <span id="confirmPreferredTime" class="detail-value"></span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">發送至：</span>
-                            <span id="confirmClinicName" class="detail-value">未選擇</span>
-                        </div>
-                    </div>
-
-                    <!-- 發送選項 -->
-                    <div class="send-options">
-                        <h4>發送方式：</h4>
-                        <div class="option-buttons">
-                            <button class="send-option-btn active" data-method="whatsapp">
-                                <i class="fab fa-whatsapp"></i>
-                                WhatsApp
+                        <div class="filter-options">
+                            <button class="filter-btn" onclick="toggleFilters()">
+                                <i class="fas fa-filter"></i> 篩選選項
                             </button>
-                            <button class="send-option-btn" data-method="email">
-                                <i class="fas fa-envelope"></i>
-                                電郵
-                            </button>
-                            <button class="send-option-btn" data-method="fax">
-                                <i class="fas fa-fax"></i>
-                                傳真
-                            </button>
-                            <button class="send-option-btn" data-method="api">
-                                <i class="fas fa-plug"></i>
-                                API直連
+                            <button class="filter-btn" onclick="useCurrentLocation()">
+                                <i class="fas fa-location-arrow"></i> 使用當前位置
                             </button>
                         </div>
+                        
+                        <!-- 篩選面板 -->
+                        <div id="filterPanel" class="filter-panel" style="display:none;">
+                            <div class="filter-group">
+                                <h4><i class="fas fa-map-marker-alt"></i> 地區</h4>
+                                <div class="region-filters">
+                                    <label class="region-checkbox">
+                                        <input type="checkbox" name="region" value="hk" checked>
+                                        <span>香港島</span>
+                                    </label>
+                                    <label class="region-checkbox">
+                                        <input type="checkbox" name="region" value="kowloon" checked>
+                                        <span>九龍</span>
+                                    </label>
+                                    <label class="region-checkbox">
+                                        <input type="checkbox" name="region" value="nt" checked>
+                                        <span>新界</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <h4><i class="fas fa-stethoscope"></i> 服務類型</h4>
+                                <select id="serviceType" class="diggo-select">
+                                    <option value="all">全部</option>
+                                    <option value="general">普通科</option>
+                                    <option value="specialist">專科</option>
+                                    <option value="lab">化驗</option>
+                                    <option value="xray">X光</option>
+                                    <option value="dentist">牙科</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <h4><i class="fas fa-clock"></i> 營業時間</h4>
+                                <select id="openingHours" class="diggo-select">
+                                    <option value="all">全部</option>
+                                    <option value="morning">只限上午</option>
+                                    <option value="afternoon">只限下午</option>
+                                    <option value="evening">包括晚上</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-actions">
+                                <button class="diggo-btn-secondary" onclick="resetFilters()">
+                                    重置篩選
+                                </button>
+                                <button class="diggo-btn-primary" onclick="applyFilters()">
+                                    應用篩選
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- 最終確認 -->
-                    <div class="final-actions">
-                        <button class="btn-secondary" onclick="saveAsDraft()">
-                            <i class="fas fa-save"></i> 保存草稿
-                        </button>
-                        <button class="btn-success" onclick="sendAppointment()">
-                            <i class="fas fa-paper-plane"></i> 發送預約請求
-                        </button>
+                    <!-- 智能推薦診所 -->
+                    <div class="recommended-section">
+                        <h3><i class="fas fa-star"></i> 智能推薦診所</h3>
+                        <p class="section-hint">根據您的醫療需求和位置推薦</p>
+                        
+                        <div class="clinic-cards" id="recommendedClinics">
+                            <!-- 動態生成推薦診所卡片 -->
+                            <div class="clinic-card featured" data-clinic-id="1">
+                                <div class="clinic-badge">推薦</div>
+                                <div class="clinic-header">
+                                    <div class="clinic-logo">
+                                        <i class="fas fa-hospital"></i>
+                                    </div>
+                                    <div class="clinic-info">
+                                        <h4>瑪麗醫院專科門診</h4>
+                                        <div class="clinic-rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star-half-alt"></i>
+                                            <span class="rating-score">4.5</span>
+                                            <span class="review-count">(128 評價)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="clinic-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>香港薄扶林道102號</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>2255 3838</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>週一至五 9:00-17:00</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="clinic-features">
+                                    <span class="feature-tag">醫管局認可</span>
+                                    <span class="feature-tag">專科門診</span>
+                                    <span class="feature-tag">化驗服務</span>
+                                    <span class="feature-tag">電子病歷</span>
+                                </div>
+                                
+                                <div class="clinic-actions">
+                                    <button class="clinic-action-btn secondary" onclick="viewClinicDetails(1)">
+                                        <i class="fas fa-info-circle"></i> 詳情
+                                    </button>
+                                    <button class="clinic-action-btn primary" onclick="selectClinic(1)">
+                                        <i class="fas fa-check"></i> 選擇
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 附近診所 -->
+                    <div class="nearby-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> 附近診所</h3>
+                        <div class="clinic-list" id="nearbyClinics">
+                            <!-- 動態生成附近診所列表 -->
+                        </div>
+                    </div>
+
+                    <!-- 預約確認 -->
+                    <div class="confirmation-section diggo-card">
+                        <h3><i class="fas fa-check-circle"></i> 預約確認</h3>
+                        
+                        <div class="confirmation-details">
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">患者姓名：</span>
+                                    <span id="confirmPatientName" class="detail-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">預約類型：</span>
+                                    <span id="confirmAppointmentType" class="detail-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">首選日期：</span>
+                                    <span id="confirmPreferredDate" class="detail-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">首選時間：</span>
+                                    <span id="confirmPreferredTime" class="detail-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">發送至：</span>
+                                    <span id="confirmClinicName" class="detail-value">未選擇</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">預約編號：</span>
+                                    <span id="confirmAppointmentId" class="detail-value">生成中...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 發送選項 -->
+                        <div class="send-options">
+                            <h4><i class="fas fa-paper-plane"></i> 發送方式</h4>
+                            <div class="option-grid">
+                                <label class="option-card" data-method="whatsapp">
+                                    <input type="radio" name="sendMethod" value="whatsapp" checked>
+                                    <div class="option-content">
+                                        <i class="fab fa-whatsapp option-icon"></i>
+                                        <div class="option-info">
+                                            <h5>WhatsApp</h5>
+                                            <p>即時發送，快速確認</p>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="option-card" data-method="email">
+                                    <input type="radio" name="sendMethod" value="email">
+                                    <div class="option-content">
+                                        <i class="fas fa-envelope option-icon"></i>
+                                        <div class="option-info">
+                                            <h5>電子郵件</h5>
+                                            <p>包含詳細附件</p>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="option-card" data-method="fax">
+                                    <input type="radio" name="sendMethod" value="fax">
+                                    <div class="option-content">
+                                        <i class="fas fa-fax option-icon"></i>
+                                        <div class="option-info">
+                                            <h5>傳真</h5>
+                                            <p>傳統醫療機構使用</p>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="option-card" data-method="api">
+                                    <input type="radio" name="sendMethod" value="api">
+                                    <div class="option-content">
+                                        <i class="fas fa-plug option-icon"></i>
+                                        <div class="option-info">
+                                            <h5>API直連</h5>
+                                            <p>直連醫院系統</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 隱私聲明 -->
+                        <div class="privacy-agreement">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="privacyAgreement" required>
+                                <span>
+                                    我同意 <a href="#" class="privacy-link">隱私政策</a> 及明白個人資料將根據 
+                                    <a href="#" class="privacy-link">個人資料(私隱)條例</a> 處理
+                                </span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="medicalConsent" required>
+                                <span>
+                                    我同意將醫療資料發送至所選醫療機構作預約用途
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- 最終操作 -->
+                        <div class="final-actions">
+                            <button class="diggo-btn-secondary" onclick="saveAsDraft()">
+                                <i class="fas fa-save"></i> 保存為草稿
+                            </button>
+                            <button class="diggo-btn-secondary" onclick="downloadForm()">
+                                <i class="fas fa-download"></i> 下載表格
+                            </button>
+                            <button class="diggo-btn-success" id="sendAppointmentBtn" onclick="sendAppointment()" disabled>
+                                <i class="fas fa-paper-plane"></i> 發送預約請求
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
+
+        <!-- 底部導航 -->
+        <nav class="bottom-nav diggo-bottom-nav">
+            <button class="nav-item active" onclick="goToStep(1)" data-step="1">
+                <i class="fas fa-cloud-upload-alt nav-icon"></i>
+                <span class="nav-label">上傳</span>
+                <div class="nav-indicator"></div>
+            </button>
+            <button class="nav-item" onclick="goToStep(2)" data-step="2">
+                <i class="fas fa-search nav-icon"></i>
+                <span class="nav-label">識別</span>
+                <div class="nav-indicator"></div>
+            </button>
+            <button class="nav-item" onclick="goToStep(3)" data-step="3">
+                <i class="fas fa-edit nav-icon"></i>
+                <span class="nav-label">填表</span>
+                <div class="nav-indicator"></div>
+            </button>
+            <button class="nav-item" onclick="goToStep(4)" data-step="4">
+                <i class="fas fa-paper-plane nav-icon"></i>
+                <span class="nav-label">發送</span>
+                <div class="nav-indicator"></div>
+            </button>
+        </nav>
     </div>
 
-    <!-- 底部導航 -->
-    <nav class="bottom-nav">
-        <button class="nav-item" onclick="goToStep(1)">
-            <i class="fas fa-upload"></i>
-            <span>上傳</span>
-        </button>
-        <button class="nav-item" onclick="goToStep(2)">
-            <i class="fas fa-search"></i>
-            <span>識別</span>
-        </button>
-        <button class="nav-item" onclick="goToStep(3)">
-            <i class="fas fa-edit"></i>
-            <span>填表</span>
-        </button>
-        <button class="nav-item" onclick="goToStep(4)">
-            <i class="fas fa-paper-plane"></i>
-            <span>發送</span>
-        </button>
-    </nav>
-
-    <!-- 加載動畫 -->
+    <!-- 加載遮罩 -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <h3 id="loadingTitle">OCR處理中</h3>
-            <p id="loadingMessage">正在識別文本，請稍候...</p>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
+            <h3 id="loadingTitle">處理中</h3>
+            <p id="loadingMessage">請稍候...</p>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="loadingProgressFill"></div>
+                </div>
+                <span class="progress-text" id="loadingProgressText">0%</span>
             </div>
-            <span class="progress-text" id="progressText">0%</span>
+            <button class="loading-cancel" onclick="cancelLoading()">
+                取消
+            </button>
         </div>
     </div>
 
-    <!-- 成功提示 -->
-    <div id="successToast" class="toast">
+    <!-- 通知彈窗 -->
+    <div id="notificationToast" class="toast">
         <div class="toast-content">
-            <i class="fas fa-check-circle toast-icon"></i>
+            <i class="fas fa-check-circle toast-icon success"></i>
             <div class="toast-message">
-                <strong id="toastTitle">成功！</strong>
-                <span id="toastMessage">操作已完成</span>
+                <h4 id="toastTitle">操作成功</h4>
+                <p id="toastMessage">您的操作已成功完成</p>
+            </div>
+            <button class="toast-close" onclick="hideToast()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 確認對話框 -->
+    <div id="confirmDialog" class="dialog-overlay">
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <h3 id="dialogTitle">確認操作</h3>
+                <button class="dialog-close" onclick="closeDialog()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <p id="dialogMessage">您確定要執行此操作嗎？</p>
+            </div>
+            <div class="dialog-actions">
+                <button class="diggo-btn-secondary" onclick="closeDialog()">
+                    取消
+                </button>
+                <button class="diggo-btn-primary" id="dialogConfirmBtn">
+                    確認
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
-    <script src="ocr-appointment.js"></script>
+    <!-- JavaScript 文件 -->
+    <script src="js/diggo-common.js"></script>
+    <script src="js/ocr-appointment.js"></script>
+    <script src="js/ocr-processor.js"></script>
+    <script src="js/pdf-handler.js"></script>
+    <script src="js/camera-handler.js"></script>
+    
+    <!-- 初始化腳本 -->
+    <script>
+        // DOM加載完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化時間顯示
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000);
+            
+            // 設置最小日期為今天
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('preferredDate').min = today;
+            
+            // 初始化步驟
+            initSteps();
+            
+            // 初始化事件監聽器
+            initEventListeners();
+            
+            // 檢查地理位置權限
+            checkGeolocationPermission();
+            
+            // 生成預約編號
+            generateAppointmentId();
+            
+            console.log('DigGO OCR系統初始化完成');
+        });
+
+        // 更新當前時間
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-HK', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // 生成預約編號
+        function generateAppointmentId() {
+            const date = new Date();
+            const year = date.getFullYear().toString().substr(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            const appointmentId = `OCR${year}${month}${day}${random}`;
+            document.getElementById('confirmAppointmentId').textContent = appointmentId;
+        }
+
+        // 顯示通知
+        function showNotification(title, message, type = 'success') {
+            const toast = document.getElementById('notificationToast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            
+            const icon = toast.querySelector('.toast-icon');
+            icon.className = `fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} toast-icon ${type}`;
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 顯示加載遮罩
+        function showLoading(title = '處理中', message = '請稍候...') {
+            const overlay = document.getElementById('loadingOverlay');
+            document.getElementById('loadingTitle').textContent = title;
+            document.getElementById('loadingMessage').textContent = message;
+            overlay.classList.add('active');
+        }
+
+        // 隱藏加載遮罩
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        // 更新加載進度
+        function updateLoadingProgress(percent, message) {
+            const fill = document.getElementById('loadingProgressFill');
+            const text = document.getElementById('loadingProgressText');
+            fill.style.width = `${percent}%`;
+            text.textContent = `${percent}%`;
+            
+            if (message) {
+                document.getElementById('loadingMessage').textContent = message;
+            }
+        }
+
+        // 顯示確認對話框
+        function showConfirm(title, message, onConfirm) {
+            const dialog = document.getElementById('confirmDialog');
+            document.getElementById('dialogTitle').textContent = title;
+            document.getElementById('dialogMessage').textContent = message;
+            
+            const confirmBtn = document.getElementById('dialogConfirmBtn');
+            confirmBtn.onclick = function() {
+                onConfirm();
+                closeDialog();
+            };
+            
+            dialog.classList.add('active');
+        }
+
+        // 關閉對話框
+        function closeDialog() {
+            document.getElementById('confirmDialog').classList.remove('active');
+        }
+
+        // 初始化步驟系統
+        function initSteps() {
+            const steps = document.querySelectorAll('.step');
+            const sections = document.querySelectorAll('.step-section');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            // 設置第一步為活動狀態
+            goToStep(1);
+        }
+
+        // 切換到指定步驟
+        function goToStep(stepNumber) {
+            // 隱藏所有步驟內容
+            document.querySelectorAll('.step-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 顯示目標步驟
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            
+            // 更新步驟指示器
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+                if (parseInt(step.dataset.step) <= stepNumber) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // 更新底部導航
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (parseInt(item.dataset.step) === stepNumber) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // 滾動到頂部
+            window.scrollTo(0, 0);
+            
+            // 記錄步驟切換
+            console.log(`切換到步驟 ${stepNumber}`);
+            
+            // 步驟特定的初始化
+            switch(stepNumber) {
+                case 1:
+                    initUploadStep();
+                    break;
+                case 2:
+                    initOCRStep();
+                    break;
+                case 3:
+                    initFormStep();
+                    break;
+                case 4:
+                    initClinicStep();
+                    break;
+            }
+        }
+
+        // 初始化事件監聽器
+        function initEventListeners() {
+            // 隱私協議勾選監聽
+            document.getElementById('privacyAgreement').addEventListener('change', updateSendButton);
+            document.getElementById('medicalConsent').addEventListener('change', updateSendButton);
+            
+            // 搜索輸入監聽
+            document.getElementById('clinicSearch').addEventListener('input', searchClinics);
+            
+            // 表單輸入監聽
+            document.querySelectorAll('#appointmentForm input, #appointmentForm select, #appointmentForm textarea')
+                .forEach(element => {
+                    element.addEventListener('input', updateFormCompletion);
+                });
+        }
+
+        // 更新發送按鈕狀態
+        function updateSendButton() {
+            const privacyChecked = document.getElementById('privacyAgreement').checked;
+            const medicalChecked = document.getElementById('medicalConsent').checked;
+            const sendBtn = document.getElementById('sendAppointmentBtn');
+            
+            sendBtn.disabled = !(privacyChecked && medicalChecked);
+        }
+
+        // 更新表單完成度
+        function updateFormCompletion() {
+            const form = document.getElementById('appointmentForm');
+            const requiredFields = form.querySelectorAll('[required]');
+            const filledFields = Array.from(requiredFields).filter(field => field.value.trim() !== '');
+            
+            const completion = Math.round((filledFields.length / requiredFields.length) * 100);
+            
+            document.getElementById('filledFields').textContent = filledFields.length;
+            document.getElementById('formCompletion').textContent = `${completion}%`;
+            document.getElementById('completionFill').style.width = `${completion}%`;
+        }
+
+        // 檢查地理位置權限
+    function checkGeolocationPermission() {
+        if ('geolocation' in navigator) {
+            console.log('地理位置 API 可用');
+            // 嘗試獲取地理位置
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('位置獲取成功:', position.coords);
+                    // 存儲位置信息以便後續使用
+                    localStorage.setItem('userLocation', JSON.stringify({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    }));
+                },
+                function(error) {
+                    console.warn('位置獲取失敗:', error.message);
+                    showNotification('提示', '無法獲取您的位置信息，部分功能可能受限', 'warning');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            console.warn('地理位置 API 不可用');
+            showNotification('警告', '您的瀏覽器不支援地理位置功能', 'warning');
+        }
+    }
+
+    // 步驟特定的初始化函數
+    function initUploadStep() {
+        console.log('初始化上傳步驟');
+        
+        // 重置文件輸入
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        
+        // 重置上傳方法選擇
+        document.querySelectorAll('.method-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        const cameraMethod = document.querySelector('.method-card[data-method="camera"]');
+        if (cameraMethod) {
+            cameraMethod.classList.add('active');
+        }
+        
+        // 隱藏預覽區域
+        const previewArea = document.getElementById('previewArea');
+        if (previewArea) {
+            previewArea.style.display = 'none';
+        }
+        
+        // 停止相機並隱藏預覽
+        const cameraPreview = document.getElementById('cameraPreview');
+        if (cameraPreview) {
+            cameraPreview.style.display = 'none';
+            const video = document.getElementById('cameraStream');
+            if (video && video.srcObject) {
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+        
+        // 設置最小日期為今天
+        const today = new Date().toISOString().split('T')[0];
+        const preferredDate = document.getElementById('preferredDate');
+        if (preferredDate) {
+            preferredDate.min = today;
+            if (!preferredDate.value) {
+                // 設置預設為明天
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                preferredDate.value = tomorrow.toISOString().split('T')[0];
+            }
+        }
+        
+        // 清空文件信息
+        const fileName = document.getElementById('fileName');
+        const fileType = document.getElementById('fileType');
+        if (fileName) fileName.textContent = '未命名文件.jpg';
+        if (fileType) fileType.textContent = 'JPG';
+        
+        // 重置圖片預覽
+        const imagePreview = document.getElementById('imagePreview');
+        if (imagePreview) {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        }
+        
+        // 隱藏PDF預覽
+        const pdfPreviewContainer = document.getElementById('pdfPreviewContainer');
+        if (pdfPreviewContainer) {
+            pdfPreviewContainer.style.display = 'none';
+        }
+    }
+
+    function initOCRStep() {
+        console.log('初始化OCR步驟');
+        
+        // 檢查是否有文件需要處理
+        const imagePreview = document.getElementById('imagePreview');
+        const hasFile = imagePreview && imagePreview.src && imagePreview.src !== '';
+        
+        // 獲取相關元素
+        const textResults = document.getElementById('textResults');
+        const processingIndicator = document.getElementById('processingIndicator');
+        const rawText = document.getElementById('rawText');
+        const extractedInfo = document.getElementById('extractedInfo');
+        const confidenceFill = document.getElementById('confidenceFill');
+        const confidenceValue = document.getElementById('confidenceValue');
+        
+        if (hasFile) {
+            // 顯示OCR處理區域
+            if (textResults) {
+                textResults.style.display = 'block';
+            }
+            
+            // 隱藏處理指示器
+            if (processingIndicator) {
+                processingIndicator.style.display = 'none';
+            }
+            
+            // 啟用處理按鈕
+            const processBtn = document.querySelector('[onclick="processOCR()"]');
+            if (processBtn) {
+                processBtn.disabled = false;
+                processBtn.innerHTML = '<i class="fas fa-search"></i> 開始OCR識別';
+            }
+        } else {
+            // 沒有文件，隱藏OCR區域
+            if (textResults) {
+                textResults.style.display = 'none';
+            }
+            
+            if (processingIndicator) {
+                processingIndicator.style.display = 'none';
+            }
+            
+            // 顯示提示信息
+            showNotification('提示', '請先上傳文件進行OCR識別', 'info');
+        }
+        
+        // 重置OCR結果
+        if (rawText) {
+            rawText.value = '';
+        }
+        
+        // 重置提取的信息
+        if (extractedInfo) {
+            extractedInfo.innerHTML = `
+                <div class="info-card" data-field="patient-name">
+                    <div class="info-header">
+                        <i class="fas fa-user"></i>
+                        <h4>患者姓名</h4>
+                        <span class="confidence-badge">等待識別</span>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-value" id="infoPatientName">未識別</span>
+                        <button class="info-edit-btn" onclick="editInfo('patient-name')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="info-card" data-field="patient-id">
+                    <div class="info-header">
+                        <i class="fas fa-id-card"></i>
+                        <h4>身份證號碼</h4>
+                        <span class="confidence-badge">等待識別</span>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-value" id="infoPatientID">未識別</span>
+                        <button class="info-edit-btn" onclick="editInfo('patient-id')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="info-card" data-field="medical-number">
+                    <div class="info-header">
+                        <i class="fas fa-hospital"></i>
+                        <h4>醫療檔案號</h4>
+                        <span class="confidence-badge">等待識別</span>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-value" id="infoMedicalNumber">未識別</span>
+                        <button class="info-edit-btn" onclick="editInfo('medical-number')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="info-card" data-field="referring-doctor">
+                    <div class="info-header">
+                        <i class="fas fa-user-md"></i>
+                        <h4>轉介醫生</h4>
+                        <span class="confidence-badge">等待識別</span>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-value" id="infoReferringDoctor">未識別</span>
+                        <button class="info-edit-btn" onclick="editInfo('referring-doctor')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="info-card" data-field="hospital">
+                    <div class="info-header">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h4>醫院/診所</h4>
+                        <span class="confidence-badge">等待識別</span>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-value" id="infoHospital">未識別</span>
+                        <button class="info-edit-btn" onclick="editInfo('hospital')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="info-card" data-field="diagnosis">
+                    <div class="info-header">
+                        <i class="fas fa-stethoscope"></i>
+                        <h4>診斷/症狀</h4>
+                        <span class="confidence-badge">等待識別</span>
+                    </div>
+                    <div class="info-content">
+                        <span class="info-value" id="infoDiagnosis">未識別</span>
+                        <button class="info-edit-btn" onclick="editInfo('diagnosis')">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 重置信心度
+        if (confidenceFill) confidenceFill.style.width = '0%';
+        if (confidenceValue) confidenceValue.textContent = '0%';
+        
+        // 重置文本計數
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const lineCount = document.getElementById('lineCount');
+        if (charCount) charCount.textContent = '0 個字符';
+        if (wordCount) wordCount.textContent = '0 個詞語';
+        if (lineCount) lineCount.textContent = '0 行';
+    }
+
+    function initFormStep() {
+        console.log('初始化表單步驟');
+        
+        // 更新表單完成度
+        updateFormCompletion();
+        
+        // 嘗試從OCR結果自動填充
+        autoFillFromOCR();
+        
+        // 設置表單預設值
+        setDefaultFormValues();
+        
+        // 添加表單驗證事件監聽器
+        setupFormValidation();
+        
+        // 更新表單狀態指示器
+        updateFormStatusIndicators();
+    }
+
+    function initClinicStep() {
+        console.log('初始化診所步驟');
+        
+        // 更新發送按鈕狀態
+        updateSendButton();
+        
+        // 更新確認信息
+        updateConfirmationDetails();
+        
+        // 加載診所數據
+        loadClinics();
+        
+        // 設置默認發送方式
+        const whatsappOption = document.querySelector('.option-card[data-method="whatsapp"] input');
+        if (whatsappOption) {
+            whatsappOption.checked = true;
+        }
+        
+        // 初始化搜索功能
+        initSearchFunctionality();
+        
+        // 初始化篩選功能
+        initFilterFunctionality();
+        
+        // 檢查地理位置並更新附近診所
+        updateNearbyClinics();
+    }
+
+    // 從OCR結果自動填充表單
+    function autoFillFromOCR() {
+        console.log('嘗試從OCR結果自動填充表單');
+        
+        // 獲取OCR提取的信息
+        const infoPatientName = document.getElementById('infoPatientName');
+        const infoPatientID = document.getElementById('infoPatientID');
+        const infoMedicalNumber = document.getElementById('infoMedicalNumber');
+        const infoReferringDoctor = document.getElementById('infoReferringDoctor');
+        const infoHospital = document.getElementById('infoHospital');
+        const infoDiagnosis = document.getElementById('infoDiagnosis');
+        
+        // 獲取表單字段
+        const patientName = document.getElementById('patientName');
+        const patientID = document.getElementById('patientID');
+        const medicalNumber = document.getElementById('medicalNumber');
+        const referringDoctor = document.getElementById('referringDoctor');
+        const hospitalClinic = document.getElementById('hospitalClinic');
+        const diagnosis = document.getElementById('diagnosis');
+        
+        // 如果OCR識別到有效信息，則填充到表單
+        if (infoPatientName && infoPatientName.textContent !== '未識別' && patientName) {
+            patientName.value = infoPatientName.textContent;
+            patientName.dataset.autoFilled = 'true';
+            console.log('自動填充患者姓名:', infoPatientName.textContent);
+        }
+        
+        if (infoPatientID && infoPatientID.textContent !== '未識別' && patientID) {
+            patientID.value = infoPatientID.textContent;
+            patientID.dataset.autoFilled = 'true';
+            console.log('自動填充身份證號碼:', infoPatientID.textContent);
+        }
+        
+        if (infoMedicalNumber && infoMedicalNumber.textContent !== '未識別' && medicalNumber) {
+            medicalNumber.value = infoMedicalNumber.textContent;
+            medicalNumber.dataset.autoFilled = 'true';
+            console.log('自動填充醫療檔案號:', infoMedicalNumber.textContent);
+        }
+        
+        if (infoReferringDoctor && infoReferringDoctor.textContent !== '未識別' && referringDoctor) {
+            referringDoctor.value = infoReferringDoctor.textContent;
+            referringDoctor.dataset.autoFilled = 'true';
+            console.log('自動填充轉介醫生:', infoReferringDoctor.textContent);
+        }
+        
+        if (infoHospital && infoHospital.textContent !== '未識別' && hospitalClinic) {
+            hospitalClinic.value = infoHospital.textContent;
+            hospitalClinic.dataset.autoFilled = 'true';
+            console.log('自動填充醫院/診所:', infoHospital.textContent);
+        }
+        
+        if (infoDiagnosis && infoDiagnosis.textContent !== '未識別' && diagnosis) {
+            diagnosis.value = infoDiagnosis.textContent;
+            diagnosis.dataset.autoFilled = 'true';
+            console.log('自動填充診斷/症狀:', infoDiagnosis.textContent);
+        }
+        
+        // 更新表單完成度
+        updateFormCompletion();
+    }
+
+    // 設置表單預設值
+    function setDefaultFormValues() {
+        console.log('設置表單預設值');
+        
+        // 設置預約日期（預設為明天）
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        const preferredDate = document.getElementById('preferredDate');
+        if (preferredDate && !preferredDate.value) {
+            preferredDate.value = tomorrowStr;
+            preferredDate.min = today.toISOString().split('T')[0];
+        }
+        
+        // 設置預設時間段為上午
+        const preferredTime = document.getElementById('preferredTime');
+        if (preferredTime && !preferredTime.value) {
+            preferredTime.value = 'morning';
+        }
+        
+        // 設置緊急程度為常規
+        const urgencyLevel = document.getElementById('urgencyLevel');
+        if (urgencyLevel && !urgencyLevel.value) {
+            urgencyLevel.value = 'routine';
+        }
+        
+        // 設置預約類型為專科門診
+        const appointmentType = document.getElementById('appointmentType');
+        if (appointmentType && !appointmentType.value) {
+            appointmentType.value = 'specialist';
+        }
+        
+        // 設置性別為未選擇
+        const gender = document.getElementById('gender');
+        if (gender && !gender.value) {
+            gender.value = '';
+        }
+        
+        // 設置其他字段的預設值
+        const notes = document.getElementById('notes');
+        if (notes && !notes.value) {
+            notes.value = '';
+        }
+        
+        const existingConditions = document.getElementById('existingConditions');
+        if (existingConditions && !existingConditions.value) {
+            existingConditions.value = '';
+        }
+        
+        const recommendedTests = document.getElementById('recommendedTests');
+        if (recommendedTests && !recommendedTests.value) {
+            recommendedTests.value = '';
+        }
+    }
+
+    // 設置表單驗證
+    function setupFormValidation() {
+        console.log('設置表單驗證');
+        
+        const form = document.getElementById('appointmentForm');
+        if (!form) return;
+        
+        // 身份證號碼驗證
+        const patientID = document.getElementById('patientID');
+        if (patientID) {
+            patientID.addEventListener('blur', function() {
+                const id = this.value.trim();
+                if (id && !isValidHKID(id)) {
+                    showNotification('錯誤', '身份證號碼格式不正確', 'error');
+                    this.classList.add('error');
+                } else {
+                    this.classList.remove('error');
+                }
+            });
+        }
+        
+        // 電話號碼驗證
+        const phoneNumber = document.getElementById('phoneNumber');
+        if (phoneNumber) {
+            phoneNumber.addEventListener('blur', function() {
+                const phone = this.value.trim();
+                if (phone && !isValidPhoneNumber(phone)) {
+                    showNotification('錯誤', '電話號碼格式不正確', 'error');
+                    this.classList.add('error');
+                } else {
+                    this.classList.remove('error');
+                }
+            });
+        }
+        
+        // 電郵驗證
+        const email = document.getElementById('email');
+        if (email) {
+            email.addEventListener('blur', function() {
+                const emailValue = this.value.trim();
+                if (emailValue && !isValidEmail(emailValue)) {
+                    showNotification('錯誤', '電子郵件格式不正確', 'error');
+                    this.classList.add('error');
+                } else {
+                    this.classList.remove('error');
+                }
+            });
+        }
+        
+        // 日期驗證
+        const preferredDate = document.getElementById('preferredDate');
+        if (preferredDate) {
+            preferredDate.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    showNotification('錯誤', '預約日期不能是過去日期', 'error');
+                    this.value = '';
+                }
+            });
+        }
+    }
+
+    // 更新表單狀態指示器
+    function updateFormStatusIndicators() {
+        const form = document.getElementById('appointmentForm');
+        if (!form) return;
+        
+        const requiredFields = form.querySelectorAll('[required]');
+        let filledCount = 0;
+        
+        requiredFields.forEach(field => {
+            if (field.value.trim() !== '') {
+                filledCount++;
+                
+                // 添加成功樣式
+                field.classList.remove('error');
+                field.classList.add('success');
+                
+                // 更新字段狀態
+                const statusElement = field.parentElement.querySelector('.input-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<i class="fas fa-check-circle"></i> 已填寫';
+                    statusElement.className = 'input-status success';
+                }
+            } else {
+                // 添加錯誤樣式
+                field.classList.remove('success');
+                
+                // 更新字段狀態
+                const statusElement = field.parentElement.querySelector('.input-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> 必填';
+                    statusElement.className = 'input-status error';
+                }
+            }
+        });
+        
+        // 更新填充字段計數
+        const filledFields = document.getElementById('filledFields');
+        if (filledFields) {
+            filledFields.textContent = filledCount;
+        }
+    }
+
+    // 更新確認信息
+    function updateConfirmationDetails() {
+        console.log('更新確認信息');
+        
+        // 獲取表單值
+        const patientName = document.getElementById('patientName');
+        const patientID = document.getElementById('patientID');
+        const appointmentType = document.getElementById('appointmentType');
+        const preferredDate = document.getElementById('preferredDate');
+        const preferredTime = document.getElementById('preferredTime');
+        const urgencyLevel = document.getElementById('urgencyLevel');
+        const referringDoctor = document.getElementById('referringDoctor');
+        const hospitalClinic = document.getElementById('hospitalClinic');
+        
+        // 獲取確認元素
+        const confirmPatientName = document.getElementById('confirmPatientName');
+        const confirmAppointmentType = document.getElementById('confirmAppointmentType');
+        const confirmPreferredDate = document.getElementById('confirmPreferredDate');
+        const confirmPreferredTime = document.getElementById('confirmPreferredTime');
+        const confirmUrgencyLevel = document.getElementById('confirmUrgencyLevel');
+        const confirmReferringDoctor = document.getElementById('confirmReferringDoctor');
+        const confirmHospitalClinic = document.getElementById('confirmHospitalClinic');
+        
+        // 更新確認信息
+        if (patientName && confirmPatientName) {
+            confirmPatientName.textContent = patientName.value || '未填寫';
+        }
+        
+        if (patientID) {
+            const confirmPatientID = document.getElementById('confirmPatientID');
+            if (confirmPatientID) {
+                confirmPatientID.textContent = patientID.value || '未填寫';
+            }
+        }
+        
+        if (appointmentType && confirmAppointmentType) {
+            const typeMap = {
+                'general': '普通科門診',
+                'specialist': '專科門診',
+                'lab': '化驗檢查',
+                'xray': 'X光檢查',
+                'dentist': '牙科',
+                'other': '其他'
+            };
+            confirmAppointmentType.textContent = typeMap[appointmentType.value] || '未選擇';
+        }
+        
+        if (preferredDate && confirmPreferredDate) {
+            if (preferredDate.value) {
+                const date = new Date(preferredDate.value);
+                confirmPreferredDate.textContent = date.toLocaleDateString('zh-HK');
+            } else {
+                confirmPreferredDate.textContent = '未選擇';
+            }
+        }
+        
+        if (preferredTime && confirmPreferredTime) {
+            const timeMap = {
+                'morning': '上午 (9:00-12:00)',
+                'afternoon': '下午 (2:00-5:00)',
+                'evening': '傍晚 (6:00-8:00)'
+            };
+            confirmPreferredTime.textContent = timeMap[preferredTime.value] || '未選擇';
+        }
+        
+        if (urgencyLevel) {
+            const confirmUrgencyLevel = document.getElementById('confirmUrgencyLevel');
+            if (confirmUrgencyLevel) {
+                const urgencyMap = {
+                    'routine': '常規',
+                    'urgent': '緊急',
+                    'emergency': '急症'
+                };
+                confirmUrgencyLevel.textContent = urgencyMap[urgencyLevel.value] || '未選擇';
+            }
+        }
+        
+        if (referringDoctor && confirmReferringDoctor) {
+            confirmReferringDoctor.textContent = referringDoctor.value || '未填寫';
+        }
+        
+        if (hospitalClinic && confirmHospitalClinic) {
+            confirmHospitalClinic.textContent = hospitalClinic.value || '未填寫';
+        }
+        
+        // 更新診所名稱（如果已選擇）
+        const selectedClinic = document.querySelector('.clinic-card.selected');
+        const confirmClinicName = document.getElementById('confirmClinicName');
+        if (selectedClinic && confirmClinicName) {
+            const clinicTitle = selectedClinic.querySelector('h4');
+            if (clinicTitle) {
+                confirmClinicName.textContent = clinicTitle.textContent;
+            }
+        }
+    }
+
+    // 加載診所數據
+    function loadClinics() {
+        console.log('加載診所數據');
+        
+        // 模擬診所數據
+        const clinicsData = [
+            {
+                id: 1,
+                name: '瑪麗醫院專科門診',
+                address: '香港薄扶林道102號',
+                phone: '2255 3838',
+                hours: '週一至五 9:00-17:00',
+                rating: 4.5,
+                reviews: 128,
+                features: ['醫管局認可', '專科門診', '化驗服務', '電子病歷'],
+                isFeatured: true,
+                distance: '1.2km',
+                region: 'hk'
+            },
+            {
+                id: 2,
+                name: '香港浸信會醫院',
+                address: '香港窩打老道222號',
+                phone: '2339 8111',
+                hours: '週一至六 8:30-20:00',
+                rating: 4.3,
+                reviews: 89,
+                features: ['私家醫院', '24小時急症', '專科門診'],
+                isFeatured: false,
+                distance: '2.5km',
+                region: 'kowloon'
+            },
+            {
+                id: 3,
+                name: '養和醫院',
+                address: '香港跑馬地山村道2-4號',
+                phone: '2572 0211',
+                hours: '24小時',
+                rating: 4.7,
+                reviews: 256,
+                features: ['私家醫院', '專科門診', '先進設備'],
+                isFeatured: true,
+                distance: '3.8km',
+                region: 'hk'
+            },
+            {
+                id: 4,
+                name: '聖保祿醫院',
+                address: '香港銅鑼灣東院道2號',
+                phone: '2890 6008',
+                hours: '週一至五 8:30-17:30',
+                rating: 4.4,
+                reviews: 102,
+                features: ['私家醫院', '專科門診'],
+                isFeatured: false,
+                distance: '4.2km',
+                region: 'hk'
+            }
+        ];
+        
+        // 更新推薦診所
+        const recommendedClinics = document.getElementById('recommendedClinics');
+        if (recommendedClinics) {
+            recommendedClinics.innerHTML = clinicsData
+                .filter(clinic => clinic.isFeatured)
+                .map(clinic => createClinicCard(clinic))
+                .join('');
+        }
+        
+        // 更新附近診所
+        const nearbyClinics = document.getElementById('nearbyClinics');
+        if (nearbyClinics) {
+            nearbyClinics.innerHTML = clinicsData
+                .filter(clinic => !clinic.isFeatured)
+                .map(clinic => createClinicCard(clinic))
+                .join('');
+        }
+        
+        // 更新診所計數
+        updateClinicCounts();
+    }
+
+    // 創建診所卡片HTML
+    function createClinicCard(clinic) {
+        return `
+            <div class="clinic-card ${clinic.isFeatured ? 'featured' : ''}" data-clinic-id="${clinic.id}" data-region="${clinic.region}">
+                ${clinic.isFeatured ? '<div class="clinic-badge">推薦</div>' : ''}
+                <div class="clinic-header">
+                    <div class="clinic-logo">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="clinic-info">
+                        <h4>${clinic.name}</h4>
+                        <div class="clinic-rating">
+                            ${generateStarRating(clinic.rating)}
+                            <span class="rating-score">${clinic.rating}</span>
+                            <span class="review-count">(${clinic.reviews} 評價)</span>
+                        </div>
+                        <div class="clinic-distance">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${clinic.distance}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="clinic-details">
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${clinic.address}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>${clinic.phone}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>${clinic.hours}</span>
+                    </div>
+                </div>
+                
+                <div class="clinic-features">
+                    ${clinic.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                </div>
+                
+                <div class="clinic-actions">
+                    <button class="clinic-action-btn secondary" onclick="viewClinicDetails(${clinic.id})">
+                        <i class="fas fa-info-circle"></i> 詳情
+                    </button>
+                    <button class="clinic-action-btn primary" onclick="selectClinic(${clinic.id})">
+                        <i class="fas fa-check"></i> 選擇
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // 生成星級評分
+    function generateStarRating(rating) {
+        let stars = '';
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star"></i>';
+        }
+        
+        if (hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        }
+        
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star"></i>';
+        }
+        
+        return stars;
+    }
+
+    // 更新診所計數
+    function updateClinicCounts() {
+        const recommendedCount = document.querySelectorAll('#recommendedClinics .clinic-card').length;
+        const nearbyCount = document.querySelectorAll('#nearbyClinics .clinic-card').length;
+        const totalCount = recommendedCount + nearbyCount;
+        
+        // 更新計數顯示
+        const recommendedTitle = document.querySelector('.recommended-section h3');
+        const nearbyTitle = document.querySelector('.nearby-section h3');
+        
+        if (recommendedTitle) {
+            recommendedTitle.innerHTML = `<i class="fas fa-star"></i> 智能推薦診所 <span class="count-badge">${recommendedCount}</span>`;
+        }
+        
+        if (nearbyTitle) {
+            nearbyTitle.innerHTML = `<i class="fas fa-map-marker-alt"></i> 附近診所 <span class="count-badge">${nearbyCount}</span>`;
+        }
+        
+        console.log(`總共找到 ${totalCount} 間診所（推薦: ${recommendedCount}, 附近: ${nearbyCount}）`);
+    }
+
+    // 初始化搜索功能
+    function initSearchFunctionality() {
+        const searchInput = document.getElementById('clinicSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                searchClinics(this.value);
+            });
+            
+            // 添加清除按鈕功能
+            const clearBtn = document.querySelector('.search-clear');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    searchClinics('');
+                });
+            }
+        }
+    }
+
+    // 搜索診所
+    function searchClinics(keyword) {
+        console.log('搜索診所:', keyword);
+        
+        if (!keyword.trim()) {
+            // 如果關鍵詞為空，顯示所有診所
+            document.querySelectorAll('.clinic-card').forEach(card => {
+                card.style.display = 'block';
+            });
+            updateClinicCounts();
+            return;
+        }
+        
+        const lowerKeyword = keyword.toLowerCase();
+        let matchCount = 0;
+        
+        document.querySelectorAll('.clinic-card').forEach(card => {
+            const clinicName = card.querySelector('h4').textContent.toLowerCase();
+            const clinicAddress = card.querySelector('.clinic-details .detail-item:nth-child(1) span').textContent.toLowerCase();
+            const clinicFeatures = Array.from(card.querySelectorAll('.feature-tag'))
+                .map(tag => tag.textContent.toLowerCase())
+                .join(' ');
+            
+            if (clinicName.includes(lowerKeyword) || 
+                clinicAddress.includes(lowerKeyword) || 
+                clinicFeatures.includes(lowerKeyword)) {
+                card.style.display = 'block';
+                matchCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // 顯示搜索結果
+        const searchResults = document.getElementById('searchResults');
+        if (searchResults) {
+            if (matchCount > 0) {
+                searchResults.textContent = `找到 ${matchCount} 間診所`;
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.textContent = '沒有找到匹配的診所';
+                searchResults.style.display = 'block';
+            }
+        }
+        
+        console.log(`搜索結果: ${matchCount} 間診所匹配`);
+    }
+
+    // 初始化篩選功能
+    function initFilterFunctionality() {
+        const filterBtn = document.querySelector('.filter-btn');
+        if (filterBtn) {
+            filterBtn.addEventListener('click', toggleFilters);
+        }
+        
+        // 地區篩選
+        document.querySelectorAll('input[name="region"]').forEach(checkbox => {
+            checkbox.addEventListener('change', applyFilters);
+        });
+        
+        // 服務類型篩選
+        const serviceType = document.getElementById('serviceType');
+        if (serviceType) {
+            serviceType.addEventListener('change', applyFilters);
+        }
+        
+        // 營業時間篩選
+        const openingHours = document.getElementById('openingHours');
+        if (openingHours) {
+            openingHours.addEventListener('change', applyFilters);
+        }
+    }
+
+    // 切換篩選面板
+    function toggleFilters() {
+        const filterPanel = document.getElementById('filterPanel');
+        if (filterPanel) {
+            if (filterPanel.style.display === 'block') {
+                filterPanel.style.display = 'none';
+            } else {
+                filterPanel.style.display = 'block';
+            }
+        }
+    }
+
+    // 應用篩選
+    function applyFilters() {
+        console.log('應用篩選條件');
+        
+        // 獲取選中的地區
+        const selectedRegions = [];
+        document.querySelectorAll('input[name="region"]:checked').forEach(checkbox => {
+            selectedRegions.push(checkbox.value);
+        });
+        
+        // 獲取服務類型
+        const serviceType = document.getElementById('serviceType').value;
+        
+        // 獲取營業時間
+        const openingHours = document.getElementById('openingHours').value;
+        
+        let matchCount = 0;
+        
+        // 篩選診所卡片
+        document.querySelectorAll('.clinic-card').forEach(card => {
+            let shouldShow = true;
+            
+            // 地區篩選
+            if (selectedRegions.length > 0) {
+                const region = card.dataset.region;
+                shouldShow = shouldShow && selectedRegions.includes(region);
+            }
+            
+            // 服務類型篩選（模擬）
+            if (serviceType !== 'all') {
+                // 這裡可以根據診所的實際服務類型進行篩選
+                // 暫時模擬篩選
+                const clinicName = card.querySelector('h4').textContent;
+                if (serviceType === 'lab' && !clinicName.includes('化驗')) {
+                    shouldShow = false;
+                }
+            }
+            
+            // 營業時間篩選（模擬）
+            if (openingHours !== 'all') {
+                const hoursText = card.querySelector('.clinic-details .detail-item:nth-child(3) span').textContent;
+                if (openingHours === 'evening' && !hoursText.includes('20:00')) {
+                    shouldShow = false;
+                }
+            }
+            
+            if (shouldShow) {
+                card.style.display = 'block';
+                matchCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // 更新篩選結果
+        updateClinicCounts();
+        console.log(`篩選結果: ${matchCount} 間診所`);
+        
+        // 關閉篩選面板
+        const filterPanel = document.getElementById('filterPanel');
+        if (filterPanel) {
+            filterPanel.style.display = 'none';
+        }
+    }
+
+    // 重置篩選
+    function resetFilters() {
+        console.log('重置篩選條件');
+        
+        // 重置地區選擇
+        document.querySelectorAll('input[name="region"]').forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        
+        // 重置服務類型
+        const serviceType = document.getElementById('serviceType');
+        if (serviceType) {
+            serviceType.value = 'all';
+        }
+        
+        // 重置營業時間
+        const openingHours = document.getElementById('openingHours');
+        if (openingHours) {
+            openingHours.value = 'all';
+        }
+        
+        // 顯示所有診所
+        document.querySelectorAll('.clinic-card').forEach(card => {
+            card.style.display = 'block';
+        });
+        
+        updateClinicCounts();
+        
+        // 關閉篩選面板
+        const filterPanel = document.getElementById('filterPanel');
+        if (filterPanel) {
+            filterPanel.style.display = 'none';
+        }
+    }
+
+    // 更新附近診所
+    function updateNearbyClinics() {
+        console.log('更新附近診所');
+        
+        // 嘗試從localStorage獲取位置
+        const savedLocation = localStorage.getItem('userLocation');
+        if (savedLocation) {
+            try {
+                const location = JSON.parse(savedLocation);
+                console.log('使用已保存的位置:', location);
+                
+                // 這裡可以根據位置計算距離並排序診所
+                // 暫時只顯示提示
+                const locationStatus = document.getElementById('locationStatus');
+                if (locationStatus) {
+                    locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> 已使用您的位置推薦附近診所`;
+                    locationStatus.className = 'location-status success';
+                }
+            } catch (error) {
+                console.error('解析位置信息失敗:', error);
+            }
+        } else {
+            console.log('沒有位置信息，顯示所有診所');
+            const locationStatus = document.getElementById('locationStatus');
+            if (locationStatus) {
+                locationStatus.innerHTML = `<i class="fas fa-info-circle"></i> 未獲取到位置信息，顯示所有診所`;
+                locationStatus.className = 'location-status info';
+            }
+        }
+    }
+
+    // 使用當前位置
+    function useCurrentLocation() {
+        console.log('請求當前位置');
+        
+        if ('geolocation' in navigator) {
+            showLoading('定位中', '正在獲取您的位置信息...');
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('位置獲取成功:', position.coords);
+                    
+                    // 保存位置信息
+                    const location = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    localStorage.setItem('userLocation', JSON.stringify(location));
+                    
+                    // 更新附近診所
+                    updateNearbyClinics();
+                    
+                    // 重新加載診所（按距離排序）
+                    loadClinics();
+                    
+                    hideLoading();
+                    showNotification('成功', '位置信息已更新', 'success');
+                },
+                function(error) {
+                    console.error('位置獲取失敗:', error);
+                    hideLoading();
+                    
+                    let errorMessage = '無法獲取位置信息';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = '位置權限被拒絕，請在瀏覽器設置中啟用';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = '位置信息不可用';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = '獲取位置超時';
+                            break;
+                    }
+                    
+                    showNotification('錯誤', errorMessage, 'error');
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            showNotification('錯誤', '您的瀏覽器不支援地理位置功能', 'error');
+        }
+    }
+
+    // 選擇診所
+    function selectClinic(clinicId) {
+        console.log('選擇診所:', clinicId);
+        
+        // 移除其他診所的選中狀態
+        document.querySelectorAll('.clinic-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // 為選中的診所添加選中狀態
+        const selectedClinic = document.querySelector(`.clinic-card[data-clinic-id="${clinicId}"]`);
+        if (selectedClinic) {
+            selectedClinic.classList.add('selected');
+            
+            // 更新確認信息
+            const clinicName = selectedClinic.querySelector('h4').textContent;
+            const confirmClinicName = document.getElementById('confirmClinicName');
+            if (confirmClinicName) {
+                confirmClinicName.textContent = clinicName;
+            }
+            
+            // 顯示成功提示
+            showNotification('成功', `已選擇 ${clinicName}`, 'success');
+        }
+    }
+
+    // 查看診所詳情
+    function viewClinicDetails(clinicId) {
+        console.log('查看診所詳情:', clinicId);
+        showNotification('信息', '診所詳情功能正在開發中', 'info');
+    }
+
+    // 更新發送按鈕狀態
+    function updateSendButton() {
+        const privacyAgreement = document.getElementById('privacyAgreement');
+        const medicalConsent = document.getElementById('medicalConsent');
+        const sendAppointmentBtn = document.getElementById('sendAppointmentBtn');
+        
+        if (privacyAgreement && medicalConsent && sendAppointmentBtn) {
+            const isEnabled = privacyAgreement.checked && medicalConsent.checked;
+            sendAppointmentBtn.disabled = !isEnabled;
+            
+            if (isEnabled) {
+                sendAppointmentBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 發送預約請求';
+            } else {
+                sendAppointmentBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 請同意協議後發送';
+            }
+        }
+    }
+
+    // 驗證香港身份證格式
+    function isValidHKID(id) {
+        // 簡單驗證，實際需要更複雜的驗證
+        const pattern = /^[A-Z]{1,2}[0-9]{6}\([0-9A]\)$/;
+        return pattern.test(id.toUpperCase());
+    }
+
+    // 驗證電話號碼格式
+    function isValidPhoneNumber(phone) {
+        // 香港電話號碼格式
+        const pattern = /^[2-9][0-9]{7}$/;
+        const cleaned = phone.replace(/\s+/g, '');
+        return pattern.test(cleaned);
+    }
+
+    // 驗證電郵格式
+    function isValidEmail(email) {
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return pattern.test(email);
+    }
+
+    // 顯示通知
+    function showNotification(title, message, type = 'info') {
+        console.log(`${type.toUpperCase()}: ${title} - ${message}`);
+        
+        const toast = document.getElementById('notificationToast');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastMessage = document.getElementById('toastMessage');
+        const toastIcon = document.querySelector('.toast-icon');
+        
+        if (toast && toastTitle && toastMessage && toastIcon) {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // 設置圖標和顏色
+            let iconClass = 'fa-info-circle';
+            let iconColor = 'info';
+            
+            switch(type) {
+                case 'success':
+                    iconClass = 'fa-check-circle';
+                    iconColor = 'success';
+                    break;
+                case 'error':
+                    iconClass = 'fa-exclamation-circle';
+                    iconColor = 'error';
+                    break;
+                case 'warning':
+                    iconClass = 'fa-exclamation-triangle';
+                    iconColor = 'warning';
+                    break;
+            }
+            
+            toastIcon.className = `fas ${iconClass} toast-icon ${iconColor}`;
+            
+            // 顯示通知
+            toast.classList.add('show');
+            
+            // 3秒後自動隱藏
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    }
+
+    // 顯示加載中
+    function showLoading(title = '處理中', message = '請稍候...') {
+        const overlay = document.getElementById('loadingOverlay');
+        const loadingTitle = document.getElementById('loadingTitle');
+        const loadingMessage = document.getElementById('loadingMessage');
+        
+        if (overlay && loadingTitle && loadingMessage) {
+            loadingTitle.textContent = title;
+            loadingMessage.textContent = message;
+            overlay.classList.add('active');
+        }
+    }
+
+    // 隱藏加載中
+    function hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    }
+
+    // 更新表單完成度
+    function updateFormCompletion() {
+        const form = document.getElementById('appointmentForm');
+        if (!form) return;
+        
+        const requiredFields = form.querySelectorAll('[required]');
+        const filledFields = Array.from(requiredFields).filter(field => {
+            return field.value.trim() !== '' || 
+                   (field.type === 'checkbox' && field.checked) ||
+                   (field.tagName === 'SELECT' && field.value !== '');
+        });
+        
+        const completion = requiredFields.length > 0 ? 
+            Math.round((filledFields.length / requiredFields.length) * 100) : 0;
+        
+        const filledFieldsElement = document.getElementById('filledFields');
+        const formCompletionElement = document.getElementById('formCompletion');
+        const completionFillElement = document.getElementById('completionFill');
+        
+        if (filledFieldsElement) {
+            filledFieldsElement.textContent = filledFields.length;
+        }
+        
+        if (formCompletionElement) {
+            formCompletionElement.textContent = `${completion}%`;
+        }
+        
+        if (completionFillElement) {
+            completionFillElement.style.width = `${completion}%`;
+        }
+        
+        console.log(`表單完成度: ${completion}% (${filledFields.length}/${requiredFields.length})`);
+    }
+</script>
 </body>
 </html>
