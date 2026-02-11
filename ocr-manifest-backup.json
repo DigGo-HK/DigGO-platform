@@ -1,0 +1,56 @@
+{
+  "name": "DigGO OCR 預約系統",
+  "short_name": "DigGO OCR",
+  "description": "香港政府醫療文件OCR識別與預約系統",
+  "lang": "zh-HK",
+  "dir": "ltr",
+  "theme_color": "#0066cc",
+  "background_color": "#f8f9fa",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/ocr-appointment.html",
+  "icons": [
+    {
+      "src": "icons/icon-72.svg",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96.svg",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["medical", "health", "government"],
+  "shortcuts": [
+    {
+      "name": "上傳文件",
+      "short_name": "上傳",
+      "description": "快速上傳醫療文件",
+      "url": "/ocr-appointment.html?action=upload",
+      "icons": [{ "src": "icons/icon-96.svg", "sizes": "96x96" }]
+    }
+  ]
+}
