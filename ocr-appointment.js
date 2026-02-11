@@ -1,1103 +1,853 @@
-// 註冊Service Worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('ocr-service-worker.js')
-      .then(registration => console.log('SW registered:', registration))
-      .catch(error => console.log('SW registration failed:', error));
-  });
-}
-// ocr-appointment.js - DigGO OCR掃描器核心邏輯
-// 這個文件包含從文件上傳到表格自動填寫的所有JavaScript功能
+/* DigGO OCR 預約系統 - 主邏輯文件 */
+/* 版本：2.0 | 日期：2026 | 更新：PWA支持、深色模式、打印功能 */
 
-// ===== 全局變量和配置 =====
-let currentStep = 1;
-let selectedFile = null;
-let ocrResult = null;
-let extractedData = {};
-let tesseractWorker = null;
-let currentImage = null;
-let currentRotation = 0;
-
-// 支持的醫療文件類型
-const SUPPORTED_FILE_TYPES = {
-    '醫管局轉介信': ['referral', '醫院管理局'],
-    '醫生轉介信': ['referral', '醫生轉介'],
-    '化驗報告': ['report', '化驗', '檢驗'],
-    '醫療記錄': ['record', '病歷', '記錄'],
-    '收據單據': ['receipt', '收據', '單據']
-};
-
-// ===== 主初始化函數 =====
+// ============================================
+// 初始化函數
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DigGO OCR掃描器初始化完成');
+    console.log('DigGO OCR 預約系統初始化...');
     
-    // 初始化時間顯示
-    updateTimeDisplay();
-    setInterval(updateTimeDisplay, 60000); // 每分鐘更新
+    // 1. 註冊 Service Worker (PWA支持)
+    registerServiceWorker();
     
-    // 設置事件監聽器
-    setupEventListeners();
+    // 2. 初始化深色模式
+    initDarkMode();
     
-    // 初始化表單自動完成
-    setupAutoComplete();
+    // 3. 初始化步驟系統
+    initStepSystem();
     
-    // 初始化步驟指示器
-    updateStepIndicator();
+    // 4. 初始化上傳功能
+    initUploadFunctionality();
     
-    // 檢查是否有草稿保存
-    checkForSavedDraft();
+    // 5. 初始化相機功能
+    initCameraFunctionality();
+    
+    // 6. 初始化打印功能
+    initPrintFunctionality();
+    
+    // 7. 初始化事件監聽器
+    initEventListeners();
+    
+    // 8. 初始化時間顯示
+    initTimeDisplay();
+    
+    console.log('系統初始化完成');
 });
 
-// ===== 工具函數 =====
-
-// 更新時間顯示
-function updateTimeDisplay() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('zh-HK', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    });
-    
-    const timeElement = document.getElementById('currentTime');
-    if (timeElement) {
-        timeElement.textContent = timeString;
-    }
-}
-
-// 顯示Toast通知
-function showToast(message, type = 'info') {
-    // 創建或獲取Toast容器
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    // 創建Toast元素
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    
-    // 設置圖標
-    const icons = {
-        'success': '✓',
-        'error': '✗',
-        'warning': '!',
-        'info': 'i'
-    };
-    
-    toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || icons.info}</span>
-        <span class="toast-message">${message}</span>
-        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-    `;
-    
-    // 添加到容器
-    toastContainer.appendChild(toast);
-    
-    // 自動移除
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.remove();
-        }
-    }, 4000);
-}
-
-// 顯示加載動畫
-function showLoading(message = '處理中...') {
-    let loadingOverlay = document.getElementById('loading-overlay');
-    
-    if (!loadingOverlay) {
-        loadingOverlay = document.createElement('div');
-        loadingOverlay.id = 'loading-overlay';
-        loadingOverlay.className = 'loading-overlay';
-        loadingOverlay.innerHTML = `
-            <div class="loading-content">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">${message}</div>
-            </div>
-        `;
-        document.body.appendChild(loadingOverlay);
-    } else {
-        loadingOverlay.style.display = 'flex';
-        const loadingText = loadingOverlay.querySelector('.loading-text');
-        if (loadingText) loadingText.textContent = message;
-    }
-}
-
-// 隱藏加載動畫
-function hideLoading() {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    if (loadingOverlay) {
-        loadingOverlay.style.display = 'none';
-    }
-}
-
-// ===== 步驟控制 =====
-
-// 更新步驟指示器
-function updateStepIndicator() {
-    const steps = document.querySelectorAll('.step');
-    steps.forEach((step, index) => {
-        const stepNumber = index + 1;
-        step.classList.remove('active', 'completed');
+// ============================================
+// 1. Service Worker 註冊 (PWA支持)
+// ============================================
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('ocr-service-worker.js')
+                .then(function(registration) {
+                    console.log('✅ Service Worker 註冊成功，範圍：', registration.scope);
+                    
+                    // 檢查更新
+                    registration.addEventListener('updatefound', function() {
+                        const newWorker = registration.installing;
+                        console.log('🔄 Service Worker 更新中...');
+                        
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('🆕 新版本可用，請刷新頁面');
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                })
+                .catch(function(error) {
+                    console.warn('⚠️ Service Worker 註冊失敗：', error);
+                });
+        });
         
-        if (stepNumber === currentStep) {
-            step.classList.add('active');
-        } else if (stepNumber < currentStep) {
-            step.classList.add('completed');
+        // 監聽控制器變化
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+            console.log('🎯 Service Worker 控制器已更新');
+        });
+    } else {
+        console.warn('⚠️ 瀏覽器不支持 Service Worker');
+    }
+}
+
+// ============================================
+// 2. 深色模式功能
+// ============================================
+function initDarkMode() {
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlElement = document.documentElement;
+    
+    // 檢查系統偏好
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // 檢查本地存儲
+    const savedTheme = localStorage.getItem('diggo-theme');
+    
+    // 設置初始主題
+    if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
+        htmlElement.setAttribute('data-theme', 'dark');
+        updateThemeIcon(true);
+    } else {
+        htmlElement.setAttribute('data-theme', 'light');
+        updateThemeIcon(false);
+    }
+    
+    // 監聽系統主題變化
+    prefersDarkScheme.addEventListener('change', function(e) {
+        if (!localStorage.getItem('diggo-theme')) {
+            const isDark = e.matches;
+            htmlElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
         }
     });
     
-    // 顯示對應的步驟內容
+    // 主題切換按鈕
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('diggo-theme', newTheme);
+            updateThemeIcon(newTheme === 'dark');
+            
+            // 添加動畫效果
+            themeToggle.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                themeToggle.style.transform = 'rotate(0deg)';
+            }, 300);
+            
+            console.log('🎨 主題切換為：', newTheme);
+        });
+    }
+}
+
+function updateThemeIcon(isDark) {
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            themeToggle.title = isDark ? '切換到淺色模式' : '切換到深色模式';
+        }
+    }
+}
+
+// ============================================
+// 3. 步驟系統
+// ============================================
+function initStepSystem() {
+    const steps = document.querySelectorAll('.step');
+    const stepSections = document.querySelectorAll('.step-section');
+    
+    // 初始顯示第一步
+    showStep(1);
+    
+    // 步驟點擊事件
+    steps.forEach(step => {
+        step.addEventListener('click', function() {
+            const stepNumber = parseInt(this.getAttribute('data-step'));
+            if (this.classList.contains('completed') || this.classList.contains('active')) {
+                showStep(stepNumber);
+            }
+        });
+    });
+    
+    // 下一步按鈕
+    const nextButtons = document.querySelectorAll('[id^="nextStep"]');
+    nextButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const currentStep = getCurrentStep();
+            if (validateStep(currentStep)) {
+                markStepAsCompleted(currentStep);
+                showStep(currentStep + 1);
+            }
+        });
+    });
+    
+    // 上一步按鈕
+    const backButtons = document.querySelectorAll('[id^="prevStep"]');
+    backButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const currentStep = getCurrentStep();
+            showStep(currentStep - 1);
+        });
+    });
+}
+
+function showStep(stepNumber) {
+    // 更新步驟指示器
+    document.querySelectorAll('.step').forEach((step, index) => {
+        step.classList.remove('active');
+        if (index + 1 === stepNumber) {
+            step.classList.add('active');
+        } else if (index + 1 < stepNumber) {
+            step.classList.add('completed');
+        } else {
+            step.classList.remove('completed');
+        }
+    });
+    
+    // 顯示對應步驟內容
     document.querySelectorAll('.step-section').forEach(section => {
         section.classList.remove('active');
     });
     
-    const currentSection = document.getElementById(`step${currentStep}`);
-    if (currentSection) {
-        currentSection.classList.add('active');
+    const targetSection = document.getElementById(`step${stepNumber}`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // 更新URL哈希（可選）
+    window.location.hash = `step-${stepNumber}`;
+    
+    console.log('📋 切換到步驟：', stepNumber);
+}
+
+function getCurrentStep() {
+    const activeStep = document.querySelector('.step.active');
+    return activeStep ? parseInt(activeStep.getAttribute('data-step')) : 1;
+}
+
+function markStepAsCompleted(stepNumber) {
+    const step = document.querySelector(`.step[data-step="${stepNumber}"]`);
+    if (step) {
+        step.classList.add('completed');
     }
 }
 
-// 跳轉到指定步驟
-function goToStep(stepNumber) {
-    if (stepNumber >= 1 && stepNumber <= 4) {
-        currentStep = stepNumber;
-        updateStepIndicator();
-        
-        // 滾動到頂部
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+function validateStep(stepNumber) {
+    // 根據步驟進行驗證
+    switch(stepNumber) {
+        case 1:
+            return validateStep1();
+        case 2:
+            return validateStep2();
+        case 3:
+            return validateStep3();
+        default:
+            return true;
     }
 }
 
-// 下一步
-function nextStep() {
-    if (currentStep < 4) {
-        goToStep(currentStep + 1);
-    }
-}
-
-// 上一步
-function prevStep() {
-    if (currentStep > 1) {
-        goToStep(currentStep - 1);
-    }
-}
-
-// ===== 文件處理函數 =====
-
-// 觸發文件選擇
-function triggerFileInput() {
+function validateStep1() {
     const fileInput = document.getElementById('fileInput');
-    if (fileInput) {
-        fileInput.click();
+    const previewImage = document.getElementById('previewImage');
+    
+    if (!fileInput && !previewImage) return true;
+    
+    const hasFile = fileInput ? fileInput.files.length > 0 : previewImage.style.display !== 'none';
+    
+    if (!hasFile) {
+        showNotification('請先上傳文件', 'warning');
+        return false;
     }
+    
+    return true;
 }
 
-// 處理文件選擇
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// ============================================
+// 4. 上傳功能
+// ============================================
+function initUploadFunctionality() {
+    const uploadMethods = document.querySelectorAll('.method-card');
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*,.pdf,.doc,.docx';
+    fileInput.style.display = 'none';
+    fileInput.id = 'fileInput';
+    document.body.appendChild(fileInput);
     
-    // 檢查文件類型
-    if (!file.type.match('image.*') && file.type !== 'application/pdf') {
-        showToast('請選擇圖片或PDF文件', 'error');
-        return;
-    }
-    
-    // 檢查文件大小（最大10MB）
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('文件太大，請選擇小於10MB的文件', 'error');
-        return;
-    }
-    
-    selectedFile = file;
-    showFilePreview(file);
-    showToast('文件已選擇，請預覽確認', 'success');
-}
-
-// 顯示文件預覽
-function showFilePreview(file) {
-    const previewArea = document.getElementById('previewArea');
-    const imagePreview = document.getElementById('imagePreview');
-    const pdfPreview = document.getElementById('pdfPreview');
-    
-    if (!previewArea || !imagePreview || !pdfPreview) return;
-    
-    // 顯示預覽區域
-    previewArea.style.display = 'block';
-    
-    if (file.type.startsWith('image/')) {
-        // 處理圖片文件
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            currentImage = new Image();
-            currentImage.src = e.target.result;
+    // 上傳方式選擇
+    uploadMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            const methodType = this.getAttribute('data-method');
             
-            currentImage.onload = function() {
-                // 調整預覽大小
-                const maxWidth = 400;
-                const maxHeight = 400;
-                let width = currentImage.width;
-                let height = currentImage.height;
-                
-                if (width > maxWidth) {
-                    height = (maxWidth / width) * height;
-                    width = maxWidth;
-                }
-                
-                if (height > maxHeight) {
-                    width = (maxHeight / height) * width;
-                    height = maxHeight;
-                }
-                
-                imagePreview.style.width = `${width}px`;
-                imagePreview.style.height = `${height}px`;
-            };
+            // 更新選中狀態
+            uploadMethods.forEach(m => m.classList.remove('active'));
+            this.classList.add('active');
             
-            imagePreview.style.display = 'block';
-            pdfPreview.style.display = 'none';
-        };
-        
-        reader.readAsDataURL(file);
-        
-    } else if (file.type === 'application/pdf') {
-        // 處理PDF文件（簡化處理）
-        imagePreview.style.display = 'none';
-        pdfPreview.style.display = 'block';
-        showToast('PDF文件已加載，開始識別時會提取第一頁內容', 'info');
-    }
-    
-    // 滾動到預覽區域
-    previewArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-// 移除文件
-function removeFile() {
-    selectedFile = null;
-    currentImage = null;
-    currentRotation = 0;
-    
-    const previewArea = document.getElementById('previewArea');
-    const imagePreview = document.getElementById('imagePreview');
-    const fileInput = document.getElementById('fileInput');
-    
-    if (previewArea) previewArea.style.display = 'none';
-    if (imagePreview) {
-        imagePreview.src = '';
-        imagePreview.style.transform = 'rotate(0deg)';
-    }
-    if (fileInput) fileInput.value = '';
-    
-    showToast('文件已移除', 'info');
-}
-
-// 旋轉圖片
-function rotateImage() {
-    if (!currentImage) {
-        showToast('請先上傳圖片', 'warning');
-        return;
-    }
-    
-    currentRotation = (currentRotation + 90) % 360;
-    const imagePreview = document.getElementById('imagePreview');
-    
-    if (imagePreview) {
-        imagePreview.style.transform = `rotate(${currentRotation}deg)`;
-    }
-    
-    showToast(`圖片已旋轉 ${currentRotation}度`, 'info');
-}
-
-// ===== OCR處理函數 =====
-
-// 開始OCR處理
-async function processOCR() {
-    if (!selectedFile) {
-        showToast('請先選擇文件', 'error');
-        return;
-    }
-    
-    if (!selectedFile.type.startsWith('image/')) {
-        showToast('目前僅支持圖片格式的OCR識別', 'error');
-        return;
-    }
-    
-    showLoading('正在進行OCR文字識別...');
-    
-    try {
-        // 初始化Tesseract.js
-        if (!tesseractWorker) {
-            tesseractWorker = await Tesseract.createWorker('chi_sim+eng', 1, {
-                logger: m => updateOCRProgress(m),
-                errorHandler: err => {
-                    console.error('Tesseract錯誤:', err);
-                    showToast('OCR引擎初始化失敗', 'error');
-                }
-            });
-        }
-        
-        // 準備圖片數據
-        const imageData = await prepareImageForOCR();
-        
-        // 執行OCR識別
-        const result = await tesseractWorker.recognize(imageData);
-        
-        // 處理結果
-        ocrResult = result;
-        displayOCRResults(result);
-        
-        // 提取關鍵信息
-        extractKeyInformation(result.data.text);
-        
-        // 更新信心指數
-        updateConfidenceScore(result.data.confidence);
-        
-        hideLoading();
-        showToast('OCR識別完成！', 'success');
-        
-        // 自動跳到下一步
-        setTimeout(() => {
-            nextStep();
-        }, 1000);
-        
-    } catch (error) {
-        console.error('OCR處理失敗:', error);
-        hideLoading();
-        showToast(`OCR識別失敗: ${error.message}`, 'error');
-        
-        // 使用模擬數據作為備用方案
-        useMockOCRData();
-    }
-}
-
-// 準備圖片用於OCR
-function prepareImageForOCR() {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        if (!currentImage) {
-            resolve('');
-            return;
-        }
-        
-        // 根據旋轉角度調整畫布大小
-        let width = currentImage.width;
-        let height = currentImage.height;
-        
-        if (currentRotation === 90 || currentRotation === 270) {
-            [width, height] = [height, width];
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        // 應用旋轉和繪製
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        
-        // 移動到中心點
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        
-        // 應用旋轉
-        const radians = (currentRotation * Math.PI) / 180;
-        ctx.rotate(radians);
-        
-        // 繪製圖片
-        ctx.drawImage(
-            currentImage,
-            -currentImage.width / 2,
-            -currentImage.height / 2
-        );
-        
-        ctx.restore();
-        
-        // 應用圖像增強（提高OCR準確度）
-        enhanceImageForOCR(ctx, canvas);
-        
-        // 轉換為數據URL
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        resolve(dataUrl);
-    });
-}
-
-// 增強圖像對比度（提高OCR準確度）
-function enhanceImageForOCR(ctx, canvas) {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    
-    // 簡單對比度增強
-    const contrast = 1.5; // 對比度系數
-    const brightness = 10; // 亮度調整
-    
-    for (let i = 0; i < data.length; i += 4) {
-        // 紅色通道
-        data[i] = contrast * (data[i] - 128) + 128 + brightness;
-        // 綠色通道
-        data[i + 1] = contrast * (data[i + 1] - 128) + 128 + brightness;
-        // 藍色通道
-        data[i + 2] = contrast * (data[i + 2] - 128) + 128 + brightness;
-        
-        // 限制值在0-255之間
-        data[i] = Math.max(0, Math.min(255, data[i]));
-        data[i + 1] = Math.max(0, Math.min(255, data[i + 1]));
-        data[i + 2] = Math.max(0, Math.min(255, data[i + 2]));
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-}
-
-// 更新OCR進度
-function updateOCRProgress(message) {
-    const progressText = document.getElementById('progressText');
-    const progressFill = document.getElementById('progressFill');
-    
-    if (!progressText || !progressFill) return;
-    
-    if (message.status === 'recognizing text') {
-        const progress = Math.min(95, message.progress * 100);
-        progressText.textContent = `${Math.round(progress)}%`;
-        progressFill.style.width = `${progress}%`;
-    } else if (message.status === 'done') {
-        progressText.textContent = '100%';
-        progressFill.style.width = '100%';
-    }
-}
-
-// 顯示OCR結果
-function displayOCRResults(result) {
-    const rawTextElement = document.getElementById('rawText');
-    if (rawTextElement && result.data.text) {
-        rawTextElement.value = result.data.text;
-    }
-}
-
-// 更新信心指數
-function updateConfidenceScore(confidence) {
-    const confidenceElement = document.getElementById('confidenceValue');
-    if (confidenceElement && confidence) {
-        // 將信心值轉換為百分比（70-95%範圍）
-        const confidencePercent = Math.min(95, Math.max(70, confidence));
-        confidenceElement.textContent = `${Math.round(confidencePercent)}%`;
-    }
-}
-
-// 提取關鍵信息
-function extractKeyInformation(text) {
-    extractedData = {};
-    const infoGrid = document.getElementById('extractedInfo');
-    
-    if (!infoGrid || !text) return;
-    
-    infoGrid.innerHTML = '';
-    
-    // 定義要提取的信息模式和正則表達式
-    const patterns = [
-        {
-            label: '姓名',
-            regex: /(姓名|病人姓名|患者姓名)[：:\s]*([^\n\r]+)/i,
-            key: 'patientName'
-        },
-        {
-            label: '身份證',
-            regex: /(身份證|身份證號碼|ID)[：:\s]*([A-Z][0-9]{6}\([0-9A-Z]\)|[0-9]{8})/i,
-            key: 'patientID'
-        },
-        {
-            label: '電話',
-            regex: /(電話|聯絡電話|手機)[：:\s]*([0-9\s\-]{8,})/i,
-            key: 'phoneNumber'
-        },
-        {
-            label: '日期',
-            regex: /(日期|轉介日期|報告日期)[：:\s]*([0-9]{4}[年/\-][0-9]{1,2}[月/\-][0-9]{1,2}日?)/i,
-            key: 'documentDate'
-        },
-        {
-            label: '醫生',
-            regex: /(醫生|轉介醫生|主診醫生)[：:\s]*([^\n\r]+)/i,
-            key: 'referringDoctor'
-        },
-        {
-            label: '診斷',
-            regex: /(診斷|初步診斷|臨床診斷)[：:\s]*([^\n\r]+)/i,
-            key: 'diagnosis'
-        },
-        {
-            label: '醫院',
-            regex: /(醫院|醫療機構|診所)[：:\s]*([^\n\r]+)/i,
-            key: 'hospitalClinic'
-        }
-    ];
-    
-    // 執行匹配
-    let extractedCount = 0;
-    
-    patterns.forEach(pattern => {
-        const match = text.match(pattern.regex);
-        if (match && match[2]) {
-            const value = match[2].trim();
-            extractedData[pattern.key] = value;
-            extractedCount++;
-            
-            // 添加到顯示網格
-            const infoItem = document.createElement('div');
-            infoItem.className = 'info-item';
-            infoItem.innerHTML = `
-                <div class="info-label">${pattern.label}</div>
-                <div class="info-value">${value}</div>
-            `;
-            infoGrid.appendChild(infoItem);
-        }
-    });
-    
-    // 如果沒有提取到信息，顯示提示
-    if (extractedCount === 0) {
-        infoGrid.innerHTML = `
-            <div class="no-info-message">
-                <i class="fas fa-info-circle"></i>
-                <p>未自動識別到關鍵信息，請手動填寫表格或檢查圖片質量</p>
-            </div>
-        `;
-    }
-}
-
-// 使用模擬OCR數據（開發和測試用）
-function useMockOCRData() {
-    const mockText = `醫管局專科門診轉介信
-
-轉介醫院：瑪麗醫院
-轉介日期：2024年1月15日
-
-病人資料：
-姓名：陳大文
-性別：男
-出生日期：1980年5月15日
-身份證號碼：A123456(7)
-聯絡電話：9123-4567
-地址：香港中環皇后大道中100號
-
-臨床資料：
-主診醫生：李國強醫生
-專科：內科
-診斷：原發性高血壓
-病歷號碼：MH-2024-00123
-
-建議檢查：
-1. 24小時血壓監測
-2. 血液檢查（全血圖、腎功能、肝功能、血脂、血糖）
-3. 心電圖（ECG）
-4. 心臟超聲波檢查
-
-轉介原因：
-病人血壓控制不理想，需進一步評估心血管風險及靶器官損害。
-
-注意事項：
-請於14天內安排檢查，結果請送回本院內科門診。
-
-醫生簽署：李國強醫生
-醫生編號：HKMC12345
-日期：2024年1月15日`;
-    
-    // 顯示模擬文本
-    const rawTextElement = document.getElementById('rawText');
-    if (rawTextElement) {
-        rawTextElement.value = mockText;
-    }
-    
-    // 模擬提取的信息
-    const mockData = {
-        patientName: '陳大文',
-        patientID: 'A123456(7)',
-        phoneNumber: '91234567',
-        documentDate: '2024年1月15日',
-        referringDoctor: '李國強醫生',
-        diagnosis: '原發性高血壓',
-        hospitalClinic: '瑪麗醫院'
-    };
-    
-    extractedData = mockData;
-    
-    // 顯示提取的信息
-    const infoGrid = document.getElementById('extractedInfo');
-    if (infoGrid) {
-        infoGrid.innerHTML = '';
-        
-        Object.entries(mockData).forEach(([key, value]) => {
-            const labelMap = {
-                patientName: '姓名',
-                patientID: '身份證',
-                phoneNumber: '電話',
-                documentDate: '日期',
-                referringDoctor: '醫生',
-                diagnosis: '診斷',
-                hospitalClinic: '醫院'
-            };
-            
-            const infoItem = document.createElement('div');
-            infoItem.className = 'info-item';
-            infoItem.innerHTML = `
-                <div class="info-label">${labelMap[key] || key}</div>
-                <div class="info-value">${value}</div>
-            `;
-            infoGrid.appendChild(infoItem);
-        });
-    }
-    
-    // 更新信心指數
-    updateConfidenceScore(85);
-    
-    showToast('使用模擬數據進行演示', 'info');
-}
-
-// ===== 表格處理函數 =====
-
-// 設置表單自動完成
-function setupAutoComplete() {
-    // 為表格字段添加自動完成建議
-    const fieldsWithSuggestions = {
-        'diagnosis': ['高血壓', '糖尿病', '高血脂', '冠心病', '哮喘'],
-        'recommendedTests': [
-            '血液檢查', '尿液檢查', '心電圖', 'X光檢查',
-            '超聲波掃描', '磁力共振', '電腦斷層掃描'
-        ]
-    };
-    
-    Object.entries(fieldsWithSuggestions).forEach(([fieldId, suggestions]) => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.addEventListener('input', function() {
-                showAutoSuggestions(fieldId, suggestions);
-            });
-        }
-    });
-}
-
-// 顯示自動完成建議
-function showAutoSuggestions(fieldId, suggestions) {
-    // 實現自動完成下拉框
-    const field = document.getElementById(fieldId);
-    if (!field) return;
-    
-    // 移除現有的建議框
-    const existingSuggestions = document.getElementById(`suggestions-${fieldId}`);
-    if (existingSuggestions) {
-        existingSuggestions.remove();
-    }
-    
-    // 如果字段為空，不顯示建議
-    if (!field.value.trim()) return;
-    
-    // 過濾匹配的建議
-    const input = field.value.toLowerCase();
-    const matched = suggestions.filter(s => 
-        s.toLowerCase().includes(input)
-    );
-    
-    if (matched.length === 0) return;
-    
-    // 創建建議框
-    const suggestionsBox = document.createElement('div');
-    suggestionsBox.id = `suggestions-${fieldId}`;
-    suggestionsBox.className = 'autocomplete-suggestions';
-    
-    // 添加建議項目
-    matched.forEach(suggestion => {
-        const item = document.createElement('div');
-        item.className = 'suggestion-item';
-        item.textContent = suggestion;
-        item.addEventListener('click', function() {
-            field.value = suggestion;
-            suggestionsBox.remove();
-        });
-        suggestionsBox.appendChild(item);
-    });
-    
-    // 定位並添加建議框
-    const rect = field.getBoundingClientRect();
-    suggestionsBox.style.position = 'absolute';
-    suggestionsBox.style.top = `${rect.bottom + window.scrollY}px`;
-    suggestionsBox.style.left = `${rect.left + window.scrollX}px`;
-    suggestionsBox.style.width = `${rect.width}px`;
-    
-    document.body.appendChild(suggestionsBox);
-    
-    // 點擊外部時移除建議框
-    document.addEventListener('click', function removeSuggestions(e) {
-        if (!field.contains(e.target) && !suggestionsBox.contains(e.target)) {
-            suggestionsBox.remove();
-            document.removeEventListener('click', removeSuggestions);
-        }
-    });
-}
-
-// 提取到表格
-function extractToForm() {
-    if (!ocrResult && Object.keys(extractedData).length === 0) {
-        showToast('請先進行OCR識別', 'warning');
-        return;
-    }
-    
-    showLoading('正在自動填充表格...');
-    
-    // 使用提取的數據填充表格
-    const formData = prepareFormData();
-    populateFormWithData(formData);
-    
-    setTimeout(() => {
-        hideLoading();
-        showToast('表格已自動填充', 'success');
-        
-        // 跳轉到表格步驟
-        nextStep();
-    }, 1500);
-}
-
-// 準備表單數據
-function prepareFormData() {
-    const formData = {};
-    
-    // 從提取的數據映射到表單字段
-    const fieldMapping = {
-        'patientName': 'patientName',
-        'patientID': 'patientID',
-        'phoneNumber': 'phoneNumber',
-        'documentDate': 'referralDate',
-        'referringDoctor': 'referringDoctor',
-        'diagnosis': 'diagnosis',
-        'hospitalClinic': 'hospitalClinic'
-    };
-    
-    // 複製提取的數據
-    Object.entries(extractedData).forEach(([key, value]) => {
-        const formField = fieldMapping[key];
-        if (formField) {
-            formData[formField] = value;
-        }
-    });
-    
-    // 設置默認值
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    formData.preferredDate = formatDateForInput(tomorrow);
-    formData.urgencyLevel = 'routine';
-    
-    return formData;
-}
-
-// 格式化日期為YYYY-MM-DD
-function formatDateForInput(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-// 用數據填充表單
-function populateFormWithData(formData) {
-    Object.entries(formData).forEach(([fieldId, value]) => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.value = value;
-            
-            // 為自動填充的字段添加視覺反饋
-            if (value && !field.dataset.userEdited) {
-                highlightAutoFilledField(field);
+            switch(methodType) {
+                case 'camera':
+                    openCamera();
+                    break;
+                case 'gallery':
+                    fileInput.accept = 'image/*';
+                    fileInput.click();
+                    break;
+                case 'file':
+                    fileInput.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+                    fileInput.click();
+                    break;
             }
+        });
+    });
+    
+    // 文件選擇事件
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            handleFileUpload(e.target.files[0]);
         }
     });
     
-    // 特殊處理：從OCR文本提取建議檢查項目
-    extractRecommendedTests();
+    // 拖放上傳
+    const dropZone = document.getElementById('previewArea');
+    if (dropZone) {
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+    }
 }
 
-// 高亮自動填充的字段
-function highlightAutoFilledField(field) {
-    field.classList.add('auto-filled');
+function handleFileUpload(file) {
+    console.log('📤 處理文件上傳：', file.name);
     
-    // 添加自動填充標記
-    const container = field.closest('.form-group');
-    if (container && !container.querySelector('.auto-fill-badge')) {
-        const badge = document.createElement('div');
-        badge.className = 'auto-fill-badge';
-        badge.innerHTML = '<i class="fas fa-robot"></i> 自動識別';
-        container.appendChild(badge);
+    // 驗證文件類型
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 
+                       'application/pdf', 'application/msword', 
+                       'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    
+    if (!validTypes.includes(file.type)) {
+        showNotification('不支援的文件格式', 'error');
+        return;
+    }
+    
+    // 驗證文件大小（10MB限制）
+    if (file.size > 10 * 1024 * 1024) {
+        showNotification('文件大小超過10MB限制', 'error');
+        return;
+    }
+    
+    // 顯示預覽
+    showFilePreview(file);
+    
+    // 啟用下一步按鈕
+    const nextButton = document.getElementById('nextStep1');
+    if (nextButton) {
+        nextButton.disabled = false;
+    }
+    
+    showNotification('文件上傳成功', 'success');
+}
+
+function showFilePreview(file) {
+    const previewImage = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
+    const fileType = document.getElementById('fileType');
+    const fileSize = document.getElementById('fileSize');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const previewArea = document.getElementById('previewArea');
+    
+    if (previewArea) {
+        previewArea.classList.add('has-file');
+    }
+    
+    if (uploadPlaceholder) {
+        uploadPlaceholder.style.display = 'none';
+    }
+    
+    if (fileName) {
+        fileName.textContent = file.name;
+    }
+    
+    if (fileType) {
+        const type = file.type.split('/')[1] || file.name.split('.').pop();
+        fileType.textContent = type.toUpperCase();
+    }
+    
+    if (fileSize) {
+        fileSize.textContent = formatFileSize(file.size);
+    }
+    
+    // 如果是圖片，顯示預覽
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (previewImage) {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    } else if (file.type === 'application/pdf') {
+        // PDF文件顯示PDF圖標
+        if (previewImage) {
+            previewImage.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24"><path fill="%230066cc" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path fill="white" d="M14 2v6h6m-4 5H8m8 4H8m2-8H8"/></svg>';
+            previewImage.style.display = 'block';
+        }
+    }
+}
+
+// ============================================
+// 5. 相機功能
+// ============================================
+function initCameraFunctionality() {
+    const cameraPreview = document.getElementById('cameraPreview');
+    const cameraStream = document.getElementById('cameraStream');
+    const takePhotoBtn = document.getElementById('takePhoto');
+    const closeCameraBtn = document.getElementById('closeCamera');
+    let stream = null;
+    
+    if (!cameraPreview || !cameraStream) return;
+    
+    // 打開相機
+    window.openCamera = function() {
+        cameraPreview.classList.add('active');
+        document.body.style.overflow = 'hidden';
         
-        // 3秒後淡出
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            } 
+        })
+        .then(function(mediaStream) {
+            stream = mediaStream;
+            cameraStream.srcObject = stream;
+        })
+        .catch(function(err) {
+            console.error('相機錯誤：', err);
+            showNotification('無法訪問相機', 'error');
+            closeCamera();
+        });
+    };
+    
+    // 拍攝照片
+    if (takePhotoBtn) {
+        takePhotoBtn.addEventListener('click', function() {
+            if (!stream) return;
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraStream.videoWidth;
+            canvas.height = cameraStream.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(cameraStream, 0, 0);
+            
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                handleFileUpload(file);
+                closeCamera();
+            }, 'image/jpeg', 0.9);
+        });
+    }
+    
+    // 關閉相機
+    if (closeCameraBtn) {
+        closeCameraBtn.addEventListener('click', closeCamera);
+    }
+    
+    function closeCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        cameraPreview.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// ============================================
+// 6. 打印功能
+// ============================================
+function initPrintFunctionality() {
+    // 創建打印按鈕（如果不存在）
+    if (!document.getElementById('printBtn')) {
+        const printBtn = document.createElement('button');
+        printBtn.id = 'printBtn';
+        printBtn.className = 'no-print';
+        printBtn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:10px 20px;background:#0066cc;color:white;border:none;border-radius:25px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+        printBtn.innerHTML = '<i class="fas fa-print"></i> 打印';
+        document.body.appendChild(printBtn);
+    }
+    
+    // 打印按鈕事件
+    document.getElementById('printBtn').addEventListener('click', function() {
+        printDocument();
+    });
+    
+    // 添加打印快捷鍵 Ctrl+P
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            printDocument();
+        }
+    });
+}
+
+function printDocument() {
+    console.log('🖨️ 開始打印...');
+    
+    // 保存當前滾動位置
+    const scrollPosition = window.scrollY;
+    
+    // 顯示打印指示
+    showNotification('準備打印中...', 'info');
+    
+    // 短暫延遲後打印
+    setTimeout(() => {
+        window.print();
+        
+        // 恢復滾動位置
         setTimeout(() => {
-            badge.style.opacity = '0.5';
-        }, 3000);
-    }
-    
-    // 標記字段已被用戶編輯
-    field.addEventListener('input', function onFieldEdit() {
-        field.classList.remove('auto-filled');
-        field.dataset.userEdited = 'true';
-        field.removeEventListener('input', onFieldEdit);
-    }, { once: true });
+            window.scrollTo(0, scrollPosition);
+            showNotification('打印完成', 'success');
+        }, 100);
+    }, 500);
 }
 
-// 從OCR文本提取建議檢查項目
-function extractRecommendedTests() {
-    if (!ocrResult) return;
-    
-    const text = ocrResult.data.text;
-    const testsField = document.getElementById('recommendedTests');
-    
-    if (!testsField) return;
-    
-    // 查找常見的檢查項目
-    const testPatterns = [
-        /(血液檢查|驗血|blood test)/i,
-        /(尿液檢查|驗尿|urine test)/i,
-        /(心電圖|ECG|EKG)/i,
-        /(X光|X-ray|X光檢查)/i,
-        /(超聲波|ultrasound|超聲波掃描)/i,
-        /(磁力共振|MRI)/i,
-        /(電腦斷層|CT scan|CT掃描)/i,
-        /(內窺鏡|胃鏡|腸鏡)/i
-    ];
-    
-    const foundTests = [];
-    
-    testPatterns.forEach(pattern => {
-        const match = text.match(pattern);
-        if (match) {
-            foundTests.push(match[1] || match[0]);
-        }
-    });
-    
-    // 如果有找到檢查項目，填充到字段
-    if (foundTests.length > 0) {
-        testsField.value = foundTests.join('、');
-        highlightAutoFilledField(testsField);
-    }
-}
-
-// 重置表格
-function resetForm() {
-    if (confirm('確定要重置表格嗎？所有已填寫的內容將會丟失。')) {
-        document.getElementById('appointmentForm').reset();
-        
-        // 移除所有自動填充標記
-        document.querySelectorAll('.auto-fill-badge').forEach(badge => {
-            badge.remove();
+// ============================================
+// 7. 事件監聽器
+// ============================================
+function initEventListeners() {
+    // 返回按鈕
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (getCurrentStep() > 1) {
+                showStep(getCurrentStep() - 1);
+            } else {
+                window.history.back();
+            }
         });
-        
-        // 移除自動填充高亮
-        document.querySelectorAll('.auto-filled').forEach(field => {
-            field.classList.remove('auto-filled');
-        });
-        
-        showToast('表格已重置', 'info');
-    }
-}
-
-// 檢查是否有保存的草稿
-function checkForSavedDraft() {
-    const savedDraft = localStorage.getItem('diggoOcrDraft');
-    if (savedDraft) {
-        const loadDraftBtn = document.getElementById('loadDraftBtn');
-        if (loadDraftBtn) {
-            loadDraftBtn.style.display = 'block';
-            loadDraftBtn.addEventListener('click', loadSavedDraft);
-        }
-    }
-}
-
-// 加載保存的草稿
-function loadSavedDraft() {
-    const savedDraft = localStorage.getItem('diggoOcrDraft');
-    if (savedDraft) {
-        try {
-            const draftData = JSON.parse(savedDraft);
-            populateFormWithData(draftData);
-            showToast('草稿已加載', 'success');
-        } catch (error) {
-            console.error('加載草稿失敗:', error);
-            showToast('加載草稿失敗', 'error');
-        }
-    }
-}
-
-// 保存為草稿
-function saveAsDraft() {
-    const formData = collectFormData();
-    localStorage.setItem('diggoOcrDraft', JSON.stringify(formData));
-    showToast('草稿已保存', 'success');
-}
-
-// 收集表單數據
-function collectFormData() {
-    const form = document.getElementById('appointmentForm');
-    const formData = new FormData(form);
-    const data = {};
-    
-    for (const [key, value] of formData.entries()) {
-        data[key] = value;
-    }
-    
-    return data;
-}
-
-// ===== 事件監聽器設置 =====
-function setupEventListeners() {
-    // 文件輸入事件
-    const fileInput = document.getElementById('fileInput');
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFileSelect);
-    }
-    
-    // 底部導航按鈕
-    document.querySelectorAll('.bottom-nav .nav-item').forEach((item, index) => {
-        item.addEventListener('click', function() {
-            goToStep(index + 1);
-        });
-    });
-    
-    // 表單字段編輯事件
-    document.querySelectorAll('#appointmentForm input, #appointmentForm textarea').forEach(field => {
-        field.addEventListener('input', function() {
-            this.dataset.userEdited = 'true';
-            this.classList.remove('auto-filled');
-        });
-    });
-    
-    // 複製文本按鈕
-    const copyBtn = document.getElementById('copyTextBtn');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', copyRawText);
-    }
-    
-    // 清空文本按鈕
-    const clearBtn = document.getElementById('clearTextBtn');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', clearText);
-    }
-    
-    // 編輯文本按鈕
-    const editBtn = document.getElementById('editTextBtn');
-    if (editBtn) {
-        editBtn.addEventListener('click', toggleTextEdit);
     }
     
     // 幫助按鈕
-    const helpBtn = document.querySelector('.help-btn');
+    const helpBtn = document.getElementById('helpBtn');
     if (helpBtn) {
-        helpBtn.addEventListener('click', showHelp);
+        helpBtn.addEventListener('click', function() {
+            showHelpModal();
+        });
     }
-}
-
-// 複製原始文本
-function copyRawText() {
-    const rawText = document.getElementById('rawText');
-    if (rawText && rawText.value) {
-        rawText.select();
-        document.execCommand('copy');
-        showToast('文本已複製到剪貼板', 'success');
-    } else {
-        showToast('沒有文本可複製', 'warning');
-    }
-}
-
-// 清空文本
-function clearText() {
-    const rawText = document.getElementById('rawText');
-    if (rawText && confirm('確定要清空識別結果嗎？')) {
-        rawText.value = '';
-        showToast('文本已清空', 'info');
-    }
-}
-
-// 切換文本編輯模式
-function toggleTextEdit() {
-    const rawText = document.getElementById('rawText');
-    if (rawText) {
-        rawText.readOnly = !rawText.readOnly;
-        
-        if (!rawText.readOnly) {
-            rawText.focus();
-            showToast('現在可以編輯文本，編輯完成後請點擊保存', 'info');
-        } else {
-            showToast('文本已鎖定', 'info');
-        }
-    }
-}
-
-// 顯示幫助信息
-function showHelp() {
-    const helpText = `智能OCR掃描器使用指南：
-
-1. 上傳文件
-   • 點擊「拍攝照片」或「選擇文件」
-   • 支持JPG、PNG、PDF格式
-   • 確保文件清晰、光線充足
-
-2. OCR識別
-   • 點擊「開始識別」
-   • 系統自動識別中英文文本
-   • 提取關鍵醫療信息
-
-3. 表格填寫
-   • 自動填充識別的信息
-   • 可手動編輯修正
-   • 點擊「自動填表」快速填充
-
-4. 發送預約
-   • 選擇診所/化驗中心
-   • 選擇發送方式
-   • 確認並發送預約
-
-提示：轉介信越清晰，識別準確度越高！`;
     
-    alert(helpText);
-}
-
-// ===== 頁面導航助手 =====
-function goToHome() {
-    if (confirm('返回首頁？未保存的更改將會丟失。')) {
-        window.location.href = 'index.html';
+    // 語言按鈕
+    const langBtn = document.getElementById('langBtn');
+    if (langBtn) {
+        langBtn.addEventListener('click', function() {
+            toggleLanguage();
+        });
+    }
+    
+    // 文件操作按鈕
+    const rotateBtn = document.getElementById('rotateBtn');
+    if (rotateBtn) {
+        rotateBtn.addEventListener('click', rotateImage);
+    }
+    
+    const deleteBtn = document.getElementById('deleteBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', deleteFile);
     }
 }
 
-function goToHistory() {
-    showToast('歷史記錄功能開發中', 'info');
+// ============================================
+// 8. 時間顯示
+// ============================================
+function initTimeDisplay() {
+    const timeElement = document.querySelector('.diggo-status-bar .time');
+    if (!timeElement) return;
+    
+    function updateTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        timeElement.textContent = `${hours}:${minutes}`;
+    }
+    
+    updateTime();
+    setInterval(updateTime, 60000); // 每分鐘更新
 }
 
-// ===== 頁面卸載前提示保存 =====
-window.addEventListener('beforeunload', function(event) {
-    const form = document.getElementById('appointmentForm');
-    if (form) {
-        const hasData = Array.from(form.elements).some(element => 
-            (element.type !== 'submit' && element.value.trim())
-        );
-        
-        if (hasData && !confirm('頁面有未保存的更改，確定要離開嗎？')) {
-            event.preventDefault();
-            event.returnValue = '';
+// ============================================
+// 工具函數
+// ============================================
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function showNotification(message, type = 'info') {
+    // 移除現有通知
+    const existingNotification = document.querySelector('.diggo-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // 創建新通知
+    const notification = document.createElement('div');
+    notification.className = `diggo-notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${getNotificationIcon(type)}"></i>
+        <span>${message}</span>
+        <button class="close-notification"><i class="fas fa-times"></i></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // 顯示動畫
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // 關閉按鈕
+    notification.querySelector('.close-notification').addEventListener('click', function() {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    });
+    
+    // 自動關閉
+    if (type !== 'error') {
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
+    }
+}
+
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'success': return 'check-circle';
+        case 'error': return 'exclamation-circle';
+        case 'warning': return 'exclamation-triangle';
+        default: return 'info-circle';
+    }
+}
+
+function showUpdateNotification() {
+    if (document.getElementById('updateNotification')) return;
+    
+    const updateNotification = document.createElement('div');
+    updateNotification.id = 'updateNotification';
+    updateNotification.className = 'update-notification';
+    updateNotification.innerHTML = `
+        <div class="update-content">
+            <i class="fas fa-sync-alt"></i>
+            <div>
+                <h4>新版本可用</h4>
+                <p>有新版本更新可用，請刷新頁面以獲取最新功能</p>
+            </div>
+            <button id="refreshBtn" class="btn-primary">刷新</button>
+        </div>
+    `;
+    
+    document.body.appendChild(updateNotification);
+    
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        window.location.reload();
+    });
+}
+
+function showHelpModal() {
+    // 創建幫助模態框
+    const modal = document.createElement('div');
+    modal.className = 'help-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> 幫助中心</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <h4>如何使用OCR預約系統</h4>
+                <ol>
+                    <li><strong>步驟1：上傳文件</strong> - 拍攝或上傳醫療文件</li>
+                    <li><strong>步驟2：識別內容</strong> - 系統自動提取關鍵信息</li>
+                    <li><strong>步驟3：選擇診所</strong> - 根據位置選擇合適的醫療機構</li>
+                    <li><strong>步驟4：確認預約</strong> - 填寫信息並確認預約</li>
+                </ol>
+                <h4>支持的文件格式</h4>
+                <ul>
+                    <li>圖片：JPG, PNG, GIF, WebP</li>
+                    <li>文檔：PDF, DOC, DOCX</li>
+                    <li>最大文件大小：10MB</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary close-modal">關閉</button>
+                <button class="btn-primary" onclick="window.open('mailto:support@diggo.hk')">聯繫支持</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 關閉按鈕事件
+    modal.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            modal.remove();
+        });
+    });
+    
+    // 點擊背景關閉
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
         }
+    });
+}
+
+function toggleLanguage() {
+    const currentLang = document.documentElement.lang || 'zh-HK';
+    const newLang = currentLang === 'zh-HK' ? 'en' : 'zh-HK';
+    
+    // 更新HTML lang屬性
+    document.documentElement.lang = newLang;
+    
+    // 保存語言偏好
+    localStorage.setItem('diggo-language', newLang);
+    
+    // 顯示通知
+    showNotification(newLang === 'zh-HK' ? '已切換到繁體中文' : 'Switched to English', 'success');
+    
+    // 重新加載頁面以應用語言變化
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+
+function rotateImage() {
+    const previewImage = document.getElementById('previewImage');
+    if (!previewImage || previewImage.style.display === 'none') return;
+    
+    const currentRotation = parseInt(previewImage.getAttribute('data-rotation') || '0');
+    const newRotation = (currentRotation + 90) % 360;
+    
+    previewImage.style.transform = `rotate(${newRotation}deg)`;
+    previewImage.setAttribute('data-rotation', newRotation);
+    
+    showNotification('圖片已旋轉', 'success');
+}
+
+function deleteFile() {
+    const previewImage = document.getElementById('previewImage');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const previewArea = document.getElementById('previewArea');
+    const nextButton = document.getElementById('nextStep1');
+    
+    if (previewImage) {
+        previewImage.src = '';
+        previewImage.style.display = 'none';
     }
+    
+    if (uploadPlaceholder) {
+        uploadPlaceholder.style.display = 'block';
+    }
+    
+    if (previewArea) {
+        previewArea.classList.remove('has-file');
+    }
+    
+    if (nextButton) {
+        nextButton.disabled = true;
+    }
+    
+    // 重置文件信息
+    const fileName = document.getElementById('fileName');
+    const fileType = document.getElementById('fileType');
+    const fileSize = document.getElementById('fileSize');
+    
+    if (fileName) fileName.textContent = '尚未選擇文件';
+    if (fileType) fileType.textContent = '等待上傳';
+    if (fileSize) fileSize.textContent = '--';
+    
+    showNotification('文件已刪除', 'success');
+}
+
+// ============================================
+// PWA安裝提示
+// ============================================
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // 顯示安裝按鈕
+    setTimeout(() => {
+        showInstallPrompt();
+    }, 3000);
 });
 
-// ===== 初始化完成 =====
-console.log('OCR Appointment JS loaded successfully');
+function showInstallPrompt() {
+    if (!deferredPrompt || document.getElementById('installPrompt')) return;
+    
+    const installPrompt = document.createElement('div');
+    installPrompt.id = 'installPrompt';
+    installPrompt.className = 'install-prompt';
+    installPrompt.innerHTML = `
+        <div class="install-content">
+            <i class="fas fa-download"></i>
+            <div>
+                <h4>安裝 DigGO OCR</h4>
+                <p>安裝到主屏幕，隨時隨地使用</p>
+            </div>
+            <div class="install-actions">
+                <button class="btn-secondary" id="cancelInstall">稍後</button>
+                <button class="btn-primary" id="confirmInstall">安裝</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(installPrompt);
+    
+    // 安裝按鈕事件
+    document.getElementById('confirmInstall').addEventListener('click', async () => {
+        installPrompt.remove();
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`用戶 ${outcome} 安裝`);
+        deferredPrompt = null;
+    });
+    
+    // 取消按鈕事件
+    document.getElementById('cancelInstall').addEventListener('click', () => {
+        installPrompt.remove();
+        localStorage.setItem('installPromptDismissed', 'true');
+    });
+}
 
-// 導出主要函數供HTML調用
-window.processOCR = processOCR;
-window.extractToForm = extractToForm;
-window.resetForm = resetForm;
-window.saveAsDraft = saveAsDraft;
-window.rotateImage = rotateImage;
-window.removeFile = removeFile;
-window.triggerFileInput = triggerFileInput;
-window.goToStep = goToStep;
-window.nextStep = nextStep;
-window.prevStep = prevStep;
+// ============================================
+// 離線檢測
+// ============================================
+window.addEventListener('online', () => {
+    showNotification('網絡已恢復', 'success');
+});
+
+window.addEventListener('offline', () => {
+    showNotification('網絡連接中斷，部分功能受限', 'warning');
+});
+
+// ============================================
+// 導出全局函數
+// ============================================
+window.DigGO = {
+    showStep,
+    printDocument,
+    openCamera,
+    showNotification,
+    toggleLanguage
+};
+
+console.log('🚀 DigGO OCR 預約系統已載入');
