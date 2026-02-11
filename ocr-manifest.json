@@ -1,7 +1,7 @@
 {
   "name": "DigGO OCR 預約系統",
   "short_name": "DigGO OCR",
-  "description": "香港政府醫療文件OCR識別與預約系統",
+  "description": "香港政府醫療文件OCR識別與預約系統 - 快速、準確、安全的醫療文件處理平台",
   "lang": "zh-HK",
   "dir": "ltr",
   "theme_color": "#0066cc",
@@ -9,7 +9,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
-  "start_url": "/ocr-appointment.html",
+  "start_url": "/ocr-appointment.html?source=pwa",
   "icons": [
     {
       "src": "icons/icon-72.svg",
@@ -43,14 +43,65 @@
     }
   ],
   "screenshots": [],
-  "categories": ["medical", "health", "government"],
+  "categories": ["medical", "health", "productivity", "government"],
   "shortcuts": [
     {
-      "name": "上傳文件",
+      "name": "上傳新文件",
       "short_name": "上傳",
-      "description": "快速上傳醫療文件",
+      "description": "快速上傳醫療文件進行OCR識別",
       "url": "/ocr-appointment.html?action=upload",
-      "icons": [{ "src": "icons/icon-96.svg", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "icons/icon-96.svg",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
     }
-  ]
+  ],
+  "share_target": {
+    "action": "/ocr-appointment.html?action=share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "document",
+          "accept": ["image/*", ".pdf"]
+        }
+      ]
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+diggo",
+      "url": "/ocr-appointment.html?url=%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/ocr-appointment.html?action=upload",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".webp"],
+        "application/pdf": [".pdf"]
+      }
+    }
+  ],
+  "features": ["cross-origin-isolated", "geolocation", "camera", "file-handler"],
+  "permissions": ["camera", "geolocation", "notifications", "storage"],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "serviceworker": {
+    "src": "ocr-service-worker.js",
+    "scope": "/",
+    "update_via_cache": "none"
+  },
+  "display_override": ["window-controls-overlay", "minimal-ui"],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "handle_links": "preferred"
 }
