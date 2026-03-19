@@ -172,7 +172,7 @@
 </head>
 <body>
     <div class="status-bar">
-        <span id="current-time">09:41</span>
+        <span id="current-time"></span>
         <span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span>
     </div>
 
@@ -191,33 +191,31 @@
 
     <!-- 第一行功能 -->
     <div class="grid-4">
-        <div class="icon-card" onclick="alert('🔍 診所搜尋功能\n\n全港 15,000+ 西醫\n10,000+ 中醫\n1,000+ 獸醫')"><i class="fas fa-search"></i><div class="label">診所搜尋</div></div>
-        <div class="icon-card" onclick="alert('🔬 化驗預約功能\n\n全港 300+ 化驗中心\n支援上傳轉介信')"><i class="fas fa-flask"></i><div class="label">化驗預約</div></div>
-        <div class="icon-card" onclick="alert('📋 預約通\n\n您有 3 個預約\n查看詳情')"><i class="fas fa-calendar-check"></i><div class="label">預約通</div></div>
-        <div class="icon-card" onclick="alert('💳 繳費服務\n\n待繳費用：$1,430\n可使用醫療券')"><i class="fas fa-credit-card"></i><div class="label">繳費服務</div></div>
+        <div class="icon-card" onclick="alert('🔍 診所搜尋\n\n全港 15,000+ 西醫\n10,000+ 中醫\n1,000+ 獸醫')"><i class="fas fa-search"></i><div class="label">診所搜尋</div></div>
+        <div class="icon-card" onclick="alert('🔬 化驗預約\n\n全港 300+ 化驗中心')"><i class="fas fa-flask"></i><div class="label">化驗預約</div></div>
+        <div class="icon-card" onclick="alert('📋 預約通\n\n您有 3 個預約')"><i class="fas fa-calendar-check"></i><div class="label">預約通</div></div>
+        <div class="icon-card" onclick="alert('💳 繳費服務\n\n待繳費用：$1,430')"><i class="fas fa-credit-card"></i><div class="label">繳費服務</div></div>
     </div>
 
-    <!-- 第二行功能 -->
     <div class="grid-4">
-        <div class="icon-card" onclick="alert('🤝 公私合作\n\n長者醫療券計劃\n公營轉介私營服務')"><i class="fas fa-handshake"></i><div class="label">公私合作</div></div>
-        <div class="icon-card" onclick="alert('📁 醫療報告\n\n您有 23 份報告\n上傳新報告')"><i class="fas fa-folder-medical"></i><div class="label">醫療報告</div></div>
-        <div class="icon-card" onclick="alert('🛡️ 保險配對\n\n輸入個人資料\n獲取即時報價')"><i class="fas fa-shield-alt"></i><div class="label">保險配對</div></div>
-        <div class="icon-card" onclick="alert('💊 藥物送遞\n\n上傳處方\n1小時送達')"><i class="fas fa-pills"></i><div class="label">藥物送遞</div></div>
+        <div class="icon-card" onclick="alert('🤝 公私合作\n\n長者醫療券計劃')"><i class="fas fa-handshake"></i><div class="label">公私合作</div></div>
+        <div class="icon-card" onclick="alert('📁 醫療報告\n\n您有 23 份報告')"><i class="fas fa-folder-medical"></i><div class="label">醫療報告</div></div>
+        <div class="icon-card" onclick="alert('🛡️ 保險配對\n\n即時報價')"><i class="fas fa-shield-alt"></i><div class="label">保險配對</div></div>
+        <div class="icon-card" onclick="alert('💊 藥物送遞\n\n1小時送達')"><i class="fas fa-pills"></i><div class="label">藥物送遞</div></div>
     </div>
 
-    <!-- 第三行功能 -->
     <div class="grid-4">
         <div class="icon-card" onclick="alert('💰 優惠資訊\n\n體檢 7折\n洗牙 $380')"><i class="fas fa-tags"></i><div class="label">優惠資訊</div></div>
-        <div class="icon-card" onclick="alert('💡 健康建議\n\n建議每年體檢一次\n血壓檢查每6個月')"><i class="fas fa-heartbeat"></i><div class="label">健康建議</div></div>
+        <div class="icon-card" onclick="alert('💡 健康建議\n\n每年體檢一次')"><i class="fas fa-heartbeat"></i><div class="label">健康建議</div></div>
         <div class="icon-card" onclick="window.open('https://wa.me/85212345678?text=你好，我想查詢醫療服務')"><i class="fas fa-comment-medical"></i><div class="label">醫療助手</div></div>
-        <div class="icon-card" onclick="alert('❓ 專業查詢\n\n高血壓就醫指南\n轉介信流程\n費用預算')"><i class="fas fa-question-circle"></i><div class="label">專業查詢</div></div>
+        <div class="icon-card" onclick="alert('❓ 專業查詢\n\n高血壓就醫指南')"><i class="fas fa-question-circle"></i><div class="label">專業查詢</div></div>
     </div>
 
     <div class="section-title">
         <i class="fas fa-map-marker-alt"></i> 附近診所推薦
     </div>
 
-    <div class="clinic-item" onclick="alert('林醫生家庭醫務所\n📞 2523 4567\n📍 中環皇后大道中100號\n\n即時排隊 $5 (可用醫療券)')">
+    <div class="clinic-item" onclick="alert('林醫生家庭醫務所\n📞 2523 4567\n$450')">
         <div class="clinic-icon"><i class="fas fa-user-md"></i></div>
         <div class="clinic-info">
             <h4>林醫生家庭醫務所 <span class="badge">中西區</span><span class="voucher-tag">🏥 醫療券</span></h4>
@@ -226,59 +224,19 @@
         </div>
     </div>
 
-    <div class="clinic-item" onclick="alert('王醫生專科中心\n📞 2366 7890\n📍 尖沙咀彌敦道200號\n\n即時排隊 $5 (可用醫療券)')">
-        <div class="clinic-icon"><i class="fas fa-heartbeat"></i></div>
-        <div class="clinic-info">
-            <h4>王醫生專科中心 <span class="badge">油尖旺</span><span class="voucher-tag">🏥 醫療券</span></h4>
-            <p>👨‍⚕️ 心臟科 | ⭐ 4.9 (356)</p>
-            <p>📞 2366 7890 | 距離 1.2km | $800</p>
-        </div>
-    </div>
-
-    <div class="clinic-item" onclick="alert('陳醫生診所\n📞 2606 1234\n📍 沙田正街18號\n\n即時排隊 $5 (可用醫療券)')">
-        <div class="clinic-icon"><i class="fas fa-child"></i></div>
-        <div class="clinic-info">
-            <h4>陳醫生診所 <span class="badge">沙田</span><span class="voucher-tag">🏥 醫療券</span></h4>
-            <p>👨‍⚕️ 兒科 | ⭐ 4.7 (89)</p>
-            <p>📞 2606 1234 | 距離 2.3km | $500</p>
-        </div>
-    </div>
-
-    <div style="padding: 15px 20px; text-align: center; color: #0066cc;" onclick="alert('顯示全部 156 間診所')">
-        <i class="fas fa-chevron-down"></i> 查看更多診所 (156間)
-    </div>
-
-    <!-- WhatsApp 按鈕 -->
     <div class="whatsapp-btn" onclick="window.open('https://wa.me/85212345678?text=你好，我想查詢醫療服務')">
         <i class="fab fa-whatsapp"></i>
     </div>
 
     <script>
-        // 更新時間
         function updateTime() {
             const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('current-time').textContent = hours + ':' + minutes;
+            document.getElementById('current-time').innerText = 
+                now.getHours().toString().padStart(2,'0') + ':' + 
+                now.getMinutes().toString().padStart(2,'0');
         }
         updateTime();
         setInterval(updateTime, 60000);
-        
-        // 脈搏測量功能
-        document.querySelectorAll('.icon-card')[10].addEventListener('click', function(e) {
-            if(!confirm('❤️ 脈搏測量\n\n請將手指放在手機鏡頭和閃光燈上\n30秒後顯示結果\n\n開始測量嗎？')) return;
-            
-            let seconds = 30;
-            const interval = setInterval(function() {
-                seconds--;
-                if(seconds <= 0) {
-                    clearInterval(interval);
-                    alert('✅ 測量完成！\n\n❤️ 脈搏：72 bpm\n📊 心率變異：正常');
-                } else {
-                    document.querySelectorAll('.icon-card')[10].innerHTML = '<i class="fas fa-heartbeat"></i><div class="label">測量中... ' + seconds + 's</div>';
-                }
-            }, 1000);
-        });
     </script>
 </body>
 </html>
