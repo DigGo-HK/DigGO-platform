@@ -35,12 +35,21 @@
             align-items: center;
             gap: 15px;
         }
-        .logo {
-            font-size: 42px;
+        .logo-box {
             background: rgba(255,255,255,0.2);
             padding: 8px 12px;
             border-radius: 20px;
-            line-height: 1;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .logo-box .dc {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -2px;
+        }
+        .logo-box .box {
+            font-size: 24px;
+            margin-top: -5px;
         }
         .welcome h1 {
             font-size: 24px;
@@ -66,6 +75,10 @@
             transition: 0.2s;
             cursor: pointer;
         }
+        .icon-card i {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
         .icon-card:nth-child(1) i { color: #0066cc; }
         .icon-card:nth-child(2) i { color: #6f42c1; }
         .icon-card:nth-child(3) i { color: #28a745; }
@@ -78,10 +91,6 @@
         .icon-card:nth-child(10) i { color: #ffc107; }
         .icon-card:nth-child(11) i { color: #28a745; }
         .icon-card:nth-child(12) i { color: #6f42c1; }
-        .icon-card i {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
         .icon-card .label {
             font-size: 13px;
             font-weight: 500;
@@ -169,7 +178,10 @@
 
     <div class="header">
         <div class="logo-area">
-            <div class="logo">🏥</div>
+            <div class="logo-box">
+                <div class="dc">D.C</div>
+                <div class="box">□</div>
+            </div>
             <div class="welcome">
                 <h1>DigGO 醫療探索平台</h1>
                 <p>發現 · 關懷 · 健康</p>
@@ -240,6 +252,12 @@
     <div class="whatsapp-btn" onclick="window.open('https://wa.me/85212345678?text=你好，我想查詢醫療服務')">
         <i class="fab fa-whatsapp"></i>
     </div>
+
+    <script>
+        // 簡單的脈搏測量示範
+        document.querySelectorAll('.icon-card')[10].addEventListener('click', function() {
+            alert('❤️ 脈搏測量功能\n\n請將手指放在手機鏡頭和閃光燈上\n30秒後顯示結果');
+        });
+    </script>
 </body>
 </html>
-<!-- 強制更新 2026-03-19 15:30 -->
