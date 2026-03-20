@@ -369,3 +369,186 @@
                     <span class="filter-chip" onclick="toggleVoucher()">🏥 只顯示可用醫療券</span>
                 </div>
             </div>
+            <div class="clinic-list" id="searchResults">
+                <!-- 診所列表會用 JavaScript 動態產生 -->
+            </div>
+            <button class="btn-primary" onclick="searchClinics()">搜尋</button>
+        </div>
+    </div>
+
+    <!-- OCR Modal -->
+    <div class="modal" id="ocrModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📄 上傳轉介信</span>
+                <span class="close-btn" onclick="closeModal('ocrModal')">✕</span>
+            </div>
+            <div class="ocr-preview" onclick="simulateOCR()">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #0066cc; margin-bottom: 10px;"></i>
+                <p>點擊上傳轉介信</p>
+                <p style="font-size: 12px; color: #999;">支援 JPG、PNG、PDF</p>
+            </div>
+            <div id="ocrResult" style="display: none;">
+                <div style="background: #e6f2ff; padding: 15px; border-radius: 16px; margin: 20px 0;">
+                    <p>✅ 病人姓名：陳大文</p>
+                    <p>✅ 轉介醫院：伊利沙伯醫院</p>
+                    <p>✅ 檢查項目：心臟超聲波</p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p style="font-weight: 600;">推薦診所：</p>
+                    <div class="clinic-card">仁安影像中心 - 心臟超聲波 $2,500 [預約]</div>
+                    <div class="clinic-card">王醫生專科中心 - 心臟科門診 $800 [預約]</div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="startOCR()">開始識別</button>
+        </div>
+    </div>
+
+    <!-- 排隊 Modal -->
+    <div class="modal" id="queueModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>🎟️ 即時排隊</span>
+                <span class="close-btn" onclick="closeModal('queueModal')">✕</span>
+            </div>
+            <div style="text-align: center;">
+                <div class="queue-number">A045</div>
+                <p>前面人數：<span style="font-size: 24px; font-weight: 600;">3</span> 位</p>
+                <p>預計等候：25 分鐘</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+                <p style="color: #666;">⚠️ 每人只能排一間診所</p>
+                <button class="btn-primary" style="margin-top: 20px;" onclick="joinQueue()">加入排隊</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 繳費 Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>💳 繳費服務</span>
+                <span class="close-btn" onclick="closeModal('paymentModal')">✕</span>
+            </div>
+            <div style="margin: 20px 0;">
+                <div class="clinic-card" style="display: flex; justify-content: space-between;">
+                    <span>林醫生診所</span>
+                    <span>$450</span>
+                </div>
+                <div class="clinic-card" style="display: flex; justify-content: space-between;">
+                    <span>仁安影像中心</span>
+                    <span>$1,200</span>
+                </div>
+                <div class="clinic-card" style="display: flex; justify-content: space-between;">
+                    <span>王醫生專科</span>
+                    <span>$800</span>
+                </div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="display: flex; justify-content: space-between; font-weight: 600;">
+                        <span>總計：</span>
+                        <span>$2,450</span>
+                    </p>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>支付方式</label>
+                <div class="filter-options">
+                    <span class="filter-chip active">💳 信用卡</span>
+                    <span class="filter-chip">🏥 醫療券</span>
+                    <span class="filter-chip">📱 轉數快</span>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="processPayment()">確認付款</button>
+        </div>
+    </div>
+
+    <script>
+        // 更新時間
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('current-time').textContent = hours + ':' + minutes;
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Modal 控制
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // 功能開啟
+        function openSearch() { openModal('searchModal'); }
+        function openOCR() { openModal('ocrModal'); }
+        function openQueue() { openModal('queueModal'); }
+        function openPayment() { openModal('paymentModal'); }
+
+        // 診所資料
+        const clinics = [
+            { name: '林醫生家庭醫務所', district: '中西區', type: '西醫', rating: 4.8, voucher: true, fee: 450 },
+            { name: '王醫生專科中心', district: '油尖旺', type: '心臟科', rating: 4.9, voucher: true, fee: 800 },
+            { name: '陳醫生診所', district: '沙田', type: '兒科', rating: 4.7, voucher: true, fee: 500 },
+            { name: '張醫生醫務所', district: '灣仔', type: '西醫', rating: 4.6, voucher: false, fee: 500 },
+            { name: '李中醫診所', district: '荃灣', type: '中醫', rating: 4.5, voucher: true, fee: 300 },
+        ];
+
+        function displayClinics() {
+            const list = document.getElementById('clinicList');
+            list.innerHTML = '';
+            clinics.slice(0, 3).forEach(c => {
+                list.innerHTML += `
+                    <div class="clinic-item" onclick="openQueue()">
+                        <div class="clinic-icon"><i class="fas fa-user-md"></i></div>
+                        <div class="clinic-info">
+                            <h4>${c.name} <span class="badge">${c.district}</span>${c.voucher ? '<span class="voucher-tag">🏥 醫療券</span>' : ''}</h4>
+                            <p>👨‍⚕️ ${c.type} | ⭐ ${c.rating}</p>
+                            <p>距離 1.2km | $${c.fee}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML += `<div style="padding: 15px 20px; text-align: center; color: #0066cc;" onclick="openSearch()"><i class="fas fa-chevron-down"></i> 查看更多診所 (${clinics.length}間)</div>`;
+        }
+
+        function searchClinics() {
+            const results = document.getElementById('searchResults');
+            results.innerHTML = '';
+            clinics.forEach(c => {
+                results.innerHTML += `
+                    <div class="clinic-card" onclick="openQueue()">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-weight: 600;">${c.name}</span>
+                            <span>⭐ ${c.rating}</span>
+                        </div>
+                        <p style="color: #666;">${c.district} · ${c.type}</p>
+                        <p style="color: #666;">💰 $${c.fee} ${c.voucher ? '· 🏥可用醫療券' : ''}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function simulateOCR() {
+            document.getElementById('ocrResult').style.display = 'block';
+        }
+
+        function joinQueue() {
+            alert('✅ 成功加入排隊！\n排隊號碼：A045\n前面人數：3\n預計等候：25分鐘');
+            closeModal('queueModal');
+        }
+
+        function processPayment() {
+            alert('✅ 付款成功！\n總金額：$2,450\n支付方式：醫療券');
+            closeModal('paymentModal');
+        }
+
+        // 初始化
+        displayClinics();
+        searchClinics();
+    </script>
+</body>
+</html>
