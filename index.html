@@ -246,4 +246,16 @@
         function uploadReport() { const name = prompt('報告名稱：'); if(name) { reports.push({ name, date: new Date().toLocaleDateString() }); localStorage.setItem('reports', JSON.stringify(reports)); displayReports(); alert('報告已儲存'); } }
         function displayMedications() { const list = document.getElementById('medicationList'); if(list) list.innerHTML = medications.length ? [...medications].reverse().map(m => `<div class="medication-item" style="padding:12px;background:#f5f7fb;border-radius:12px;margin-bottom:8px;"><div><strong>${m.name}</strong><br>${m.dosage || ''}</div><span>💊</span></div>`).join('') : '<p>暫無藥物記錄</p>'; }
         function uploadMedication() { const name = prompt('藥物名稱：'); const dosage = prompt('劑量 (如：每天1次，每次1粒)：'); if(name) { medications.push({ name, dosage, date: new Date().toLocaleDateString() }); localStorage.setItem('medications', JSON.stringify(medications)); displayMedications(); alert('藥物記錄已儲存'); } }
-        function switchTab(tab) { document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none'; document.getElementById('medicationsTab').style.display = tab === 'medications' ? 'block' : 'none'; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active');
+        function switchTab(tab) { document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none'; document.getElementById('medicationsTab').style.display = tab === 'medications' ? 'block' : 'none'; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); }
+        function selectGender(g) { alert(`已選擇：${g}`); }
+        function matchInsurance() { const age = document.getElementById('age').value; if(!age) { alert('請輸入年齡'); return; } document.getElementById('insuranceResult').innerHTML = `<div class="clinic-card"><strong>AXA 安盛「智安心」</strong><br>每月 $450 | 住院保障 $500,000/年</div><div class="clinic-card"><strong>保誠「醫療保」</strong><br>每月 $380 | 住院保障 $400,000/年</div>`; }
+        function uploadPrescription() { alert('處方已上傳！\n將為你配對附近藥房\n預計送達：1小時內'); document.getElementById('medicineResult').innerHTML = '<div class="clinic-card"><strong>萬寧藥房</strong><br>必理通 $45 | 1小時送達</div><div class="clinic-card"><strong>屈臣氏藥房</strong><br>樂信感冒靈 $38 | 1小時送達</div>'; }
+        function orderMedicine() { alert('✅ 藥物訂購成功！\n預計 1 小時內送達'); closeModal('medicineModal'); }
+        function selectAdviceGender(g) { alert(`已選擇：${g}`); }
+        function getHealthAdvice() { const age = document.getElementById('adviceAge').value; if(!age) { alert('請輸入年齡'); return; } document.getElementById('healthAdviceContent').innerHTML = `<div class="clinic-card">📋 健康建議<br><br>根據您的年齡 ${age} 歲，建議：<br>• 每年一次身體檢查<br>• 每6個月檢查血壓<br>• 每2年檢查膽固醇<br>• 多運動、均衡飲食</div>`; }
+        function showGuide(type) { let content = ''; if(type === 'hypertension') content = '🩺 高血壓就醫指南\n\n【私家醫生】費用：$400-800/次，等候：即日\n\n【公立醫院】費用：$50-100/次，等候：1-4週\n\n建議：先睇私家控制，同時排公立'; else if(type === 'diabetes') content = '🩺 糖尿病就醫指南\n\n【私家醫生】費用：$400-800/次，可即時取藥\n\n【公立醫院】費用：$80-135/次，可申請藥物送遞'; else content = '📝 轉介信攻略\n\n1. 睇任何註冊醫生\n2. 醫生評估後寫轉介信\n3. 帶信到公立醫院登記\n4. 或直接預約私家專科'; document.getElementById('guideContent').innerHTML = `<div class="clinic-card">${content.replace(/\n/g,'<br>')}</div>`; }
+
+        displayClinics();
+    </script>
+</body>
+</html>
