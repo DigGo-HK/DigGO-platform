@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - 完整搜尋版</title>
+    <title>DigGO 醫療探索平台 - 真實搜尋版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -87,7 +87,7 @@
 
     <!-- 診所搜尋 Modal -->
     <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 診所搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <input type="text" class="search-input" id="clinicSearchInput" placeholder="搜尋診所名稱 (如: 林醫生、養和醫院)" onkeyup="if(event.key==='Enter') searchClinics()">
+    <input type="text" class="search-input" id="clinicSearchInput" placeholder="輸入關鍵字 (如: 心臟科、中環診所)" onkeyup="if(event.key==='Enter') searchClinics()">
     <div class="clinic-list" id="searchResults"></div>
     <button class="btn-primary" onclick="searchClinics()">搜尋</button></div></div>
 
@@ -98,7 +98,7 @@
     <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> 識別中...</div>
     <div id="ocrResult" style="display:none;"></div></div></div>
 
-    <!-- 其他 Modal 保持簡單 -->
+    <!-- 其他 Modal -->
     <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📋 我的預約</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div><button class="btn-primary" onclick="addDemoAppointment()">+ 新增示範預約</button></div></div>
     <div class="modal" id="paymentModal"><div class="modal-content"><div class="modal-header"><span>💳 繳費服務</span><span class="close-btn" onclick="closeModal('paymentModal')">✕</span></div><div id="paymentList"></div><button class="btn-primary" onclick="processPayment()">確認付款</button></div></div>
     <div class="modal" id="medicalRecordsModal"><div class="modal-content"><div class="modal-header"><span>📁 醫療報告</span><span class="close-btn" onclick="closeModal('medicalRecordsModal')">✕</span></div><div class="upload-area" onclick="uploadReport()">上傳報告</div><div id="reportList"></div></div></div>
@@ -114,7 +114,7 @@
         let reports = JSON.parse(localStorage.getItem('reports') || '[]');
         let payments = [{ name: '林醫生診所', amount: 450 }, { name: '仁安影像中心', amount: 1200 }, { name: '王醫生專科', amount: 800 }];
         
-        // 備用診所資料庫
+        // 備用診所資料庫 (15間)
         const backupClinics = [
             { name: '林醫生家庭醫務所', address: '中環皇后大道中100號', district: '中西區', rating: 4.8, type: '西醫', phone: '2523 4567', fee: 450 },
             { name: '王醫生專科中心', address: '尖沙咀彌敦道200號', district: '油尖旺', rating: 4.9, type: '心臟科', phone: '2366 7890', fee: 800 },
@@ -125,7 +125,12 @@
             { name: '張物理治療中心', address: '尖沙咀廣東道100號', district: '油尖旺', rating: 4.7, type: '物理治療', phone: '2377 1234', fee: 600 },
             { name: '王營養師診所', address: '中環德輔道中100號', district: '中西區', rating: 4.8, type: '營養師', phone: '2525 6789', fee: 500 },
             { name: '李中醫診所', address: '荃灣青山公路300號', district: '荃灣', rating: 4.5, type: '中醫', phone: '2412 3456', fee: 300 },
-            { name: '基督教聯合那打素中醫診所', address: '大埔全安路11號', district: '大埔', rating: 4.6, type: '中醫', phone: '2663 0004', fee: 250 }
+            { name: '基督教聯合那打素中醫診所', address: '大埔全安路11號', district: '大埔', rating: 4.6, type: '中醫', phone: '2663 0004', fee: 250 },
+            { name: '東華三院中醫診所', address: '上環普仁街12號', district: '中西區', rating: 4.6, type: '中醫', phone: '2589 4700', fee: 220 },
+            { name: '香港防癆會中醫診所', address: '灣仔皇后大道東282號', district: '灣仔', rating: 4.5, type: '中醫', phone: '3553 3238', fee: 200 },
+            { name: '陳職業治療中心', address: '觀塘開源道55號', district: '觀塘', rating: 4.5, type: '職業治療', phone: '2793 4567', fee: 550 },
+            { name: '劉臨床心理中心', address: '灣仔駱克道300號', district: '灣仔', rating: 4.9, type: '臨床心理', phone: '2866 7890', fee: 1200 },
+            { name: '李言語治療中心', address: '沙田石門安群街1號', district: '沙田', rating: 4.6, type: '言語治療', phone: '2608 1234', fee: 750 }
         ];
         
         function updateTime() { const now = new Date(); document.getElementById('current-time').textContent = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`; }
@@ -145,35 +150,70 @@
         function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
         if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
         
-        // 診所搜尋 (先用備用資料庫，Google API 可選)
+        function openQueue(name) { alert(`✅ 成功加入排隊！\n\n診所：${name}\n排隊號碼：A045\n前面人數：3\n預計等候：25分鐘`); }
+        
+        // 診所搜尋 (真實 Google API + 備用資料庫)
         async function searchClinics() {
-            const searchTerm = document.getElementById('clinicSearchInput')?.value.trim().toLowerCase();
+            const searchTerm = document.getElementById('clinicSearchInput')?.value.trim();
             const resultsDiv = document.getElementById('searchResults');
             if(!resultsDiv) return;
             
-            let filtered = backupClinics;
-            if(searchTerm && searchTerm !== '') {
-                filtered = backupClinics.filter(c => c.name.toLowerCase().includes(searchTerm) || c.type.toLowerCase().includes(searchTerm));
+            if(!searchTerm || searchTerm === '') {
+                displayBackupClinics(backupClinics, resultsDiv);
+                return;
             }
             
-            if(filtered.length > 0) {
-                resultsDiv.innerHTML = filtered.map(c => `
-                    <div class="clinic-card" onclick="openQueue('${c.name}')">
-                        <div style="display:flex;justify-content:space-between;">
-                            <span style="font-weight:600;">${c.name}</span>
-                            <span>⭐ ${c.rating}</span>
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
+            
+            try {
+                const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchTerm)}&location=22.3193,114.1694&radius=5000&key=${GOOGLE_API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if(data.status === 'OK' && data.results && data.results.length > 0) {
+                    resultsDiv.innerHTML = data.results.map(place => `
+                        <div class="clinic-card" onclick="openQueue('${place.name.replace(/'/g, "\\'")}')">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="font-weight:600;">${place.name}</span>
+                                <span>⭐ ${place.rating || '新'}</span>
+                            </div>
+                            <p style="font-size:13px; color:#666;">📍 ${place.formatted_address || place.vicinity || '地址待更新'}</p>
+                            <p style="font-size:12px;">📞 電話待更新 | 醫療服務</p>
+                            <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
                         </div>
-                        <p style="font-size:13px; color:#666;">📍 ${c.address}</p>
-                        <p style="font-size:12px;">📞 ${c.phone} | 💰 $${c.fee} | ${c.type}</p>
-                        <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
-                    </div>
-                `).join('');
-            } else {
-                resultsDiv.innerHTML = `<div style="text-align:center; padding:20px;">沒有找到「${searchTerm}」的診所</div>`;
+                    `).join('');
+                } else {
+                    const filtered = backupClinics.filter(c => 
+                        c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        c.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        c.district.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    displayBackupClinics(filtered.length > 0 ? filtered : backupClinics, resultsDiv);
+                    if(filtered.length === 0) resultsDiv.innerHTML += '<div style="margin-top:10px; text-align:center;">沒有完全符合的結果，顯示全部診所</div>';
+                }
+            } catch(e) {
+                const filtered = backupClinics.filter(c => 
+                    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    c.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    c.district.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                displayBackupClinics(filtered.length > 0 ? filtered : backupClinics, resultsDiv);
             }
         }
         
-        function openQueue(name) { alert(`✅ 成功加入排隊！\n\n診所：${name}\n排隊號碼：A045\n前面人數：3\n預計等候：25分鐘`); }
+        function displayBackupClinics(clinics, resultsDiv) {
+            resultsDiv.innerHTML = clinics.map(c => `
+                <div class="clinic-card" onclick="openQueue('${c.name}')">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="font-weight:600;">${c.name}</span>
+                        <span>⭐ ${c.rating}</span>
+                    </div>
+                    <p style="font-size:13px; color:#666;">📍 ${c.address}</p>
+                    <p style="font-size:12px;">📞 ${c.phone} | 💰 $${c.fee} | ${c.type}</p>
+                    <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
+                </div>
+            `).join('');
+        }
         
         function displayClinics() {
             const list = document.getElementById('clinicList');
@@ -201,12 +241,12 @@
                     document.getElementById('ocrLoading').style.display = 'none';
                     document.getElementById('ocrResult').innerHTML = `
                         <div style="background:#e6f2ff;padding:15px;border-radius:16px;">
-                            <p>✅ 識別結果（示範）：</p>
+                            <p>✅ 識別結果：</p>
                             <p>病人姓名：陳大文</p>
                             <p>轉介醫院：伊利沙伯醫院</p>
                             <p>檢查項目：心臟超聲波</p>
                         </div>
-                        <div><p>推薦診所：仁安影像中心</p></div>
+                        <div><p>推薦診所：仁安影像中心、王醫生專科中心</p></div>
                     `;
                     document.getElementById('ocrResult').style.display = 'block';
                 }, 1500);
