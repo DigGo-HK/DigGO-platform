@@ -56,13 +56,6 @@
         .clinic-card, .record-card { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: #0066cc; color: white; border: none; padding: 15px; border-radius: 30px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 20px; }
         .ocr-preview { background: #f0f0f0; border-radius: 16px; padding: 20px; text-align: center; margin: 20px 0; border: 2px dashed #999; cursor: pointer; }
-        .queue-number { font-size: 48px; font-weight: 800; color: #0066cc; text-align: center; margin: 20px 0; }
-        .progress-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; margin: 20px 0; }
-        .progress-fill { height: 100%; background: #0066cc; width: 0%; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; }
-        .tab { padding: 10px 20px; cursor: pointer; font-weight: 500; }
-        .tab.active { color: #0066cc; border-bottom: 2px solid #0066cc; }
-        .upload-area { border: 2px dashed #ccc; border-radius: 16px; padding: 30px; text-align: center; margin: 20px 0; cursor: pointer; }
         .search-input { width: 100%; padding: 12px; border-radius: 30px; border: 1px solid #ddd; margin-bottom: 15px; font-size: 16px; }
         .dark-mode-toggle { position: fixed; top: 80px; right: 20px; background: white; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 1000; }
         .loading { text-align: center; padding: 20px; color: #0066cc; }
@@ -78,11 +71,11 @@
         <div class="icon-card" onclick="openOCR()"><i class="fas fa-flask"></i><div class="label">化驗預約</div></div>
         <div class="icon-card" onclick="openAppointments()"><i class="fas fa-calendar-check"></i><div class="label">預約通</div></div>
         <div class="icon-card" onclick="openPayment()"><i class="fas fa-credit-card"></i><div class="label">繳費服務</div></div>
-        <div class="icon-card" onclick="alert('🤝 公私合作\n\n長者醫療券計劃\n公營轉介私營服務\n疫苗資助計劃')"><i class="fas fa-handshake"></i><div class="label">公私合作</div></div>
+        <div class="icon-card" onclick="alert('🤝 公私合作\n\n長者醫療券計劃\n公營轉介私營服務')"><i class="fas fa-handshake"></i><div class="label">公私合作</div></div>
         <div class="icon-card" onclick="openMedicalRecords()"><i class="fas fa-folder-medical"></i><div class="label">醫療報告</div></div>
         <div class="icon-card" onclick="openInsurance()"><i class="fas fa-shield-alt"></i><div class="label">保險配對</div></div>
         <div class="icon-card" onclick="openMedicine()"><i class="fas fa-pills"></i><div class="label">藥物送遞</div></div>
-        <div class="icon-card" onclick="alert('💰 優惠資訊\n\n養和醫院體檢 7折\n清晰眼科手術 85折\n卓越牙科洗牙 $380')"><i class="fas fa-tags"></i><div class="label">優惠資訊</div></div>
+        <div class="icon-card" onclick="alert('💰 優惠資訊\n\n養和醫院體檢 7折')"><i class="fas fa-tags"></i><div class="label">優惠資訊</div></div>
         <div class="icon-card" onclick="openHealthAdvice()"><i class="fas fa-heartbeat"></i><div class="label">健康建議</div></div>
         <div class="icon-card" onclick="window.open('https://wa.me/85212345678?text=你好，我想查詢醫療服務')"><i class="fas fa-comment-medical"></i><div class="label">醫療助手</div></div>
         <div class="icon-card" onclick="openExpertQuery()"><i class="fas fa-question-circle"></i><div class="label">專業查詢</div></div>
@@ -94,51 +87,54 @@
 
     <!-- 診所搜尋 Modal -->
     <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 診所搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <input type="text" class="search-input" id="clinicSearchInput" placeholder="搜尋診所名稱或地址..." onkeyup="searchClinics()">
-    <div class="filter-group"><label>地區</label><div class="filter-options" id="districtFilters"></div></div>
-    <div class="filter-group"><label>專科</label><div class="filter-options" id="specialtyFilters"></div></div>
+    <input type="text" class="search-input" id="clinicSearchInput" placeholder="搜尋診所名稱或地址 (如: 中環診所)" onkeyup="if(event.key==='Enter') searchClinics()">
     <div class="clinic-list" id="searchResults"></div>
     <button class="btn-primary" onclick="searchClinics()">搜尋</button></div></div>
 
-    <!-- OCR Modal (真實 Google Vision) -->
+    <!-- OCR Modal -->
     <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 上傳轉介信</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
-    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #0066cc;"></i><p>點擊上傳轉介信</p><p style="font-size: 12px;">支援 JPG、PNG | Google Vision AI 識別</p></div>
-    <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Google Vision 識別中...</div>
-    <div id="ocrResult" style="display:none;"></div>
-    <button class="btn-primary" onclick="startOCR()">開始識別</button></div></div>
+    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #0066cc;"></i><p>點擊上傳轉介信</p><p style="font-size: 12px;">Google Vision AI 識別文字</p></div>
+    <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> 識別中...</div>
+    <div id="ocrResult" style="display:none;"></div></div></div>
 
-    <!-- 其他 Modal 保持相同結構 -->
+    <!-- 預約通 Modal -->
     <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📋 我的預約</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div>
     <div id="appointmentList"></div>
     <button class="btn-primary" onclick="addDemoAppointment()">+ 新增示範預約</button></div></div>
 
+    <!-- 繳費 Modal -->
     <div class="modal" id="paymentModal"><div class="modal-content"><div class="modal-header"><span>💳 繳費服務</span><span class="close-btn" onclick="closeModal('paymentModal')">✕</span></div>
     <div id="paymentList"></div>
     <button class="btn-primary" onclick="processPayment()">確認付款</button></div></div>
 
+    <!-- 醫療報告 Modal -->
     <div class="modal" id="medicalRecordsModal"><div class="modal-content"><div class="modal-header"><span>📁 醫療報告 + 藥物記錄</span><span class="close-btn" onclick="closeModal('medicalRecordsModal')">✕</span></div>
     <div class="tab-bar"><div class="tab active" onclick="switchTab('reports')">📄 醫療報告</div><div class="tab" onclick="switchTab('medications')">💊 藥物記錄</div></div>
-    <div id="reportsTab"><div class="upload-area" onclick="uploadReport()"><i class="fas fa-plus-circle" style="font-size: 32px; color: #0066cc;"></i><p>上傳新報告</p></div><div id="reportList"></div></div>
-    <div id="medicationsTab" style="display:none;"><div class="upload-area" onclick="uploadMedication()"><i class="fas fa-plus-circle" style="font-size: 32px; color: #0066cc;"></i><p>上傳藥物記錄</p></div><div id="medicationList"></div></div></div></div>
+    <div id="reportsTab"><div class="upload-area" onclick="uploadReport()"><i class="fas fa-plus-circle"></i><p>上傳新報告</p></div><div id="reportList"></div></div>
+    <div id="medicationsTab" style="display:none;"><div class="upload-area" onclick="uploadMedication()"><i class="fas fa-plus-circle"></i><p>上傳藥物記錄</p></div><div id="medicationList"></div></div></div></div>
 
+    <!-- 保險配對 Modal -->
     <div class="modal" id="insuranceModal"><div class="modal-content"><div class="modal-header"><span>🛡️ 保險配對</span><span class="close-btn" onclick="closeModal('insuranceModal')">✕</span></div>
-    <div class="filter-group"><label>年齡</label><input type="number" id="age" placeholder="輸入年齡" style="width:100%;padding:12px;border-radius:30px;border:1px solid #ddd;"></div>
+    <input type="number" id="age" placeholder="輸入年齡" style="width:100%;padding:12px;border-radius:30px;border:1px solid #ddd;">
     <div id="insuranceResult"></div>
     <button class="btn-primary" onclick="matchInsurance()">開始配對</button></div></div>
 
+    <!-- 藥物送遞 Modal -->
     <div class="modal" id="medicineModal"><div class="modal-content"><div class="modal-header"><span>💊 藥物送遞</span><span class="close-btn" onclick="closeModal('medicineModal')">✕</span></div>
-    <div class="ocr-preview" onclick="uploadPrescription()"><i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #0066cc;"></i><p>上傳處方 / 藥袋</p></div>
+    <div class="ocr-preview" onclick="uploadPrescription()"><i class="fas fa-cloud-upload-alt"></i><p>上傳處方</p></div>
     <div id="medicineResult"></div>
     <button class="btn-primary" onclick="orderMedicine()">訂購藥物</button></div></div>
 
+    <!-- 健康建議 Modal -->
     <div class="modal" id="healthAdviceModal"><div class="modal-content"><div class="modal-header"><span>💡 健康建議</span><span class="close-btn" onclick="closeModal('healthAdviceModal')">✕</span></div>
-    <div class="filter-group"><label>年齡</label><input type="number" id="adviceAge" placeholder="輸入年齡" style="width:100%;padding:12px;border-radius:30px;border:1px solid #ddd;"></div>
+    <input type="number" id="adviceAge" placeholder="輸入年齡" style="width:100%;padding:12px;border-radius:30px;border:1px solid #ddd;">
     <div id="healthAdviceContent"></div>
     <button class="btn-primary" onclick="getHealthAdvice()">更新建議</button></div></div>
 
+    <!-- 專業查詢 Modal -->
     <div class="modal" id="expertQueryModal"><div class="modal-content"><div class="modal-header"><span>❓ 專業查詢</span><span class="close-btn" onclick="closeModal('expertQueryModal')">✕</span></div>
-    <div class="filter-group"><label>選擇問題</label><div class="filter-options"><span class="filter-chip" onclick="showGuide('hypertension')">高血壓</span><span class="filter-chip" onclick="showGuide('diabetes')">糖尿病</span><span class="filter-chip" onclick="showGuide('referral')">轉介信</span></div></div>
+    <div class="filter-options"><span class="filter-chip" onclick="showGuide('hypertension')">高血壓</span><span class="filter-chip" onclick="showGuide('diabetes')">糖尿病</span><span class="filter-chip" onclick="showGuide('referral')">轉介信</span></div>
     <div id="guideContent"></div></div></div>
 
     <script>
@@ -148,8 +144,6 @@
         let reports = JSON.parse(localStorage.getItem('reports') || '[]');
         let medications = JSON.parse(localStorage.getItem('medications') || '[]');
         let payments = [{ name: '林醫生診所', amount: 450 }, { name: '仁安影像中心', amount: 1200 }, { name: '王醫生專科', amount: 800 }];
-        let currentDistrict = 'all';
-        let currentSpecialty = 'all';
         
         function updateTime() { const now = new Date(); document.getElementById('current-time').textContent = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`; }
         updateTime(); setInterval(updateTime, 60000);
@@ -168,128 +162,110 @@
         function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
         if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
 
-        // 真實 Google Places API 搜尋
+        // 診所搜尋 (Google Places API)
         async function searchClinics() {
-            const searchTerm = document.getElementById('clinicSearchInput')?.value || 'clinic Hong Kong';
+            const searchTerm = document.getElementById('clinicSearchInput')?.value.trim();
             const resultsDiv = document.getElementById('searchResults');
             if(!resultsDiv) return;
             
+            let query = searchTerm && searchTerm !== '' ? searchTerm : 'clinic Hong Kong';
             resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
             
             try {
-                const response = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchTerm)}&location=22.3193,114.1694&radius=5000&key=${GOOGLE_API_KEY}`);
+                const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=5000&key=${GOOGLE_API_KEY}`;
+                const response = await fetch(url);
                 const data = await response.json();
                 
-                if(data.results && data.results.length > 0) {
+                if(data.status === 'OK' && data.results && data.results.length > 0) {
                     resultsDiv.innerHTML = data.results.map(place => `
-                        <div class="clinic-card" onclick="openQueue('${place.name}')">
+                        <div class="clinic-card" onclick="openQueue('${place.name.replace(/'/g, "\\'")}')">
                             <div style="display:flex;justify-content:space-between;">
                                 <span style="font-weight:600;">${place.name}</span>
                                 <span>⭐ ${place.rating || '新'}</span>
                             </div>
-                            <p>${place.vicinity || place.formatted_address || ''}</p>
-                            <p>${place.types?.filter(t => t !== 'point_of_interest' && t !== 'establishment').join(', ') || '診所'}</p>
+                            <p style="font-size:13px; color:#666;">📍 ${place.formatted_address || place.vicinity || '地址待更新'}</p>
+                            <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
                         </div>
                     `).join('');
                 } else {
-                    resultsDiv.innerHTML = '<p>沒有找到診所，請嘗試其他關鍵字</p>';
+                    resultsDiv.innerHTML = `<div style="text-align:center; padding:20px;"><i class="fas fa-search"></i><p>沒有找到「${query}」的診所</p><p style="font-size:12px;">試試輸入：中環診所、尖沙咀醫生、家庭醫學</p></div>`;
                 }
             } catch(e) {
-                console.error(e);
-                resultsDiv.innerHTML = '<p>搜尋失敗，請稍後再試</p>';
+                resultsDiv.innerHTML = '<div style="text-align:center; padding:20px;">搜尋失敗，請稍後再試</div>';
             }
         }
-        
-        // 真實 Google Vision OCR
-        let currentImageData = null;
-        
+
+        // OCR 轉介信
         function processOCRImage(input) {
             const file = input.files[0];
             if(!file) return;
-            
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentImageData = e.target.result.split(',')[1];
                 document.getElementById('ocrLoading').style.display = 'block';
-                document.getElementById('ocrResult').style.display = 'none';
-                
+                const base64 = e.target.result.split(',')[1];
                 fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
                     method: 'POST',
                     body: JSON.stringify({
                         requests: [{
-                            image: { content: currentImageData },
+                            image: { content: base64 },
                             features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
                         }]
                     })
-                })
-                .then(res => res.json())
-                .then(data => {
+                }).then(res => res.json()).then(data => {
                     document.getElementById('ocrLoading').style.display = 'none';
                     const text = data.responses?.[0]?.fullTextAnnotation?.text || '未識別到文字';
-                    document.getElementById('ocrResult').style.display = 'block';
                     document.getElementById('ocrResult').innerHTML = `
                         <div style="background:#e6f2ff;padding:15px;border-radius:16px;margin:20px 0">
                             <p>✅ 識別結果：</p>
-                            <p style="white-space:pre-wrap; font-size:12px;">${text.substring(0, 500)}</p>
+                            <p style="white-space:pre-wrap;">${text.substring(0, 500)}</p>
                         </div>
-                        <div><p style="font-weight:600;">推薦診所：</p>
-                        <div class="clinic-card" onclick="openQueue('仁安影像中心')">🏥 仁安影像中心 - 預約 $1,200起</div>
-                        <div class="clinic-card" onclick="openQueue('附近診所')">🏥 按轉介信內容配對診所</div></div>
                     `;
-                })
-                .catch(err => {
-                    document.getElementById('ocrLoading').style.display = 'none';
-                    alert('OCR 識別失敗：' + err.message);
-                });
+                    document.getElementById('ocrResult').style.display = 'block';
+                }).catch(() => { document.getElementById('ocrLoading').style.display = 'none'; alert('識別失敗'); });
             };
             reader.readAsDataURL(file);
         }
-        
-        function startOCR() { alert('請點擊上傳轉介信圖片'); }
-        
+
         function openQueue(name) { alert(`✅ 成功加入排隊！\n\n診所：${name}\n排隊號碼：A045\n前面人數：3\n預計等候：25分鐘`); }
         
         function displayClinics() {
             const list = document.getElementById('clinicList');
             if(!list) return;
             list.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 載入附近診所...</div>';
-            
             fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=22.3193,114.1694&radius=1000&keyword=clinic&key=${GOOGLE_API_KEY}`)
                 .then(res => res.json())
                 .then(data => {
                     if(data.results && data.results.length > 0) {
                         list.innerHTML = data.results.slice(0, 3).map(place => `
-                            <div class="clinic-item" onclick="openQueue('${place.name}')">
+                            <div class="clinic-item" onclick="openQueue('${place.name.replace(/'/g, "\\'")}')">
                                 <div class="clinic-icon"><i class="fas fa-map-marker-alt"></i></div>
                                 <div class="clinic-info">
                                     <h4>${place.name} <span class="badge">附近</span></h4>
                                     <p>⭐ ${place.rating || '新'} | ${place.vicinity || ''}</p>
-                                    <p>距離約 ${(place.distance || 500)}m</p>
                                 </div>
                             </div>
                         `).join('');
-                        list.innerHTML += `<div style="padding: 15px 20px; text-align: center; color: #0066cc;" onclick="openSearch()"><i class="fas fa-chevron-down"></i> 查看更多診所</div>`;
+                        list.innerHTML += `<div style="padding:15px;text-align:center;color:#0066cc;" onclick="openSearch()"><i class="fas fa-chevron-down"></i> 查看更多診所</div>`;
                     } else {
-                        list.innerHTML = '<p>暫無附近診所資料</p>';
+                        list.innerHTML = '<p>暫無附近診所</p>';
                     }
-                })
-                .catch(() => { list.innerHTML = '<p>載入診所失敗，請稍後再試</p>'; });
+                }).catch(() => { list.innerHTML = '<p>載入失敗</p>'; });
         }
-        
-        function displayAppointments() { const list = document.getElementById('appointmentList'); if(list) list.innerHTML = appointments.length ? appointments.map(a => `<div class="clinic-card">${a.name} - ${a.date} ${a.time}<br>狀態：${a.status}</div>`).join('') : '<p>暫無預約</p>'; }
+
+        function displayAppointments() { const list = document.getElementById('appointmentList'); if(list) list.innerHTML = appointments.length ? appointments.map(a => `<div class="clinic-card">${a.name} - ${a.date} ${a.time}</div>`).join('') : '<p>暫無預約</p>'; }
         function addDemoAppointment() { appointments.push({ name: '林醫生診所', date: '2026-03-25', time: '10:00', status: '已確認' }); localStorage.setItem('appointments', JSON.stringify(appointments)); displayAppointments(); alert('已加入示範預約'); }
-        function displayPayments() { const list = document.getElementById('paymentList'); if(list) { const total = payments.reduce((s,p)=>s+p.amount,0); list.innerHTML = payments.map(p => `<div class="clinic-card" style="display:flex;justify-content:space-between;"><span>${p.name}</span><span>$${p.amount}</span></div>`).join('') + `<div style="margin-top:20px;"><p style="display:flex;justify-content:space-between;font-weight:600;"><span>總計：</span><span>$${total}</span></p></div>`; } }
-        function processPayment() { alert(`✅ 付款成功！\n總金額：$2,450`); closeModal('paymentModal'); }
+        function displayPayments() { const list = document.getElementById('paymentList'); if(list) { const total = payments.reduce((s,p)=>s+p.amount,0); list.innerHTML = payments.map(p => `<div style="display:flex;justify-content:space-between;"><span>${p.name}</span><span>$${p.amount}</span></div>`).join('') + `<div style="margin-top:20px;"><strong>總計：$${total}</strong></div>`; } }
+        function processPayment() { alert('✅ 付款成功！'); closeModal('paymentModal'); }
         function displayReports() { const list = document.getElementById('reportList'); if(list) list.innerHTML = reports.length ? reports.map(r => `<div class="record-card">📄 ${r.name}<br><small>${r.date}</small></div>`).join('') : '<p>暫無報告</p>'; }
         function uploadReport() { const name = prompt('報告名稱：'); if(name) { reports.push({ name, date: new Date().toLocaleDateString() }); localStorage.setItem('reports', JSON.stringify(reports)); displayReports(); alert('報告已儲存'); } }
-        function displayMedications() { const list = document.getElementById('medicationList'); if(list) list.innerHTML = medications.length ? medications.map(m => `<div style="padding:12px;background:#f5f7fb;border-radius:12px;margin-bottom:8px;"><div><strong>${m.name}</strong><br>${m.dosage || ''}</div></div>`).join('') : '<p>暫無藥物記錄</p>'; }
+        function displayMedications() { const list = document.getElementById('medicationList'); if(list) list.innerHTML = medications.length ? medications.map(m => `<div style="padding:12px;background:#f5f7fb;border-radius:12px;margin-bottom:8px;"><strong>${m.name}</strong><br>${m.dosage || ''}</div>`).join('') : '<p>暫無藥物記錄</p>'; }
         function uploadMedication() { const name = prompt('藥物名稱：'); const dosage = prompt('劑量：'); if(name) { medications.push({ name, dosage, date: new Date().toLocaleDateString() }); localStorage.setItem('medications', JSON.stringify(medications)); displayMedications(); alert('藥物記錄已儲存'); } }
-        function switchTab(tab) { document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none'; document.getElementById('medicationsTab').style.display = tab === 'medications' ? 'block' : 'none'; document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); }
-        function matchInsurance() { const age = document.getElementById('age').value; if(!age) { alert('請輸入年齡'); return; } document.getElementById('insuranceResult').innerHTML = `<div class="clinic-card"><strong>AXA 安盛「智安心」</strong><br>每月 $450 | 住院保障 $500,000/年</div><div class="clinic-card"><strong>保誠「醫療保」</strong><br>每月 $380 | 住院保障 $400,000/年</div>`; }
-        function uploadPrescription() { alert('處方已上傳！\n預計送達：1小時內'); document.getElementById('medicineResult').innerHTML = '<div class="clinic-card"><strong>萬寧藥房</strong><br>必理通 $45 | 1小時送達</div>'; }
-        function orderMedicine() { alert('✅ 藥物訂購成功！'); closeModal('medicineModal'); }
-        function getHealthAdvice() { const age = document.getElementById('adviceAge').value; if(!age) { alert('請輸入年齡'); return; } document.getElementById('healthAdviceContent').innerHTML = `<div class="clinic-card">📋 健康建議<br><br>根據年齡 ${age} 歲，建議：<br>• 每年一次身體檢查<br>• 每6個月檢查血壓<br>• 多運動、均衡飲食</div>`; }
-        function showGuide(type) { let content = ''; if(type === 'hypertension') content = '🩺 高血壓就醫指南\n\n【私家醫生】費用：$400-800/次\n【公立醫院】費用：$50-100/次\n建議：先睇私家控制，同時排公立'; else if(type === 'diabetes') content = '🩺 糖尿病就醫指南\n\n【私家醫生】費用：$400-800/次\n【公立醫院】費用：$80-135/次'; else content = '📝 轉介信攻略\n\n1. 睇任何註冊醫生\n2. 醫生評估後寫轉介信\n3. 帶信到公立醫院登記'; document.getElementById('guideContent').innerHTML = `<div class="clinic-card">${content.replace(/\n/g,'<br>')}</div>`; }
+        function switchTab(tab) { document.getElementById('reportsTab').style.display = tab === 'reports' ? 'block' : 'none'; document.getElementById('medicationsTab').style.display = tab === 'medications' ? 'block' : 'none'; event.target.classList.add('active'); }
+        function matchInsurance() { const age = document.getElementById('age').value; if(!age) { alert('請輸入年齡'); return; } document.getElementById('insuranceResult').innerHTML = `<div class="clinic-card">AXA 安盛 每月 $450</div><div class="clinic-card">保誠 每月 $380</div>`; }
+        function uploadPrescription() { alert('處方已上傳！'); document.getElementById('medicineResult').innerHTML = '<div class="clinic-card">萬寧藥房 - 必理通 $45</div>'; }
+        function orderMedicine() { alert('✅ 訂購成功！'); closeModal('medicineModal'); }
+        function getHealthAdvice() { const age = document.getElementById('adviceAge').value; if(!age) { alert('請輸入年齡'); return; } document.getElementById('healthAdviceContent').innerHTML = `<div class="clinic-card">📋 健康建議<br>年齡 ${age} 歲：每年體檢一次</div>`; }
+        function showGuide(type) { let content = ''; if(type === 'hypertension') content = '🩺 高血壓：私家醫生 $400-800，公立醫院 $50-100'; else content = '📝 轉介信：先睇醫生寫信，再到公立登記'; document.getElementById('guideContent').innerHTML = `<div class="clinic-card">${content}</div>`; }
         
         displayClinics();
     </script>
