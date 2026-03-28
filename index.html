@@ -35,36 +35,24 @@
         }
         
         /* 波浪效果 */
-        .wave-container {
+        .waves {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 120px;
+            height: 150px;
             overflow: hidden;
-            line-height: 0;
         }
-        .wave {
+        .wave-svg {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
             height: 100px;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,213.3C960,224,1056,224,1152,208C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
-            background-size: 1440px 100px;
-            animation: waveMove 12s linear infinite;
-            opacity: 0.6;
         }
-        .wave2 {
-            bottom: 20px;
-            opacity: 0.4;
-            animation: waveMove 8s linear infinite reverse;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.3)" fill-opacity="1" d="M0,256L48,240C96,224,192,192,288,192C384,192,480,224,576,240C672,256,768,256,864,240C960,224,1056,192,1152,192C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
-            background-size: 1440px 100px;
-        }
-        @keyframes waveMove {
-            0% { background-position-x: 0; }
-            100% { background-position-x: 1440px; }
+        .wave-svg svg {
+            width: 100%;
+            height: 100%;
         }
         
         .splash-content {
@@ -103,6 +91,7 @@
             animation: spin 1s linear infinite;
             margin: 0 auto;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
         /* 主頁 */
         .main-content { display: none; min-height: 100vh; padding-bottom: 80px; }
@@ -260,15 +249,20 @@
 <body>
     <!-- 啟動畫面 -->
     <div class="splash-screen" id="splashScreen">
-        <div class="wave-container">
-            <div class="wave"></div>
-            <div class="wave wave2"></div>
+        <div class="waves">
+            <div class="wave-svg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                    <path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,213.3C960,224,1056,224,1152,208C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                </svg>
+            </div>
+            <div class="wave-svg" style="bottom: 20px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                    <path fill="rgba(255,255,255,0.3)" fill-opacity="1" d="M0,256L48,240C96,224,192,192,288,192C384,192,480,224,576,240C672,256,768,256,864,240C960,224,1056,192,1152,192C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                </svg>
+            </div>
         </div>
         <div class="splash-content">
-            <div class="splash-logo">
-                <div class="dc">D.C</div>
-                <div class="box">□</div>
-            </div>
+            <div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div>
             <div class="splash-title">DigGO</div>
             <div class="splash-subtitle">醫療探索平台</div>
             <div class="splash-loading"></div>
@@ -283,7 +277,6 @@
             <div class="welcome-text"><i class="fas fa-user-circle"></i> 訪客模式</div>
         </div>
         
-        <!-- 6大核心功能 -->
         <div class="features-grid">
             <div class="feature-card" onclick="openSearch('clinic')"><div class="feature-icon"><i class="fas fa-search" style="color:#0066cc"></i></div><div class="feature-label">醫生搜尋</div></div>
             <div class="feature-card" onclick="openSearch('specialist')"><div class="feature-icon"><i class="fas fa-user-md" style="color:#6f42c1"></i></div><div class="feature-label">專科醫生搜尋</div></div>
@@ -293,7 +286,6 @@
             <div class="feature-card" onclick="openMore()"><div class="feature-icon"><i class="fas fa-ellipsis-h" style="color:#999"></i></div><div class="feature-label">更多</div></div>
         </div>
         
-        <!-- 底部導航 -->
         <div class="bottom-nav">
             <div class="nav-item active" onclick="switchTab('news', this)"><div class="nav-icon"><i class="fas fa-newspaper"></i></div><div class="nav-label">最新消息</div></div>
             <div class="nav-item" onclick="switchTab('services', this)"><div class="nav-icon"><i class="fas fa-th-large"></i></div><div class="nav-label">所有服務</div></div>
@@ -314,6 +306,8 @@
         <span class="filter-chip" onclick="setSearchLocation('尖沙咀 診所')">尖沙咀</span>
         <span class="filter-chip" onclick="setSearchLocation('沙田 診所')">沙田</span>
         <span class="filter-chip" onclick="setSearchLocation('銅鑼灣 診所')">銅鑼灣</span>
+        <span class="filter-chip" onclick="setSearchLocation('心臟科醫生')">心臟科</span>
+        <span class="filter-chip" onclick="setSearchLocation('兒科醫生')">兒科</span>
     </div>
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="performSearch()">搜尋</button></div></div>
@@ -321,10 +315,9 @@
     <!-- OCR Modal -->
     <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR轉介信</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
-    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p><p style="font-size:12px;">支援 JPG、PNG | 自動識別檢查項目</p></div>
+    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p><p style="font-size:12px;">Google Vision 真實識別文字</p></div>
     <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> 識別中...</div>
     <div id="ocrResult" style="display:none;"></div>
-    <div id="ocrCenters" style="display:none;"></div>
     <button class="btn-primary" onclick="resetOCR()">重新上傳</button></div></div>
     
     <!-- 排隊通 Modal -->
@@ -344,9 +337,7 @@
         
         let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
         let currentSearchType = 'clinic';
-        let lastOCRText = '';
         
-        // 所有功能清單 (統一管理)
         const allServices = [
             { name: '醫生搜尋', icon: 'fa-search', action: "openSearch('clinic')" },
             { name: '專科醫生搜尋', icon: 'fa-user-md', action: "openSearch('specialist')" },
@@ -494,7 +485,6 @@
             reader.onload = async function(e) {
                 document.getElementById('ocrLoading').style.display = 'block';
                 document.getElementById('ocrResult').style.display = 'none';
-                document.getElementById('ocrCenters').style.display = 'none';
                 
                 const base64Image = e.target.result.split(',')[1];
                 try {
@@ -509,44 +499,17 @@
                     });
                     const visionData = await visionResponse.json();
                     const detectedText = visionData.responses?.[0]?.fullTextAnnotation?.text || '未識別到文字';
-                    lastOCRText = detectedText;
                     
                     document.getElementById('ocrLoading').style.display = 'none';
                     document.getElementById('ocrResult').innerHTML = `
                         <div style="background:#e6f2ff;padding:15px;border-radius:16px;margin-bottom:15px;">
                             <p><strong>✅ Google Vision 識別結果</strong></p>
-                            <p style="white-space:pre-wrap; font-size:12px;">${detectedText.substring(0, 300)}</p>
+                            <p style="white-space:pre-wrap; font-size:12px;">${detectedText.substring(0, 500)}</p>
                         </div>
-                        <p><strong>🔍 請自行搜尋合適的診斷中心：</strong></p>
-                        <input type="text" class="search-input" id="centerSearchInput" placeholder="輸入地區或中心名稱 (如: 中環 CT)" onkeyup="searchCenters()">
-                        <div id="centerSearchResults"></div>
+                        <p><strong>🔍 請用上方「醫生搜尋」自行搜尋合適的診斷中心</strong></p>
+                        <button class="btn-primary" onclick="closeModal('ocrModal');openSearch('clinic')">去搜尋診所</button>
                     `;
                     document.getElementById('ocrResult').style.display = 'block';
-                    
-                    window.searchCenters = async function() {
-                        const searchTerm = document.getElementById('centerSearchInput')?.value.trim();
-                        if(!searchTerm) { document.getElementById('centerSearchResults').innerHTML = ''; return; }
-                        document.getElementById('centerSearchResults').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
-                        try {
-                            const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchTerm)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`;
-                            const res = await fetch(url);
-                            const data = await res.json();
-                            if(data.results?.length) {
-                                document.getElementById('centerSearchResults').innerHTML = data.results.slice(0, 10).map(place => `
-                                    <div class="clinic-card" onclick="bookDiagnosticCenter('${place.name.replace(/'/g, "\\'")}', '${place.formatted_address || place.vicinity || ''}')">
-                                        <div style="display:flex;justify-content:space-between;">
-                                            <span style="font-weight:600;">🏥 ${place.name}</span>
-                                            <span>⭐ ${place.rating || '新'}</span>
-                                        </div>
-                                        <p>📍 ${place.formatted_address || place.vicinity || ''}</p>
-                                        <button style="margin-top:8px; background:#0066cc; color:white; border:none; padding:6px 12px; border-radius:20px;">📅 預約</button>
-                                    </div>
-                                `).join('');
-                            } else {
-                                document.getElementById('centerSearchResults').innerHTML = '<p>沒有找到，請嘗試其他關鍵字</p>';
-                            }
-                        } catch(e) { document.getElementById('centerSearchResults').innerHTML = '<p>搜尋失敗</p>'; }
-                    };
                 } catch(e) {
                     document.getElementById('ocrLoading').style.display = 'none';
                     alert('OCR 識別失敗：' + e.message);
@@ -555,19 +518,8 @@
             reader.readAsDataURL(file);
         }
         
-        function bookDiagnosticCenter(name, address) {
-            if(confirm(`確認預約 ${name}？\n\n地址：${address}\n\n預約後會自動加入「預約通」及「排隊通」`)) {
-                appointments.push({ id: Date.now(), name, address, date: new Date().toLocaleDateString(), time: '10:00', status: '已確認', type: '診斷中心' });
-                localStorage.setItem('appointments', JSON.stringify(appointments));
-                alert(`✅ 已預約 ${name}！`);
-                closeModal('ocrModal');
-                openQueueWithAppointment(name);
-            }
-        }
-        
         function resetOCR() {
             document.getElementById('ocrResult').style.display = 'none';
-            document.getElementById('ocrCenters').style.display = 'none';
             document.getElementById('ocrImageInput').value = '';
         }
         
