@@ -3,38 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - 真實版</title>
+    <title>DigGO 醫療探索平台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Noto Sans TC', sans-serif; background: #f5f7fb; color: #333; line-height: 1.5; }
         
+        /* ========== 啟動畫面 ========== */
         .splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0066cc, #004d99);
+            background: linear-gradient(135deg, #0a5c8e, #0066cc, #2a8bc2, #3aa8e0);
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease infinite;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10000;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.8s ease;
+            overflow: hidden;
         }
-        .splash-content { text-align: center; color: white; }
-        .splash-logo { font-size: 80px; font-weight: 800; letter-spacing: -4px; background: rgba(255,255,255,0.2); padding: 20px 30px; border-radius: 30px; display: inline-block; margin-bottom: 20px; }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* 波浪效果 */
+        .wave-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            overflow: hidden;
+            line-height: 0;
+        }
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,213.3C960,224,1056,224,1152,208C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            background-size: 1440px 100px;
+            animation: waveMove 12s linear infinite;
+            opacity: 0.6;
+        }
+        .wave2 {
+            bottom: 20px;
+            opacity: 0.4;
+            animation: waveMove 8s linear infinite reverse;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.3)" fill-opacity="1" d="M0,256L48,240C96,224,192,192,288,192C384,192,480,224,576,240C672,256,768,256,864,240C960,224,1056,192,1152,192C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x;
+            background-size: 1440px 100px;
+        }
+        @keyframes waveMove {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1440px; }
+        }
+        
+        .splash-content {
+            text-align: center;
+            color: white;
+            z-index: 2;
+            animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .splash-logo {
+            font-size: 80px;
+            font-weight: 800;
+            letter-spacing: -4px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(8px);
+            padding: 20px 30px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
         .splash-logo .dc { font-size: 80px; }
         .splash-logo .box { font-size: 48px; margin-top: -10px; }
-        .splash-title { font-size: 28px; font-weight: 600; margin-bottom: 10px; }
-        .splash-subtitle { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
-        .splash-loading { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .splash-title { font-size: 32px; font-weight: 700; margin-bottom: 12px; letter-spacing: 2px; }
+        .splash-subtitle { font-size: 18px; opacity: 0.9; margin-bottom: 40px; }
+        .splash-loading {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
         
+        /* 主頁 */
         .main-content { display: none; min-height: 100vh; padding-bottom: 80px; }
         .status-bar { background: #0066cc; color: white; padding: 12px 16px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 500; position: sticky; top: 0; z-index: 100; }
-        .header { background: linear-gradient(135deg, #0066cc, #004d99); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header { background: linear-gradient(135deg, #0066cc, #2a8bc2); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
         .logo { font-size: 32px; font-weight: 800; letter-spacing: -2px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; }
         .logo .dc { font-size: 32px; }
         .logo .box { font-size: 18px; }
@@ -54,7 +127,6 @@
         .feature-card:active { transform: scale(0.96); background: #e6f2ff; }
         .feature-icon { font-size: 32px; margin-bottom: 8px; }
         .feature-label { font-size: 13px; font-weight: 500; color: #333; }
-        .feature-badge { background: #ffc107; color: #333; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
         
         .bottom-nav {
             position: fixed;
@@ -164,6 +236,7 @@
             display: inline-block;
             margin: 5px;
         }
+        .loading { text-align: center; padding: 20px; color: #0066cc; }
         .dark-mode-toggle {
             position: fixed;
             bottom: 80px;
@@ -182,19 +255,27 @@
         body.dark { background: #1a1a1a; }
         body.dark .features-grid, body.dark .clinic-card, body.dark .modal-content, 
         body.dark .bottom-nav, body.dark .appointment-item { background: #2a2a2a; color: #eee; }
-        .loading { text-align: center; padding: 20px; color: #0066cc; }
     </style>
 </head>
 <body>
+    <!-- 啟動畫面 -->
     <div class="splash-screen" id="splashScreen">
+        <div class="wave-container">
+            <div class="wave"></div>
+            <div class="wave wave2"></div>
+        </div>
         <div class="splash-content">
-            <div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div>
+            <div class="splash-logo">
+                <div class="dc">D.C</div>
+                <div class="box">□</div>
+            </div>
             <div class="splash-title">DigGO</div>
             <div class="splash-subtitle">醫療探索平台</div>
             <div class="splash-loading"></div>
         </div>
     </div>
 
+    <!-- 主頁內容 -->
     <div class="main-content" id="mainContent">
         <div class="status-bar"><span id="current-time"></span><span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span></div>
         <div class="header">
@@ -202,6 +283,7 @@
             <div class="welcome-text"><i class="fas fa-user-circle"></i> 訪客模式</div>
         </div>
         
+        <!-- 6大核心功能 -->
         <div class="features-grid">
             <div class="feature-card" onclick="openSearch('clinic')"><div class="feature-icon"><i class="fas fa-search" style="color:#0066cc"></i></div><div class="feature-label">醫生搜尋</div></div>
             <div class="feature-card" onclick="openSearch('specialist')"><div class="feature-icon"><i class="fas fa-user-md" style="color:#6f42c1"></i></div><div class="feature-label">專科醫生搜尋</div></div>
@@ -211,6 +293,7 @@
             <div class="feature-card" onclick="openMore()"><div class="feature-icon"><i class="fas fa-ellipsis-h" style="color:#999"></i></div><div class="feature-label">更多</div></div>
         </div>
         
+        <!-- 底部導航 -->
         <div class="bottom-nav">
             <div class="nav-item active" onclick="switchTab('news', this)"><div class="nav-icon"><i class="fas fa-newspaper"></i></div><div class="nav-label">最新消息</div></div>
             <div class="nav-item" onclick="switchTab('services', this)"><div class="nav-icon"><i class="fas fa-th-large"></i></div><div class="nav-label">所有服務</div></div>
@@ -238,8 +321,8 @@
     <!-- OCR Modal -->
     <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR轉介信</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
-    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p><p style="font-size:12px;">支援 JPG、PNG | Google Vision 真實識別</p></div>
-    <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> Google Vision 識別中...</div>
+    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p><p style="font-size:12px;">支援 JPG、PNG | 自動識別檢查項目</p></div>
+    <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> 識別中...</div>
     <div id="ocrResult" style="display:none;"></div>
     <div id="ocrCenters" style="display:none;"></div>
     <button class="btn-primary" onclick="resetOCR()">重新上傳</button></div></div>
@@ -254,12 +337,7 @@
     
     <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
-    <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 12px;">
-        <div class="clinic-card" onclick="alert('💊 藥物送遞')">💊 藥物送遞</div>
-        <div class="clinic-card" onclick="alert('🛡️ 保險配對')">🛡️ 保險配對</div>
-        <div class="clinic-card" onclick="alert('💰 優惠資訊')">💰 優惠資訊</div>
-        <div class="clinic-card" onclick="alert('💡 健康建議')">💡 健康建議</div>
-    </div></div></div>
+    <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 12px;" id="moreServicesList"></div></div></div>
     
     <script>
         const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
@@ -268,14 +346,41 @@
         let currentSearchType = 'clinic';
         let lastOCRText = '';
         
+        // 所有功能清單 (統一管理)
+        const allServices = [
+            { name: '醫生搜尋', icon: 'fa-search', action: "openSearch('clinic')" },
+            { name: '專科醫生搜尋', icon: 'fa-user-md', action: "openSearch('specialist')" },
+            { name: 'OCR診斷中心', icon: 'fa-file-alt', action: 'openOCR()' },
+            { name: '排隊通', icon: 'fa-hourglass-half', action: 'openQueue()' },
+            { name: '預約通', icon: 'fa-calendar-alt', action: 'openAppointments()' },
+            { name: '藥物送遞', icon: 'fa-pills', action: "alert('💊 藥物送遞功能\\n\\n上傳處方，1小時送達')" },
+            { name: '保險配對', icon: 'fa-shield-alt', action: "alert('🛡️ 保險配對功能\\n\\n輸入資料，即時報價')" },
+            { name: '優惠資訊', icon: 'fa-tags', action: "alert('💰 優惠資訊\\n\\n體檢7折、洗牙$380')" },
+            { name: '健康建議', icon: 'fa-heartbeat', action: "alert('💡 健康建議\\n\\n個人化健康提示')" },
+            { name: '公私合作', icon: 'fa-handshake', action: "alert('🤝 公私合作\\n\\n長者醫療券計劃')" },
+            { name: '醫療報告', icon: 'fa-folder-medical', action: "alert('📁 醫療報告\\n\\n上傳儲存醫療報告')" }
+        ];
+        
         setTimeout(() => {
             document.getElementById('splashScreen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('splashScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 switchTab('news', document.querySelector('.nav-item'));
-            }, 500);
+                loadMoreServices();
+            }, 800);
         }, 2000);
+        
+        function loadMoreServices() {
+            const container = document.getElementById('moreServicesList');
+            if(container) {
+                container.innerHTML = allServices.map(s => `
+                    <div class="clinic-card" onclick="${s.action}">
+                        <i class="fas ${s.icon}" style="margin-right:8px;"></i> ${s.name}
+                    </div>
+                `).join('');
+            }
+        }
         
         function updateTime() { 
             const now = new Date(); 
@@ -315,14 +420,13 @@
                 const data = await response.json();
                 
                 if(data.status === 'OK' && data.results?.length > 0) {
-                    resultsDiv.innerHTML = data.results.map(place => `
+                    resultsDiv.innerHTML = data.results.slice(0, 15).map(place => `
                         <div class="clinic-card" onclick="bookClinic('${place.name.replace(/'/g, "\\'")}', '${place.formatted_address || place.vicinity || ''}', '${place.rating || '新'}')">
                             <div style="display:flex;justify-content:space-between;">
                                 <span style="font-weight:600;">${place.name}</span>
                                 <span>⭐ ${place.rating || '新'}</span>
                             </div>
                             <p style="font-size:13px;">📍 ${place.formatted_address || place.vicinity || '地址待更新'}</p>
-                            <p style="font-size:12px;">📞 電話待更新 | 營業時間：請致電查詢</p>
                             <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
                         </div>
                     `).join('');
@@ -453,7 +557,7 @@
         
         function bookDiagnosticCenter(name, address) {
             if(confirm(`確認預約 ${name}？\n\n地址：${address}\n\n預約後會自動加入「預約通」及「排隊通」`)) {
-                appointments.push({ id: Date.now(), name, address, date: new Date().toLocaleDateString(), time: '10:00', status: '已確認', type: '診斷中心', ocrText: lastOCRText.substring(0, 100) });
+                appointments.push({ id: Date.now(), name, address, date: new Date().toLocaleDateString(), time: '10:00', status: '已確認', type: '診斷中心' });
                 localStorage.setItem('appointments', JSON.stringify(appointments));
                 alert(`✅ 已預約 ${name}！`);
                 closeModal('ocrModal');
@@ -469,16 +573,4 @@
         
         function switchTab(tab, element) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if(element) element.classList.add('active');
-            const content = document.getElementById('contentArea');
-            if(tab === 'news') content.innerHTML = `<div class="section-title">📰 最新消息</div><div class="clinic-card">🏥 長者醫療券獎賞計劃<br>💉 流感疫苗接種計劃</div>`;
-            else if(tab === 'services') content.innerHTML = `<div class="section-title">📋 所有服務</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">${['醫生搜尋','專科醫生搜尋','OCR診斷中心','排隊通','預約通','藥物送遞','保險配對','優惠資訊'].map(s => `<div class="clinic-card" onclick="if('${s}'==='醫生搜尋')openSearch('clinic');else if('${s}'==='專科醫生搜尋')openSearch('specialist');else if('${s}'==='OCR診斷中心')openOCR();else if('${s}'==='排隊通')openQueue();else if('${s}'==='預約通')openAppointments();else alert('${s}功能開發中')">${s}</div>`).join('')}</div>`;
-            else if(tab === 'support') content.innerHTML = `<div class="section-title">📞 支援</div><div class="clinic-card" onclick="alert('客服熱線：2121 8080')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp</div>`;
-            else content.innerHTML = `<div class="section-title">👤 我的帳戶</div><div class="clinic-card" onclick="alert('訪客模式')">👤 訪客模式</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div><div class="clinic-card" onclick="alert('醫療券餘額：$5,200')">🏥 醫療券餘額</div>`;
-        }
-        
-        function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
-        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-    </script>
-</body>
-</html>
+            if(element
