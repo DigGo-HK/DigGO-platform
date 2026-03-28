@@ -509,4 +509,23 @@
                     <div class="clinic-card" onclick="openVaccine()">💉 疫苗預約 🔥</div>
                 </div>`;
             } else if(tab === 'support') {
-                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-headset
+                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-headset"></i> 支援</div>
+                <div class="clinic-card" onclick="alert('📞 客服熱線：2121 8080\\n辦公時間：星期一至五 9am-6pm')">📞 聯絡我們</div>
+                <div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp 查詢</div>
+                <div class="clinic-card" onclick="alert('📧 support@diggo.hk')">📧 電郵查詢</div>`;
+            } else if(tab === 'profile') {
+                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-user"></i> 我的帳戶</div>
+                <div class="clinic-card" onclick="alert('訪客模式\\n\\n登入後可查看完整預約紀錄')">👤 訪客模式 (未登入)</div>
+                <div class="clinic-card" onclick="alert('預約紀錄\\n\\n您有 ${appointments.length} 個預約')">📋 預約紀錄 (${appointments.length})</div>
+                <div class="clinic-card" onclick="alert('長者醫療券餘額\\n\\n可用餘額：$5,200')">🏥 醫療券餘額：$5,200</div>`;
+            }
+        }
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+        }
+        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+    </script>
+</body>
+</html>
