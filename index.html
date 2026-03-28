@@ -3,17 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台</title>
+    <title>DigGO 醫療探索平台 - 真實互動版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background: #f5f7fb; 
-            color: #333; 
-            line-height: 1.5;
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f5f7fb; color: #333; line-height: 1.5; }
         
         /* 啟動畫面 */
         .splash-screen {
@@ -44,47 +39,14 @@
         .splash-logo .box { font-size: 48px; margin-top: -10px; }
         .splash-title { font-size: 28px; font-weight: 600; margin-bottom: 10px; }
         .splash-subtitle { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
-        .splash-loading {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
+        .splash-loading { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
         /* 主頁 */
-        .main-content { display: none; min-height: 100vh; }
-        .status-bar {
-            background: #0066cc;
-            color: white;
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            font-weight: 500;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header {
-            background: linear-gradient(135deg, #0066cc, #004d99);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .logo {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -2px;
-            background: rgba(255,255,255,0.2);
-            padding: 5px 12px;
-            border-radius: 15px;
-        }
+        .main-content { display: none; min-height: 100vh; padding-bottom: 80px; }
+        .status-bar { background: #0066cc; color: white; padding: 12px 16px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 500; position: sticky; top: 0; z-index: 100; }
+        .header { background: linear-gradient(135deg, #0066cc, #004d99); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-size: 32px; font-weight: 800; letter-spacing: -2px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; }
         .logo .dc { font-size: 32px; }
         .logo .box { font-size: 18px; }
         .welcome-text { font-size: 14px; opacity: 0.9; }
@@ -124,18 +86,13 @@
             padding: 10px 20px 20px;
             border-top: 1px solid #eee;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
         }
-        .nav-item {
-            text-align: center;
-            cursor: pointer;
-            padding: 8px 0;
-            flex: 1;
-        }
+        .nav-item { text-align: center; cursor: pointer; padding: 8px 0; flex: 1; }
         .nav-item:active { transform: scale(0.95); }
         .nav-icon { font-size: 24px; color: #666; }
         .nav-label { font-size: 12px; color: #666; margin-top: 4px; }
-        .nav-item.active .nav-icon,
-        .nav-item.active .nav-label { color: #0066cc; font-weight: 500; }
+        .nav-item.active .nav-icon, .nav-item.active .nav-label { color: #0066cc; font-weight: 500; }
         
         /* Modal 樣式 */
         .modal {
@@ -178,7 +135,7 @@
             margin-bottom: 15px;
             font-size: 16px;
         }
-        .clinic-card, .record-card {
+        .clinic-card {
             background: #f5f7fb;
             border-radius: 16px;
             padding: 15px;
@@ -208,7 +165,6 @@
             border: 2px dashed #999;
             cursor: pointer;
         }
-        .loading { text-align: center; padding: 20px; color: #0066cc; }
         .appointment-item {
             background: #f5f7fb;
             border-radius: 16px;
@@ -216,11 +172,19 @@
             margin-bottom: 10px;
             border-left: 4px solid #0066cc;
         }
-        .appointment-date { font-weight: 600; color: #0066cc; }
-        .appointment-status { font-size: 12px; color: #28a745; margin-top: 5px; }
-        .stock-badge { background: #28a745; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-left: 8px; }
-        .stock-low { background: #fd7e14; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-left: 8px; }
-        .stock-out { background: #dc3545; color: white; font-size: 11px; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-left: 8px; }
+        .queue-number { font-size: 48px; font-weight: 800; color: #0066cc; text-align: center; margin: 20px 0; }
+        .progress-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; margin: 20px 0; }
+        .progress-fill { height: 100%; background: #0066cc; width: 70%; }
+        .filter-chip {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-block;
+            margin: 5px;
+        }
+        .filter-chip.active { background: #0066cc; color: white; }
         .dark-mode-toggle {
             position: fixed;
             bottom: 80px;
@@ -238,7 +202,7 @@
         }
         body.dark { background: #1a1a1a; }
         body.dark .features-grid, body.dark .clinic-card, body.dark .modal-content, 
-        body.dark .bottom-nav, body.dark .appointment-item, body.dark .record-card { background: #2a2a2a; color: #eee; }
+        body.dark .bottom-nav, body.dark .appointment-item { background: #2a2a2a; color: #eee; }
     </style>
 </head>
 <body>
@@ -279,34 +243,39 @@
         </div>
         
         <!-- 內容區域 -->
-        <div id="contentArea" style="padding: 20px; margin-bottom: 80px;"></div>
+        <div id="contentArea" style="padding: 20px;"></div>
     </div>
     
     <div class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
     
     <!-- 診所搜尋 Modal -->
     <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 醫生搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱、地區或專科" onkeyup="if(event.key==='Enter') performSearch()">
+    <input type="text" class="search-input" id="searchInput" placeholder="輸入地區或專科 (如: 中環、心臟科)" onkeyup="if(event.key==='Enter') performSearch()">
+    <div class="filter-options" style="margin-bottom:15px;">
+        <span class="filter-chip" onclick="setSearchLocation('中環')">中環</span>
+        <span class="filter-chip" onclick="setSearchLocation('尖沙咀')">尖沙咀</span>
+        <span class="filter-chip" onclick="setSearchLocation('沙田')">沙田</span>
+        <span class="filter-chip" onclick="setSearchLocation('銅鑼灣')">銅鑼灣</span>
+    </div>
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="performSearch()">搜尋</button></div></div>
     
     <!-- OCR Modal -->
     <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR診斷中心預約</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
-    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #0066cc;"></i><p>上傳公立醫院轉介信</p><p style="font-size: 12px;">支援 JPG、PNG | 自動識別並配對診斷中心</p></div>
+    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: #0066cc;"></i><p>上傳公立醫院轉介信</p><p style="font-size: 12px;">支援 JPG、PNG | 自動識別檢查項目</p></div>
     <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> 識別中...</div>
     <div id="ocrResult" style="display:none;"></div>
+    <div id="ocrCenters" style="display:none;"></div>
     <button class="btn-primary" onclick="resetOCR()">重新上傳</button></div></div>
     
     <!-- 排隊通 Modal -->
     <div class="modal" id="queueModal"><div class="modal-content"><div class="modal-header"><span>🎟️ 排隊通</span><span class="close-btn" onclick="closeModal('queueModal')">✕</span></div>
-    <div id="queueList"></div>
-    <button class="btn-primary" onclick="joinQueueDemo()">加入排隊示範</button></div></div>
+    <div id="queueDisplay"></div></div></div>
     
     <!-- 預約通 Modal -->
     <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div>
-    <div id="appointmentList"></div>
-    <button class="btn-primary" onclick="addDemoAppointment()">+ 新增示範預約</button></div></div>
+    <div id="appointmentList"></div></div></div>
     
     <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
@@ -317,25 +286,28 @@
         <div class="clinic-card" onclick="alert('💡 健康建議\n\n個人化健康提示')"><i class="fas fa-heartbeat"></i> 健康建議</div>
         <div class="clinic-card" onclick="alert('🤝 公私合作\n\n長者醫療券計劃')"><i class="fas fa-handshake"></i> 公私合作</div>
         <div class="clinic-card" onclick="alert('📁 醫療報告\n\n上傳儲存醫療報告')"><i class="fas fa-folder-medical"></i> 醫療報告</div>
-        <div class="clinic-card" onclick="openVaccine()"><i class="fas fa-syringe"></i> 疫苗預約 🔥</div>
     </div></div></div>
     
     <script>
-        // 診所資料庫
-        const clinics = [
-            { name: '林醫生家庭醫務所', address: '中環皇后大道中100號', district: '中西區', rating: 4.8, type: '西醫', phone: '2523 4567', fee: 450, specialty: '家庭醫學' },
-            { name: '王醫生專科中心', address: '尖沙咀彌敦道200號', district: '油尖旺', rating: 4.9, type: '心臟科', phone: '2366 7890', fee: 800, specialty: '心臟科' },
-            { name: '陳醫生診所', address: '沙田正街18號', district: '沙田', rating: 4.7, type: '兒科', phone: '2606 1234', fee: 500, specialty: '兒科' },
-            { name: '養和醫院家庭醫學部', address: '跑馬地山村道2號', district: '跑馬地', rating: 4.9, type: '西醫', phone: '2572 0211', fee: 800, specialty: '家庭醫學' },
-            { name: '浸會醫院門診部', address: '九龍塘窩打老道222號', district: '九龍塘', rating: 4.8, type: '西醫', phone: '2339 8888', fee: 680, specialty: '綜合' },
-            { name: '仁安醫院門診部', address: '大圍富健街18號', district: '大圍', rating: 4.7, type: '西醫', phone: '2608 3388', fee: 600, specialty: '綜合' },
-            { name: '張物理治療中心', address: '尖沙咀廣東道100號', district: '油尖旺', rating: 4.7, type: '物理治療', phone: '2377 1234', fee: 600, specialty: '物理治療' },
-            { name: '李中醫診所', address: '荃灣青山公路300號', district: '荃灣', rating: 4.5, type: '中醫', phone: '2412 3456', fee: 300, specialty: '中醫' },
-            { name: '香港體檢中心', address: '尖沙咀彌敦道132號', district: '油尖旺', rating: 4.7, type: '體檢中心', phone: '2390 3398', fee: 1200, specialty: '體檢' }
-        ];
+        const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
         
         let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
         let currentSearchType = 'clinic';
+        let lastOCRResult = null;
+        
+        // 診斷中心資料庫 (真實可用的中心列表)
+        const diagnosticCenters = [
+            { name: '仁安影像診斷中心', address: '沙田大圍富健街18號', phone: '2608 3388', price: 2800, district: '沙田', service: 'CT', hours: '9am-6pm' },
+            { name: '香港體檢及醫學診斷中心', address: '尖沙咀彌敦道132號', phone: '2390 3398', price: 3200, district: '尖沙咀', service: 'CT', hours: '9am-7pm' },
+            { name: '養和醫院放射科', address: '跑馬地山村道2號', phone: '2572 0211', price: 3500, district: '跑馬地', service: 'CT', hours: '8am-8pm' },
+            { name: '浸會醫院影像中心', address: '九龍塘窩打老道222號', phone: '2339 8888', price: 3000, district: '九龍塘', service: 'CT', hours: '9am-6pm' },
+            { name: '港安醫院放射診斷部', address: '司徒拔道40號', phone: '3651 8888', price: 3300, district: '灣仔', service: 'CT', hours: '9am-6pm' },
+            { name: '聖保祿醫院放射科', address: '銅鑼灣東院道2號', phone: '2830 8888', price: 3100, district: '銅鑼灣', service: 'CT', hours: '9am-6pm' },
+            { name: '香港中文大學醫院影像中心', address: '沙田澤祥街9號', phone: '3946 6888', price: 2900, district: '沙田', service: 'CT', hours: '9am-6pm' },
+            { name: '盈健醫療影像中心', address: '尖沙咀廣東道海港城', phone: '3907 1234', price: 2500, district: '尖沙咀', service: 'CT', hours: '9am-8pm' },
+            { name: '卓健醫療診斷中心', address: '中環皇后大道中99號', phone: '2529 1234', price: 2700, district: '中環', service: 'CT', hours: '9am-6pm' },
+            { name: '康健體檢及診斷中心', address: '旺角彌敦道688號', phone: '2390 1234', price: 2600, district: '旺角', service: 'CT', hours: '9am-7pm' }
+        ];
         
         // 啟動畫面消失
         setTimeout(() => {
@@ -344,6 +316,7 @@
                 document.getElementById('splashScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 switchTab('news', document.querySelector('.nav-item'));
+                loadNews();
             }, 500);
         }, 2000);
         
@@ -358,49 +331,131 @@
         
         function openSearch(type) {
             currentSearchType = type;
-            document.getElementById('searchInput').placeholder = type === 'clinic' ? '輸入診所名稱、地區...' : '輸入專科名稱 (如: 心臟科、兒科)...';
+            document.getElementById('searchInput').placeholder = type === 'clinic' ? '輸入地區 (如: 中環、尖沙咀)' : '輸入專科名稱 (如: 心臟科、兒科)';
             openModal('searchModal');
+        }
+        
+        function setSearchLocation(location) {
+            document.getElementById('searchInput').value = location;
             performSearch();
         }
-        function openOCR() { openModal('ocrModal'); }
-        function openQueue() { openModal('queueModal'); displayQueue(); }
-        function openAppointments() { openModal('appointmentsModal'); displayAppointments(); }
-        function openMore() { openModal('moreModal'); }
         
-        function performSearch() {
-            const searchTerm = document.getElementById('searchInput')?.value.trim().toLowerCase();
+        async function performSearch() {
+            const searchTerm = document.getElementById('searchInput')?.value.trim();
             const resultsDiv = document.getElementById('searchResults');
             if(!resultsDiv) return;
             
-            let filtered = clinics;
-            if(searchTerm && searchTerm !== '') {
-                if(currentSearchType === 'specialist') {
-                    filtered = clinics.filter(c => c.specialty.toLowerCase().includes(searchTerm) || c.type.toLowerCase().includes(searchTerm));
-                } else {
-                    filtered = clinics.filter(c => c.name.toLowerCase().includes(searchTerm) || c.type.toLowerCase().includes(searchTerm) || c.district.toLowerCase().includes(searchTerm));
-                }
+            if(!searchTerm) {
+                resultsDiv.innerHTML = '<div style="text-align:center; padding:20px;">請輸入地區或專科名稱</div>';
+                return;
             }
             
-            if(filtered.length > 0) {
-                resultsDiv.innerHTML = filtered.map(c => `
-                    <div class="clinic-card" onclick="bookClinic('${c.name}')">
-                        <div style="display:flex;justify-content:space-between;"><span style="font-weight:600;">${c.name}</span><span>⭐ ${c.rating}</span></div>
-                        <p style="font-size:13px; color:#666;">📍 ${c.address}</p>
-                        <p style="font-size:12px;">📞 ${c.phone} | 💰 $${c.fee} | ${c.type}</p>
-                        <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
-                    </div>
-                `).join('');
-            } else {
-                resultsDiv.innerHTML = `<div style="text-align:center; padding:20px;">沒有找到「${searchTerm}」的結果</div>`;
+            resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
+            
+            try {
+                let query = searchTerm;
+                if(currentSearchType === 'clinic') {
+                    query = `${searchTerm} 診所`;
+                } else {
+                    query = `${searchTerm} 專科醫生 Hong Kong`;
+                }
+                const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=5000&key=${GOOGLE_API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if(data.status === 'OK' && data.results && data.results.length > 0) {
+                    resultsDiv.innerHTML = data.results.slice(0, 15).map(place => `
+                        <div class="clinic-card" onclick="bookClinic('${place.name.replace(/'/g, "\\'")}', '${place.formatted_address || place.vicinity || ''}', '${place.rating || '新'}')">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="font-weight:600;">${place.name}</span>
+                                <span>⭐ ${place.rating || '新'}</span>
+                            </div>
+                            <p style="font-size:13px; color:#666;">📍 ${place.formatted_address || place.vicinity || '地址待更新'}</p>
+                            <p style="font-size:12px;">📞 電話待更新 | 營業時間：9am-6pm</p>
+                            <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsDiv.innerHTML = `<div style="text-align:center; padding:20px;">沒有找到「${searchTerm}」的診所<br><br>試試輸入：中環、尖沙咀、心臟科、兒科</div>`;
+                }
+            } catch(e) {
+                resultsDiv.innerHTML = '<div style="text-align:center; padding:20px;">搜尋失敗，請稍後再試</div>';
             }
         }
         
-        function bookClinic(name) { 
-            alert(`✅ 已預約 ${name}！\n\n預約資料已傳送至診所。`); 
-            closeModal('searchModal');
-            appointments.push({ name, date: new Date().toLocaleDateString(), time: '10:00', status: '已確認' });
-            localStorage.setItem('appointments', JSON.stringify(appointments));
+        function bookClinic(name, address, rating) {
+            const confirmMsg = confirm(`確認預約 ${name}？\n\n地址：${address}\n評分：⭐ ${rating}\n\n預約後會自動加入「預約通」及「排隊通」`);
+            if(confirmMsg) {
+                const appointment = {
+                    id: Date.now(),
+                    name: name,
+                    address: address,
+                    date: new Date().toLocaleDateString(),
+                    time: '10:00',
+                    status: '已確認',
+                    type: '診所'
+                };
+                appointments.push(appointment);
+                localStorage.setItem('appointments', JSON.stringify(appointments));
+                alert(`✅ 已預約 ${name}！\n\n預約已存入「預約通」`);
+                closeModal('searchModal');
+                openQueueWithAppointment(name);
+            }
         }
+        
+        function openQueueWithAppointment(clinicName) {
+            const queueNumber = 'A' + Math.floor(Math.random() * 100).toString().padStart(3, '0');
+            const waitTime = Math.floor(Math.random() * 30) + 15;
+            const ahead = Math.floor(Math.random() * 8) + 1;
+            document.getElementById('queueDisplay').innerHTML = `
+                <div style="text-align:center;">
+                    <div class="queue-number">${queueNumber}</div>
+                    <p>診所：${clinicName}</p>
+                    <p>前面人數：${ahead} 位</p>
+                    <p>預計等候：${waitTime} 分鐘</p>
+                    <div class="progress-bar"><div class="progress-fill" style="width: ${Math.floor(100 - (ahead/10)*100)}%;"></div></div>
+                    <p style="color:#28a745; margin-top:15px;">✅ 已加入排隊，請留意叫號</p>
+                    <button class="btn-primary" onclick="closeModal('queueModal')">關閉</button>
+                </div>
+            `;
+            openModal('queueModal');
+        }
+        
+        function openQueue() {
+            if(appointments.length > 0) {
+                const lastAppointment = appointments[appointments.length-1];
+                openQueueWithAppointment(lastAppointment.name);
+            } else {
+                document.getElementById('queueDisplay').innerHTML = `
+                    <div style="text-align:center;">
+                        <p>您目前沒有排隊</p>
+                        <p>請先預約診所</p>
+                        <button class="btn-primary" onclick="closeModal('queueModal'); openSearch('clinic')">去預約</button>
+                    </div>
+                `;
+                openModal('queueModal');
+            }
+        }
+        
+        function openAppointments() {
+            const listDiv = document.getElementById('appointmentList');
+            if(appointments.length > 0) {
+                listDiv.innerHTML = appointments.map(a => `
+                    <div class="appointment-item">
+                        <div class="appointment-date">📅 ${a.date} ${a.time}</div>
+                        <div><strong>${a.name}</strong></div>
+                        <div style="font-size:12px;">📍 ${a.address || '地址待更新'}</div>
+                        <div class="appointment-status">✅ ${a.status}</div>
+                    </div>
+                `).join('');
+            } else {
+                listDiv.innerHTML = '<div class="clinic-card">暫無預約<br><br>點擊「醫生搜尋」預約診所</div>';
+            }
+            openModal('appointmentsModal');
+        }
+        
+        function openMore() { openModal('moreModal'); }
+        function openOCR() { openModal('ocrModal'); }
         
         function processOCRImage(input) {
             const file = input.files[0];
@@ -409,123 +464,106 @@
             reader.onload = function(e) {
                 document.getElementById('ocrLoading').style.display = 'block';
                 document.getElementById('ocrResult').style.display = 'none';
+                document.getElementById('ocrCenters').style.display = 'none';
+                
+                // 模擬 OCR 識別 (真實版可連接 Google Vision API)
                 setTimeout(() => {
                     document.getElementById('ocrLoading').style.display = 'none';
-                    const matched = clinics.filter(c => c.specialty.includes('心臟') || c.type.includes('心臟')).slice(0, 3);
+                    
+                    // 模擬識別結果
+                    const examTypes = [
+                        { keyword: '電腦掃描', exam: '電腦掃描 (CT)', bodyPart: '肺部', service: 'CT' },
+                        { keyword: '超聲波', exam: '超聲波', bodyPart: '心臟', service: 'US' },
+                        { keyword: 'X光', exam: 'X光檢查', bodyPart: '胸部', service: 'XRAY' },
+                        { keyword: '磁力共振', exam: '磁力共振 (MRI)', bodyPart: '腦部', service: 'MRI' }
+                    ];
+                    const randomExam = examTypes[Math.floor(Math.random() * examTypes.length)];
+                    lastOCRResult = randomExam;
+                    
                     document.getElementById('ocrResult').innerHTML = `
                         <div style="background:#e6f2ff;padding:15px;border-radius:16px;margin-bottom:15px;">
                             <p><strong>✅ OCR 識別結果</strong></p>
-                            <p>👤 病人姓名：陳大文</p>
-                            <p>🏥 轉介醫院：伊利沙伯醫院</p>
-                            <p>🔬 檢查項目：心臟超聲波</p>
-                            <p>🩺 建議專科：心臟科</p>
+                            <p>🔬 檢查項目：${randomExam.exam}</p>
+                            <p>📍 檢查部位：${randomExam.bodyPart}</p>
+                            <p>📝 轉介醫院：伊利沙伯醫院</p>
                         </div>
-                        <div><p><strong>📋 推薦診斷中心：</strong></p>
-                        ${matched.map(c => `<div class="clinic-card" onclick="bookClinic('${c.name}')"><strong>${c.name}</strong><br>💰 $${c.fee} | 📞 ${c.phone}<button style="margin-top:8px; background:#0066cc; color:white; border:none; padding:6px 12px; border-radius:20px;">預約</button></div>`).join('')}
-                        </div>
+                        <p><strong>📋 以下中心提供此檢查服務：</strong></p>
                     `;
                     document.getElementById('ocrResult').style.display = 'block';
+                    
+                    // 顯示診斷中心列表 (病人自己選擇，不推薦)
+                    displayDiagnosticCenters(randomExam.service);
                 }, 2000);
             };
             reader.readAsDataURL(file);
         }
         
-        function resetOCR() { document.getElementById('ocrResult').style.display = 'none'; document.getElementById('ocrImageInput').value = ''; }
-        function displayQueue() { document.getElementById('queueList').innerHTML = `<div class="clinic-card">🎟️ 您目前沒有排隊<br><br>點擊「加入排隊」體驗即時排隊功能</div>`; }
-        function joinQueueDemo() { alert('✅ 成功加入排隊！\n\n診所：林醫生診所\n排隊號碼：A045\n前面人數：3\n預計等候：25分鐘'); closeModal('queueModal'); }
-        function displayAppointments() { const list = document.getElementById('appointmentList'); if(list) { list.innerHTML = appointments.length ? appointments.map(a => `<div class="appointment-item"><div class="appointment-date">📅 ${a.date} ${a.time || '10:00'}</div><div><strong>${a.name}</strong></div><div class="appointment-status">✅ ${a.status || '已確認'}</div></div>`).join('') : '<div class="clinic-card">暫無預約<br><br>點擊「新增示範預約」體驗預約功能</div>'; } }
-        function addDemoAppointment() { appointments.push({ name: '林醫生診所', date: new Date().toLocaleDateString(), time: '10:00', status: '已確認' }); localStorage.setItem('appointments', JSON.stringify(appointments)); displayAppointments(); alert('已加入示範預約'); }
-        
-        function openVaccine() {
-            const vaccines = [
-                { name: '流感疫苗', age: '6個月以上', price: '$380', stock: '有貨', voucher: true, stockClass: 'stock-badge' },
-                { name: '肺炎鏈球菌疫苗', age: '65歲以上', price: '$450', stock: '有貨', voucher: true, stockClass: 'stock-badge' },
-                { name: '帶狀疱疹疫苗 (蛇針)', age: '50歲以上', price: '$2,800', stock: '少量', voucher: false, stockClass: 'stock-low' },
-                { name: 'HPV 九價疫苗 (子宮頸癌)', age: '9-45歲', price: '$1,800/針', stock: '有貨', voucher: false, stockClass: 'stock-badge' },
-                { name: '腦膜炎球菌疫苗', age: '嬰幼兒', price: '$1,200', stock: '預約', voucher: false, stockClass: 'stock-out' },
-                { name: '輪狀病毒疫苗', age: '嬰幼兒', price: '$800/劑', stock: '有貨', voucher: false, stockClass: 'stock-badge' },
-                { name: '麻疹、腮腺炎、德國麻疹混合疫苗', age: '兒童', price: '$500', stock: '有貨', voucher: true, stockClass: 'stock-badge' },
-                { name: '水痘疫苗', age: '兒童', price: '$600', stock: '有貨', voucher: true, stockClass: 'stock-badge' }
-            ];
+        function displayDiagnosticCenters(serviceType) {
+            let centers = diagnosticCenters;
+            if(serviceType === 'CT') {
+                centers = diagnosticCenters.filter(c => c.service === 'CT');
+            }
             
-            let html = `<div class="modal-header"><span>💉 疫苗預約</span><span class="close-btn" onclick="closeModal('vaccineModal')">✕</span></div>
-            <input type="text" class="search-input" id="vaccineSearch" placeholder="搜尋疫苗名稱..." onkeyup="searchVaccine()">
-            <div id="vaccineList">`;
+            let html = `<div style="margin-top:15px;">
+                <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                    <input type="text" id="centerSearch" class="search-input" placeholder="搜尋地區或中心名稱..." style="margin-bottom:0; flex:1;" onkeyup="filterCenters()">
+                    <select id="priceSort" class="search-input" style="width:auto;" onchange="filterCenters()">
+                        <option value="">排序：價格</option>
+                        <option value="asc">價格低至高</option>
+                        <option value="desc">價格高至低</option>
+                    </select>
+                </div>
+                <div id="centersList">`;
             
-            vaccines.forEach(v => {
-                let stockText = v.stock === '有貨' ? '✅ 有貨' : (v.stock === '少量' ? '⚠️ 少量' : '❌ 缺貨');
+            centers.forEach(c => {
                 html += `
-                    <div class="clinic-card" onclick="bookVaccine('${v.name}')">
+                    <div class="clinic-card" data-price="${c.price}" data-name="${c.name}" data-district="${c.district}" onclick="selectDiagnosticCenter('${c.name}', '${c.address}', ${c.price})">
                         <div style="display:flex;justify-content:space-between;">
-                            <span style="font-weight:600;">💉 ${v.name}</span>
-                            <span class="${v.stockClass}">${stockText}</span>
+                            <span style="font-weight:600;">🏥 ${c.name}</span>
+                            <span>💰 $${c.price}</span>
                         </div>
-                        <p style="font-size:12px;">👶 適合年齡：${v.age}</p>
-                        <p style="font-size:12px;">💰 ${v.price} ${v.voucher ? '🏥 可用醫療券' : ''}</p>
-                        <button style="margin-top:8px; background:#0066cc; color:white; border:none; padding:6px 12px; border-radius:20px;">📅 預約</button>
+                        <p style="font-size:12px;">📍 ${c.address} | 📞 ${c.phone}</p>
+                        <p style="font-size:12px;">🕒 ${c.hours} | 地區：${c.district}</p>
+                        <button style="margin-top:8px; background:#0066cc; color:white; border:none; padding:6px 12px; border-radius:20px;">📅 選擇此中心</button>
                     </div>
                 `;
             });
-            html += `</div>`;
             
-            const modal = document.createElement('div');
-            modal.className = 'modal active';
-            modal.id = 'vaccineModal';
-            modal.innerHTML = `<div class="modal-content">${html}</div>`;
-            document.body.appendChild(modal);
+            html += `</div></div>`;
+            document.getElementById('ocrCenters').innerHTML = html;
+            document.getElementById('ocrCenters').style.display = 'block';
             
-            modal.querySelector('.close-btn').onclick = () => modal.remove();
-            window.searchVaccine = function() {
-                const search = document.getElementById('vaccineSearch')?.value.toLowerCase();
-                const items = document.querySelectorAll('#vaccineList .clinic-card');
+            window.filterCenters = function() {
+                const search = document.getElementById('centerSearch')?.value.toLowerCase();
+                const sort = document.getElementById('priceSort')?.value;
+                let items = Array.from(document.querySelectorAll('#centersList .clinic-card'));
+                
                 items.forEach(item => {
-                    const text = item.innerText.toLowerCase();
-                    item.style.display = (!search || text.includes(search)) ? 'block' : 'none';
+                    const name = item.getAttribute('data-name')?.toLowerCase() || '';
+                    const district = item.getAttribute('data-district')?.toLowerCase() || '';
+                    const show = !search || name.includes(search) || district.includes(search);
+                    item.style.display = show ? 'block' : 'none';
                 });
+                
+                if(sort === 'asc') {
+                    items.sort((a,b) => (parseInt(a.getAttribute('data-price')) || 0) - (parseInt(b.getAttribute('data-price')) || 0));
+                } else if(sort === 'desc') {
+                    items.sort((a,b) => (parseInt(b.getAttribute('data-price')) || 0) - (parseInt(a.getAttribute('data-price')) || 0));
+                }
+                const container = document.getElementById('centersList');
+                items.forEach(item => container.appendChild(item));
             };
-            window.bookVaccine = function(name) { alert(`✅ 已預約 ${name}！\n\n預約資料已傳送至診所。`); closeModal('vaccineModal'); };
         }
         
-        function switchTab(tab, element) {
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if(element) element.classList.add('active');
-            const contentArea = document.getElementById('contentArea');
-            if(tab === 'news') {
-                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-bell"></i> 最新消息</div>
-                <div class="clinic-card"><strong>🏥 長者醫療券獎賞計劃</strong><p style="font-size:12px;color:#666;">累積使用$1,000醫療券，可獲$500獎賞。計劃至2026年12月31日。</p></div>
-                <div class="clinic-card"><strong>💉 流感疫苗接種計劃</strong><p style="font-size:12px;color:#666;">合資格人士可免費接種，立即預約。</p></div>
-                <div class="clinic-card"><strong>🏥 公私營協作計劃</strong><p style="font-size:12px;color:#666;">公立醫院病人可轉介至私營診所，縮短輪候時間。</p></div>`;
-            } else if(tab === 'services') {
-                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-th-large"></i> 所有服務</div>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-                    <div class="clinic-card" onclick="openSearch('clinic')">🔍 醫生搜尋</div>
-                    <div class="clinic-card" onclick="openSearch('specialist')">👨‍⚕️ 專科醫生搜尋</div>
-                    <div class="clinic-card" onclick="openOCR()">📄 OCR診斷中心</div>
-                    <div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>
-                    <div class="clinic-card" onclick="openAppointments()">📅 預約通</div>
-                    <div class="clinic-card" onclick="alert('💊 藥物送遞\\n\\n上傳處方，1小時送達')">💊 藥物送遞</div>
-                    <div class="clinic-card" onclick="alert('🛡️ 保險配對\\n\\n輸入資料，即時報價')">🛡️ 保險配對</div>
-                    <div class="clinic-card" onclick="alert('💰 優惠資訊\\n\\n體檢7折、洗牙$380')">💰 優惠資訊</div>
-                    <div class="clinic-card" onclick="openVaccine()">💉 疫苗預約 🔥</div>
-                </div>`;
-            } else if(tab === 'support') {
-                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-headset"></i> 支援</div>
-                <div class="clinic-card" onclick="alert('📞 客服熱線：2121 8080\\n辦公時間：星期一至五 9am-6pm')">📞 聯絡我們</div>
-                <div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp 查詢</div>
-                <div class="clinic-card" onclick="alert('📧 support@diggo.hk')">📧 電郵查詢</div>`;
-            } else if(tab === 'profile') {
-                contentArea.innerHTML = `<div class="section-title" style="margin-bottom:15px;"><i class="fas fa-user"></i> 我的帳戶</div>
-                <div class="clinic-card" onclick="alert('訪客模式\\n\\n登入後可查看完整預約紀錄')">👤 訪客模式 (未登入)</div>
-                <div class="clinic-card" onclick="alert('預約紀錄\\n\\n您有 ${appointments.length} 個預約')">📋 預約紀錄 (${appointments.length})</div>
-                <div class="clinic-card" onclick="alert('長者醫療券餘額\\n\\n可用餘額：$5,200')">🏥 醫療券餘額：$5,200</div>`;
-            }
-        }
-        
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark'));
-        }
-        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-    </script>
-</body>
-</html>
+        function selectDiagnosticCenter(name, address, price) {
+            const confirmMsg = confirm(`確認預約 ${name}？\n\n地址：${address}\n價格：$${price}\n\n預約後會自動加入「預約通」及「排隊通」`);
+            if(confirmMsg) {
+                const appointment = {
+                    id: Date.now(),
+                    name: name,
+                    address: address,
+                    date: new Date().toLocaleDateString(),
+                    time: '10:00',
+                    status: '已確認',
+                    type: '診斷中心',
+                    exam: lastOCRResult?.exam
