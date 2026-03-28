@@ -573,4 +573,31 @@
         
         function switchTab(tab, element) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            if(element
+            if(element) element.classList.add('active');
+            const content = document.getElementById('contentArea');
+            if(tab === 'news') {
+                content.innerHTML = `<div class="section-title">📰 最新消息</div>
+                <div class="clinic-card"><strong>🏥 長者醫療券獎賞計劃</strong><br>累積使用$1,000醫療券，可獲$500獎賞</div>
+                <div class="clinic-card"><strong>💉 流感疫苗接種計劃</strong><br>合資格人士可免費接種</div>
+                <div class="clinic-card"><strong>🏥 公私營協作計劃</strong><br>公立醫院病人可轉介至私營診所</div>`;
+            } else if(tab === 'services') {
+                content.innerHTML = `<div class="section-title">📋 所有服務</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">` + 
+                    allServices.map(s => `<div class="clinic-card" onclick="${s.action}"><i class="fas ${s.icon}"></i> ${s.name}</div>`).join('') + `</div>`;
+            } else if(tab === 'support') {
+                content.innerHTML = `<div class="section-title">📞 支援</div>
+                <div class="clinic-card" onclick="alert('客服熱線：2121 8080\\n辦公時間：星期一至五 9am-6pm')">📞 聯絡我們</div>
+                <div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp 查詢</div>
+                <div class="clinic-card" onclick="alert('📧 support@diggo.hk')">📧 電郵查詢</div>`;
+            } else if(tab === 'profile') {
+                content.innerHTML = `<div class="section-title">👤 我的帳戶</div>
+                <div class="clinic-card" onclick="alert('訪客模式\\n\\n登入後可查看完整預約紀錄')">👤 訪客模式 (未登入)</div>
+                <div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div>
+                <div class="clinic-card" onclick="alert('長者醫療券餘額\\n\\n可用餘額：$5,200')">🏥 醫療券餘額：$5,200</div>`;
+            }
+        }
+        
+        function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
+        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+    </script>
+</body>
+</html>
