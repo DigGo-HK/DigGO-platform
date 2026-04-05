@@ -10,7 +10,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Noto Sans TC', sans-serif; background: #f5f7fb; color: #333; line-height: 1.5; }
         
-        /* ========== 啟動畫面 ========== */
+        /* ========== 心電圖啟動畫面 ========== */
         .splash-screen {
             position: fixed;
             top: 0;
@@ -34,25 +34,57 @@
             100% { background-position: 0% 50%; }
         }
         
-        /* 波浪效果 */
-        .waves {
+        /* 心電圖容器 */
+        .ecg-container {
             position: absolute;
-            bottom: 0;
+            bottom: 20%;
             left: 0;
             width: 100%;
-            height: 150px;
+            height: 120px;
             overflow: hidden;
         }
-        .wave-svg {
+        
+        .ecg-line {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
             height: 100px;
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
         }
-        .wave-svg svg {
-            width: 100%;
-            height: 100%;
+        
+        .ecg-path {
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: drawECG 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes drawECG {
+            0% { stroke-dashoffset: 2000; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        /* 心臟跳動動畫 */
+        .heart-beat {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            color: rgba(255,255,255,0.3);
+            animation: pulse 1.2s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; }
         }
         
         .splash-content {
@@ -247,19 +279,15 @@
     </style>
 </head>
 <body>
-    <!-- 啟動畫面 -->
+    <!-- 心電圖啟動畫面 -->
     <div class="splash-screen" id="splashScreen">
-        <div class="waves">
-            <div class="wave-svg">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                    <path fill="rgba(255,255,255,0.2)" fill-opacity="1" d="M0,192L48,197.3C96,203,192,213,288,208C384,203,480,181,576,181.3C672,181,768,203,864,213.3C960,224,1056,224,1152,208C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-                </svg>
-            </div>
-            <div class="wave-svg" style="bottom: 20px;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                    <path fill="rgba(255,255,255,0.3)" fill-opacity="1" d="M0,256L48,240C96,224,192,192,288,192C384,192,480,224,576,240C672,256,768,256,864,240C960,224,1056,192,1152,192C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-                </svg>
-            </div>
+        <div class="heart-beat">
+            <i class="fas fa-heartbeat"></i>
+        </div>
+        <div class="ecg-container">
+            <svg class="ecg-line" viewBox="0 0 1200 100" preserveAspectRatio="none">
+                <path class="ecg-path" d="M0,50 L100,50 L120,50 L140,20 L160,80 L180,50 L200,50 L300,50 L320,50 L340,20 L360,80 L380,50 L400,50 L500,50 L520,50 L540,10 L560,90 L580,50 L600,50 L700,50 L720,50 L740,30 L760,70 L780,50 L800,50 L900,50 L920,50 L940,20 L960,80 L980,50 L1000,50 L1100,50 L1120,50 L1140,20 L1160,80 L1180,50 L1200,50" />
+            </svg>
         </div>
         <div class="splash-content">
             <div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div>
@@ -277,15 +305,17 @@
             <div class="welcome-text"><i class="fas fa-user-circle"></i> 訪客模式</div>
         </div>
         
+        <!-- 6大核心功能 -->
         <div class="features-grid">
             <div class="feature-card" onclick="openSearch('clinic')"><div class="feature-icon"><i class="fas fa-search" style="color:#0066cc"></i></div><div class="feature-label">醫生搜尋</div></div>
             <div class="feature-card" onclick="openSearch('specialist')"><div class="feature-icon"><i class="fas fa-user-md" style="color:#6f42c1"></i></div><div class="feature-label">專科醫生搜尋</div></div>
-            <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">OCR診斷中心</div></div>
+            <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">OCR轉介信</div></div>
             <div class="feature-card" onclick="openQueue()"><div class="feature-icon"><i class="fas fa-hourglass-half" style="color:#28a745"></i></div><div class="feature-label">排隊通</div></div>
             <div class="feature-card" onclick="openAppointments()"><div class="feature-icon"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i></div><div class="feature-label">預約通</div></div>
             <div class="feature-card" onclick="openMore()"><div class="feature-icon"><i class="fas fa-ellipsis-h" style="color:#999"></i></div><div class="feature-label">更多</div></div>
         </div>
         
+        <!-- 底部導航 -->
         <div class="bottom-nav">
             <div class="nav-item active" onclick="switchTab('news', this)"><div class="nav-icon"><i class="fas fa-newspaper"></i></div><div class="nav-label">最新消息</div></div>
             <div class="nav-item" onclick="switchTab('services', this)"><div class="nav-icon"><i class="fas fa-th-large"></i></div><div class="nav-label">所有服務</div></div>
@@ -341,7 +371,7 @@
         const allServices = [
             { name: '醫生搜尋', icon: 'fa-search', action: "openSearch('clinic')" },
             { name: '專科醫生搜尋', icon: 'fa-user-md', action: "openSearch('specialist')" },
-            { name: 'OCR診斷中心', icon: 'fa-file-alt', action: 'openOCR()' },
+            { name: 'OCR轉介信', icon: 'fa-file-alt', action: 'openOCR()' },
             { name: '排隊通', icon: 'fa-hourglass-half', action: 'openQueue()' },
             { name: '預約通', icon: 'fa-calendar-alt', action: 'openAppointments()' },
             { name: '藥物送遞', icon: 'fa-pills', action: "alert('💊 藥物送遞功能\\n\\n上傳處方，1小時送達')" },
@@ -360,7 +390,7 @@
                 switchTab('news', document.querySelector('.nav-item'));
                 loadMoreServices();
             }, 800);
-        }, 2000);
+        }, 2500);
         
         function loadMoreServices() {
             const container = document.getElementById('moreServicesList');
@@ -418,6 +448,7 @@
                                 <span>⭐ ${place.rating || '新'}</span>
                             </div>
                             <p style="font-size:13px;">📍 ${place.formatted_address || place.vicinity || '地址待更新'}</p>
+                            <p style="font-size:12px;">📞 電話待更新 | 請致電查詢營業時間</p>
                             <button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button>
                         </div>
                     `).join('');
@@ -431,7 +462,8 @@
         
         function bookClinic(name, address, rating) {
             if(confirm(`確認預約 ${name}？\n\n地址：${address}\n評分：⭐ ${rating}\n\n預約後會自動加入「預約通」及「排隊通」`)) {
-                appointments.push({ id: Date.now(), name, address, date: new Date().toLocaleDateString(), time: '10:00', status: '已確認', type: '診所' });
+                const appointment = { id: Date.now(), name, address, date: new Date().toLocaleDateString(), time: '10:00', status: '已確認', type: '診所' };
+                appointments.push(appointment);
                 localStorage.setItem('appointments', JSON.stringify(appointments));
                 alert(`✅ 已預約 ${name}！`);
                 closeModal('searchModal');
@@ -445,7 +477,7 @@
             const waitTime = ahead * 5 + 10;
             document.getElementById('queueDisplay').innerHTML = `
                 <div style="text-align:center;">
-                    <div class="queue-number">${queueNumber}</div>
+                    <div class="queue-number">🎫 ${queueNumber}</div>
                     <p>診所：${clinicName}</p>
                     <p>前面人數：${ahead} 位</p>
                     <p>預計等候：${waitTime} 分鐘</p>
@@ -458,8 +490,10 @@
         }
         
         function openQueue() {
-            if(appointments.length > 0) openQueueWithAppointment(appointments[appointments.length-1].name);
-            else {
+            if(appointments.length > 0) {
+                const lastAppointment = appointments[appointments.length-1];
+                openQueueWithAppointment(lastAppointment.name);
+            } else {
                 document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><p>您目前沒有排隊</p><button class="btn-primary" onclick="closeModal('queueModal');openSearch('clinic')">去預約</button></div>`;
                 openModal('queueModal');
             }
@@ -538,18 +572,4 @@
             } else if(tab === 'support') {
                 content.innerHTML = `<div class="section-title">📞 支援</div>
                 <div class="clinic-card" onclick="alert('客服熱線：2121 8080\\n辦公時間：星期一至五 9am-6pm')">📞 聯絡我們</div>
-                <div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp 查詢</div>
-                <div class="clinic-card" onclick="alert('📧 support@diggo.hk')">📧 電郵查詢</div>`;
-            } else if(tab === 'profile') {
-                content.innerHTML = `<div class="section-title">👤 我的帳戶</div>
-                <div class="clinic-card" onclick="alert('訪客模式\\n\\n登入後可查看完整預約紀錄')">👤 訪客模式 (未登入)</div>
-                <div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div>
-                <div class="clinic-card" onclick="alert('長者醫療券餘額\\n\\n可用餘額：$5,200')">🏥 醫療券餘額：$5,200</div>`;
-            }
-        }
-        
-        function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
-        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-    </script>
-</body>
-</html>
+                <div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp 查詢</
