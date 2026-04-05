@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - 藥物記錄 + AI</title>
+    <title>DigGO 醫療探索平台 - 藥物AI分析</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -181,6 +181,11 @@
         .dark-mode-toggle { position: fixed; bottom: 80px; right: 20px; background: white; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 1000; }
         body.dark { background: #1a1a1a; }
         body.dark .features-grid, body.dark .clinic-card, body.dark .modal-content, body.dark .bottom-nav, body.dark .medication-item { background: #2a2a2a; color: #eee; }
+        .drug-category { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; }
+        .category-cardiac { background: #ff6b6b; color: white; }
+        .category-antibiotic { background: #4ecdc4; color: white; }
+        .category-steroid { background: #ffe66d; color: #333; }
+        .category-other { background: #95a5a6; color: white; }
     </style>
 </head>
 <body>
@@ -220,7 +225,7 @@
     <!-- 診所搜尋 Modal -->
     <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 醫生搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
     <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱、地區或專科 (如: 中環診所、養和醫院)" onkeyup="if(event.key==='Enter') performSearch()">
-    <div class="filter-options"><span class="filter-chip" onclick="setSearchLocation('中環診所')">中環</span><span class="filter-chip" onclick="setSearchLocation('尖沙咀診所')">尖沙咀</span><span class="filter-chip" onclick="setSearchLocation('心臟科醫生')">心臟科</span><span class="filter-chip" onclick="setSearchLocation('兒科醫生')">兒科</span><span class="filter-chip" onclick="setSearchLocation('養和醫院')">養和醫院</span></div>
+    <div class="filter-options"><span class="filter-chip" onclick="setSearchLocation('中環診所')">中環</span><span class="filter-chip" onclick="setSearchLocation('尖沙咀診所')">尖沙咀</span><span class="filter-chip" onclick="setSearchLocation('心臟科醫生')">心臟科</span><span class="filter-chip" onclick="setSearchLocation('兒科醫生')">兒科</span></div>
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="performSearch()">搜尋</button></div></div>
     
@@ -240,7 +245,7 @@
     
     <!-- 藥物記錄 Modal -->
     <div class="modal" id="medicationModal"><div class="modal-content"><div class="modal-header"><span>💊 藥物記錄</span><span class="close-btn" onclick="closeModal('medicationModal')">✕</span></div>
-    <div class="ocr-preview" onclick="addMedicationViaOCR()"><i class="fas fa-camera"></i> 掃描藥袋 / 手寫藥名</div>
+    <div class="ocr-preview" onclick="addMedicationViaOCR()"><i class="fas fa-camera"></i> 掃描藥袋 / 藥盒</div>
     <div class="ocr-preview" onclick="addMedicationManual()"><i class="fas fa-pen"></i> 手動輸入藥物</div>
     <div id="medicationList"></div>
     <button class="btn-primary" onclick="analyzeMedications()">🤖 AI 分析藥物</button>
@@ -254,6 +259,28 @@
         let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
         let medications = JSON.parse(localStorage.getItem('medications') || '[]');
         let currentSearchType = 'clinic';
+        
+        // 藥物分類與資訊資料庫
+        const drugDatabase = {
+            '阿士匹靈': { category: 'cardiac', name: '阿士匹靈', effect: '抗血小板凝聚，預防中風及心臟病', sideEffect: '腸胃不適、出血風險', timing: '餐後', warning: '勿與薄血藥同服，如有胃潰瘍請諮詢醫生' },
+            'aspirin': { category: 'cardiac', name: 'Aspirin', effect: 'Anti-platelet', sideEffect: 'GI upset', timing: 'after meal', warning: 'Avoid with other blood thinners' },
+            '血壓藥': { category: 'cardiac', name: '血壓藥', effect: '控制血壓', sideEffect: '頭暈、疲倦', timing: '早餐後', warning: '定時服用，勿自行停藥' },
+            'amlodipine': { category: 'cardiac', name: 'Amlodipine', effect: '降血壓', sideEffect: '腳腫、頭痛', timing: '餐後', warning: '勿與西柚同食' },
+            '抗生素': { category: 'antibiotic', name: '抗生素', effect: '殺死細菌', sideEffect: '腸胃不適、腹瀉', timing: '餐後', warning: '必須完成整個療程' },
+            'amoxicillin': { category: 'antibiotic', name: 'Amoxicillin', effect: '抗生素', sideEffect: '腹瀉、皮疹', timing: '餐後', warning: '如有過敏反應立即停藥' },
+            '類固醇': { category: 'steroid', name: '類固醇', effect: '抗炎、抑制免疫', sideEffect: '體重增加、骨質疏鬆', timing: '早餐後', warning: '勿突然停藥，需逐步減量' },
+            'prednisolone': { category: 'steroid', name: 'Prednisolone', effect: '抗炎', sideEffect: '食慾增加', timing: '早餐後', warning: '長期使用需醫生監察' }
+        };
+        
+        function getDrugInfo(name) {
+            const lowerName = name.toLowerCase();
+            for(let key in drugDatabase) {
+                if(lowerName.includes(key.toLowerCase())) {
+                    return { ...drugDatabase[key], matchedKey: key };
+                }
+            }
+            return { category: 'other', name: name, effect: '待補充', sideEffect: '待補充', timing: '餐後', warning: '請諮詢醫生或藥劑師' };
+        }
         
         const allServices = [
             { name: '醫生搜尋', icon: 'fa-search', action: "openSearch('clinic')" },
@@ -298,14 +325,20 @@
             const list = document.getElementById('medicationList');
             if(list) {
                 if(medications.length) {
-                    list.innerHTML = medications.map(m => `
-                        <div class="medication-item">
-                            <div><strong>💊 ${m.name}</strong> | ${m.dosage}</div>
-                            <div>🕒 每日 ${m.times} 次 | ${m.timing}</div>
-                            <div>📅 開始日期：${m.startDate}</div>
-                            <div style="font-size:12px; color:#666;">備註：${m.notes || '無'}</div>
-                        </div>
-                    `).join('');
+                    list.innerHTML = medications.map(m => {
+                        const info = getDrugInfo(m.name);
+                        const categoryClass = info.category === 'cardiac' ? 'category-cardiac' : (info.category === 'antibiotic' ? 'category-antibiotic' : (info.category === 'steroid' ? 'category-steroid' : 'category-other'));
+                        const categoryName = info.category === 'cardiac' ? '心臟藥' : (info.category === 'antibiotic' ? '抗生素' : (info.category === 'steroid' ? '類固醇' : '其他'));
+                        return `
+                            <div class="medication-item">
+                                <div><strong>💊 ${m.name}</strong> <span class="drug-category ${categoryClass}">${categoryName}</span></div>
+                                <div>💊 劑量：${m.dosage || '每天1次，每次1粒'}</div>
+                                <div>🕒 ${m.timing || '餐後'}服用</div>
+                                <div>📅 開始日期：${m.startDate}</div>
+                                <div style="font-size:12px; color:#666;">📝 ${m.notes || '無備註'}</div>
+                            </div>
+                        `;
+                    }).join('');
                 } else {
                     list.innerHTML = '<div class="clinic-card">暫無藥物記錄<br>點擊「掃描藥袋」或「手動輸入」加入藥物</div>';
                 }
@@ -321,6 +354,7 @@
                 if(!file) return;
                 const reader = new FileReader();
                 reader.onload = async function(ev) {
+                    document.getElementById('ocrLoading').style.display = 'block';
                     try {
                         const res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
                             method: 'POST',
@@ -328,17 +362,19 @@
                         });
                         const data = await res.json();
                         const text = data.responses?.[0]?.fullTextAnnotation?.text || '';
+                        document.getElementById('ocrLoading').style.display = 'none';
                         const name = prompt('AI 識別到藥物名稱，請確認或修改：', text.substring(0, 50) || '未知藥物');
                         if(name) {
+                            const info = getDrugInfo(name);
+                            const timing = prompt(`服用時間 (餐前/餐後/睡前)：\n\n💡 AI 建議：${info.timing === '餐後' ? '此藥建議餐後服用以減少腸胃不適' : '此藥建議餐前服用'}`, info.timing);
                             const dosage = prompt('劑量 (如：每天1次，每次1粒)：', '每天1次，每次1粒');
-                            const timing = prompt('服用時間 (餐前/餐後/睡前)：', '餐後');
-                            const notes = prompt('備註 (選擇性)：', '');
-                            medications.push({ name, dosage, times: 1, timing, notes, startDate: new Date().toLocaleDateString() });
+                            const notes = prompt('備註 (選擇性)：', info.warning);
+                            medications.push({ name, dosage, timing, notes, startDate: new Date().toLocaleDateString() });
                             localStorage.setItem('medications', JSON.stringify(medications));
                             displayMedications();
                             alert('✅ 藥物已加入記錄');
                         }
-                    } catch(e) { alert('識別失敗'); }
+                    } catch(e) { document.getElementById('ocrLoading').style.display = 'none'; alert('識別失敗'); }
                 };
                 reader.readAsDataURL(file);
             };
@@ -348,10 +384,11 @@
         function addMedicationManual() {
             const name = prompt('藥物名稱：');
             if(name) {
+                const info = getDrugInfo(name);
+                const timing = prompt(`服用時間 (餐前/餐後/睡前)：\n\n💡 AI 建議：${info.timing === '餐後' ? '此藥建議餐後服用以減少腸胃不適' : '此藥建議餐前服用'}`, info.timing);
                 const dosage = prompt('劑量 (如：每天1次，每次1粒)：', '每天1次，每次1粒');
-                const timing = prompt('服用時間 (餐前/餐後/睡前)：', '餐後');
-                const notes = prompt('備註 (選擇性)：', '');
-                medications.push({ name, dosage, times: 1, timing, notes, startDate: new Date().toLocaleDateString() });
+                const notes = prompt('備註 (選擇性)：', info.warning);
+                medications.push({ name, dosage, timing, notes, startDate: new Date().toLocaleDateString() });
                 localStorage.setItem('medications', JSON.stringify(medications));
                 displayMedications();
                 alert('✅ 藥物已加入記錄');
@@ -364,21 +401,44 @@
                 return;
             }
             let analysis = '<div class="clinic-card"><strong>🤖 AI 藥物分析報告</strong><br><br>';
+            
+            // 檢查藥物相沖
+            const drugNames = medications.map(m => m.name.toLowerCase());
+            let hasConflict = false;
+            if(drugNames.some(n => n.includes('阿士匹靈') || n.includes('aspirin')) && drugNames.some(n => n.includes('血壓藥'))) {
+                analysis += '⚠️ <strong>藥物相沖警告：</strong>阿士匹靈與血壓藥同時服用可能增加出血風險，請諮詢醫生。<br><br>';
+                hasConflict = true;
+            }
+            if(!hasConflict) analysis += '✅ 目前沒有檢測到明顯的藥物相沖。<br><br>';
+            
+            analysis += '<strong>📋 藥物分類及詳細分析：</strong><br>';
+            medications.forEach(m => {
+                const info = getDrugInfo(m.name);
+                const categoryName = info.category === 'cardiac' ? '❤️ 心臟藥' : (info.category === 'antibiotic' ? '🦠 抗生素' : (info.category === 'steroid' ? '💊 類固醇' : '📋 其他藥物'));
+                analysis += `
+                    <div style="margin-top:15px; padding:10px; background:#f0f7ff; border-radius:12px;">
+                        <strong>💊 ${m.name}</strong> ${categoryName}<br>
+                        🎯 作用：${info.effect}<br>
+                        ⚠️ 副作用：${info.sideEffect}<br>
+                        🕒 服用建議：${m.timing || info.timing}服用<br>
+                        📌 注意事項：${info.warning}<br>
+                    </div>
+                `;
+            });
+            
+            // 服用時間衝突檢查
             const timings = medications.map(m => m.timing);
             const hasBeforeMeal = timings.includes('餐前');
             const hasAfterMeal = timings.includes('餐後');
-            if(hasBeforeMeal && hasAfterMeal) analysis += '⚠️ 同時有餐前和餐後藥物，請注意分開服用。<br>';
-            analysis += '📋 服用建議：<br>';
-            medications.forEach(m => {
-                analysis += `• ${m.name}：${m.dosage}，${m.timing}服用<br>`;
-                if(m.name.includes('阿士匹靈') || m.name.includes('aspirin')) analysis += `  ⚠️ 注意：此藥可能刺激胃部，建議餐後服用。<br>`;
-                if(m.name.includes('血壓') || m.name.includes('降血壓')) analysis += `  ⚠️ 注意：定時服用，勿自行停藥。<br>`;
-            });
-            analysis += '<br>📞 如有疑問，請諮詢醫生或藥劑師。</div>';
+            if(hasBeforeMeal && hasAfterMeal) {
+                analysis += '<br><div style="background:#fff3cd; padding:10px; border-radius:12px;"><strong>⚠️ 服用時間提醒：</strong><br>您同時有餐前和餐後藥物，請注意分開服用，建議間隔1-2小時。</div>';
+            }
+            
+            analysis += '<br><br>📞 以上分析僅供參考，如有疑問請諮詢醫生或藥劑師。</div>';
             document.getElementById('aiAnalysisResult').innerHTML = analysis;
         }
         
-        // 診所搜尋（真實 Google Places API）
+        // 診所搜尋
         async function performSearch() {
             const term = document.getElementById('searchInput').value.trim();
             const resultsDiv = document.getElementById('searchResults');
@@ -448,3 +508,15 @@
         function switchTab(tab, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
+            const c = document.getElementById('contentArea');
+            if(tab === 'news') c.innerHTML = `<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div>`;
+            else if(tab === 'services') c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">${allServices.map(s => `<div class="clinic-card" onclick="${s.action}"><i class="fas ${s.icon}"></i> ${s.name}</div>`).join('')}</div>`;
+            else if(tab === 'support') c.innerHTML = `<div class="clinic-card" onclick="alert('客服熱線：2121 8080')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp</div>`;
+            else c.innerHTML = `<div class="clinic-card" onclick="alert('訪客模式')">👤 訪客模式</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div>`;
+        }
+        
+        function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
+        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+    </script>
+</body>
+</html>
