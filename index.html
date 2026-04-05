@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - 藥物AI分析</title>
+    <title>DigGO 醫療探索平台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Noto Sans TC', sans-serif; background: #f5f7fb; color: #333; line-height: 1.5; }
         
-        /* 心電圖啟動畫面 */
+        /* 心電圖啟動畫面 - 心電圖下移 */
         .splash-screen {
             position: fixed;
             top: 0;
@@ -32,12 +32,14 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        
+        /* 心電圖移到最底部，不會遮擋文字 */
         .ecg-container {
             position: absolute;
-            bottom: 20%;
+            bottom: 5%;
             left: 0;
             width: 100%;
-            height: 120px;
+            height: 100px;
             overflow: hidden;
         }
         .ecg-line {
@@ -45,10 +47,10 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 100px;
+            height: 80px;
             fill: none;
-            stroke: rgba(255, 255, 255, 0.8);
-            stroke-width: 3;
+            stroke: rgba(255, 255, 255, 0.6);
+            stroke-width: 2;
         }
         .ecg-path {
             stroke-dasharray: 2000;
@@ -60,20 +62,22 @@
             50% { stroke-dashoffset: 0; }
             100% { stroke-dashoffset: 0; }
         }
+        
+        /* 心臟跳動圖標移到右下方，不干擾文字 */
         .heart-beat {
             position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 80px;
-            color: rgba(255,255,255,0.3);
+            bottom: 12%;
+            right: 5%;
+            font-size: 40px;
+            color: rgba(255,255,255,0.4);
             animation: pulse 1.2s ease infinite;
         }
         @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; }
-            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.8; }
-            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; }
+            0% { transform: scale(0.95); opacity: 0.4; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(0.95); opacity: 0.4; }
         }
+        
         .splash-content {
             text-align: center;
             color: white;
@@ -192,8 +196,17 @@
     <!-- 心電圖啟動畫面 -->
     <div class="splash-screen" id="splashScreen">
         <div class="heart-beat"><i class="fas fa-heartbeat"></i></div>
-        <div class="ecg-container"><svg class="ecg-line" viewBox="0 0 1200 100" preserveAspectRatio="none"><path class="ecg-path" d="M0,50 L100,50 L120,50 L140,20 L160,80 L180,50 L200,50 L300,50 L320,50 L340,20 L360,80 L380,50 L400,50 L500,50 L520,50 L540,10 L560,90 L580,50 L600,50 L700,50 L720,50 L740,30 L760,70 L780,50 L800,50 L900,50 L920,50 L940,20 L960,80 L980,50 L1000,50 L1100,50 L1120,50 L1140,20 L1160,80 L1180,50 L1200,50" /></svg></div>
-        <div class="splash-content"><div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div><div class="splash-title">DigGO</div><div class="splash-subtitle">醫療探索平台</div><div class="splash-loading"></div></div>
+        <div class="ecg-container">
+            <svg class="ecg-line" viewBox="0 0 1200 80" preserveAspectRatio="none">
+                <path class="ecg-path" d="M0,40 L100,40 L120,40 L140,10 L160,70 L180,40 L200,40 L300,40 L320,40 L340,10 L360,70 L380,40 L400,40 L500,40 L520,40 L540,5 L560,75 L580,40 L600,40 L700,40 L720,40 L740,20 L760,60 L780,40 L800,40 L900,40 L920,40 L940,10 L960,70 L980,40 L1000,40 L1100,40 L1120,40 L1140,10 L1160,70 L1180,40 L1200,40" />
+            </svg>
+        </div>
+        <div class="splash-content">
+            <div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div>
+            <div class="splash-title">DigGO</div>
+            <div class="splash-subtitle">醫療探索平台</div>
+            <div class="splash-loading"></div>
+        </div>
     </div>
 
     <div class="main-content" id="mainContent">
@@ -320,7 +333,6 @@
         function openMedication() { openModal('medicationModal'); displayMedications(); }
         function openHealthAdvice() { const age = prompt('請輸入您的年齡：'); if(age) alert(`💡 AI 健康建議\n\n年齡 ${age} 歲建議：\n• 每年一次身體檢查\n${age>=50 ? '• 建議大腸癌篩查\n' : ''}${age>=65 ? '• 建議接種流感疫苗\n• 可使用長者醫療券' : ''}`); }
         
-        // 藥物記錄功能
         function displayMedications() {
             const list = document.getElementById('medicationList');
             if(list) {
@@ -402,7 +414,6 @@
             }
             let analysis = '<div class="clinic-card"><strong>🤖 AI 藥物分析報告</strong><br><br>';
             
-            // 檢查藥物相沖
             const drugNames = medications.map(m => m.name.toLowerCase());
             let hasConflict = false;
             if(drugNames.some(n => n.includes('阿士匹靈') || n.includes('aspirin')) && drugNames.some(n => n.includes('血壓藥'))) {
@@ -426,7 +437,6 @@
                 `;
             });
             
-            // 服用時間衝突檢查
             const timings = medications.map(m => m.timing);
             const hasBeforeMeal = timings.includes('餐前');
             const hasAfterMeal = timings.includes('餐後');
@@ -438,7 +448,6 @@
             document.getElementById('aiAnalysisResult').innerHTML = analysis;
         }
         
-        // 診所搜尋
         async function performSearch() {
             const term = document.getElementById('searchInput').value.trim();
             const resultsDiv = document.getElementById('searchResults');
@@ -448,75 +457,4 @@
                 let query = term;
                 if(currentSearchType === 'specialist') query = `${term} 專科醫生 Hong Kong`;
                 else query = `${term} Hong Kong`;
-                const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                if(data.results?.length) {
-                    resultsDiv.innerHTML = data.results.slice(0, 20).map(p => `<div class="clinic-card" onclick="bookClinic('${p.name.replace(/'/g, "\\'")}', '${p.formatted_address || p.vicinity || ''}', '${p.rating || '新'}')"><div style="display:flex;justify-content:space-between;"><b>${p.name}</b><span>⭐ ${p.rating || '新'}</span></div><p>📍 ${p.formatted_address || p.vicinity}</p><button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button></div>`).join('');
-                } else resultsDiv.innerHTML = '<div style="padding:20px;">沒有找到診所，請嘗試其他關鍵字</div>';
-            } catch(e) { resultsDiv.innerHTML = '<div style="padding:20px;">搜尋失敗，請稍後再試</div>'; }
-        }
-        
-        function bookClinic(name, address) {
-            if(confirm(`確認預約 ${name}？\n地址：${address}\n\n預約後自動加入排隊`)) {
-                appointments.push({ id: Date.now(), name, address, date: new Date().toLocaleDateString(), status: '已確認' });
-                localStorage.setItem('appointments', JSON.stringify(appointments));
-                alert(`✅ 已預約 ${name}`);
-                closeModal('searchModal');
-                openQueueWithAppointment(name);
-            }
-        }
-        
-        function openQueueWithAppointment(name) {
-            const num = 'A' + Math.floor(Math.random()*900+100);
-            const ahead = Math.floor(Math.random()*8+1);
-            const wait = ahead*5+10;
-            document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><div class="queue-number">🎫 ${num}</div><p>診所：${name}</p><p>前面人數：${ahead}</p><p>預計等候：${wait}分鐘</p><div class="progress-bar"><div style="height:10px; background:#0066cc; width:${Math.max(10,100-ahead*8)}%; border-radius:5px;"></div></div><button class="btn-primary" onclick="closeModal('queueModal')">關閉</button></div>`;
-            openModal('queueModal');
-        }
-        
-        // OCR 轉介信
-        async function processOCRImage(input) {
-            const file = input.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                document.getElementById('ocrLoading').style.display = 'block';
-                document.getElementById('ocrResult').style.display = 'none';
-                try {
-                    const res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
-                        method: 'POST',
-                        body: JSON.stringify({ requests: [{ image: { content: e.target.result.split(',')[1] }, features: [{ type: 'DOCUMENT_TEXT_DETECTION' }] }] })
-                    });
-                    const data = await res.json();
-                    const text = data.responses?.[0]?.fullTextAnnotation?.text || '未識別到文字';
-                    let specialty = '一般門診';
-                    if(text.includes('心臟') || text.includes('cardiac')) specialty = '心臟科';
-                    else if(text.includes('骨科') || text.includes('bone')) specialty = '骨科';
-                    else if(text.includes('兒科') || text.includes('child')) specialty = '兒科';
-                    else if(text.includes('眼科') || text.includes('eye')) specialty = '眼科';
-                    document.getElementById('ocrLoading').style.display = 'none';
-                    document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ AI 識別結果</b><p style="margin-top:10px;">${text.substring(0,300)}</p><p style="margin-top:10px;">🤖 AI 建議專科：<b>${specialty}</b></p></div><button class="btn-primary" onclick="closeModal('ocrModal');openSearch('specialist');document.getElementById('searchInput').value='${specialty}醫生';performSearch();">🔍 搜尋 ${specialty}醫生</button>`;
-                    document.getElementById('ocrResult').style.display = 'block';
-                } catch(e) { document.getElementById('ocrLoading').style.display = 'none'; alert('識別失敗'); }
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        function resetOCR() { document.getElementById('ocrResult').style.display = 'none'; document.getElementById('ocrImageInput').value = ''; }
-        
-        function switchTab(tab, el) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(el) el.classList.add('active');
-            const c = document.getElementById('contentArea');
-            if(tab === 'news') c.innerHTML = `<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div>`;
-            else if(tab === 'services') c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">${allServices.map(s => `<div class="clinic-card" onclick="${s.action}"><i class="fas ${s.icon}"></i> ${s.name}</div>`).join('')}</div>`;
-            else if(tab === 'support') c.innerHTML = `<div class="clinic-card" onclick="alert('客服熱線：2121 8080')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp</div>`;
-            else c.innerHTML = `<div class="clinic-card" onclick="alert('訪客模式')">👤 訪客模式</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div>`;
-        }
-        
-        function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
-        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-    </script>
-</body>
-</html>
+                const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${
