@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - AI 驅動版</title>
+    <title>DigGO 醫療探索平台 - 藥物記錄 + AI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -176,18 +176,15 @@
         .clinic-card:active { background: #e6f2ff; transform: scale(0.98); }
         .btn-primary { background: #0066cc; color: white; border: none; padding: 15px; border-radius: 30px; width: 100%; cursor: pointer; margin-top: 20px; }
         .ocr-preview { background: #f0f0f0; border-radius: 16px; padding: 20px; text-align: center; margin: 20px 0; border: 2px dashed #999; cursor: pointer; }
-        .appointment-item { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0066cc; }
-        .queue-number { font-size: 48px; font-weight: 800; color: #0066cc; text-align: center; margin: 20px 0; }
-        .progress-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; margin: 20px 0; }
-        .progress-fill { height: 100%; background: #0066cc; width: 70%; }
-        .filter-chip { background: #f0f0f0; padding: 8px 16px; border-radius: 30px; font-size: 14px; cursor: pointer; display: inline-block; margin: 5px; }
+        .medication-item { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0066cc; }
         .loading { text-align: center; padding: 20px; color: #0066cc; }
         .dark-mode-toggle { position: fixed; bottom: 80px; right: 20px; background: white; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; z-index: 1000; }
         body.dark { background: #1a1a1a; }
-        body.dark .features-grid, body.dark .clinic-card, body.dark .modal-content, body.dark .bottom-nav, body.dark .appointment-item { background: #2a2a2a; color: #eee; }
+        body.dark .features-grid, body.dark .clinic-card, body.dark .modal-content, body.dark .bottom-nav, body.dark .medication-item { background: #2a2a2a; color: #eee; }
     </style>
 </head>
 <body>
+    <!-- 心電圖啟動畫面 -->
     <div class="splash-screen" id="splashScreen">
         <div class="heart-beat"><i class="fas fa-heartbeat"></i></div>
         <div class="ecg-container"><svg class="ecg-line" viewBox="0 0 1200 100" preserveAspectRatio="none"><path class="ecg-path" d="M0,50 L100,50 L120,50 L140,20 L160,80 L180,50 L200,50 L300,50 L320,50 L340,20 L360,80 L380,50 L400,50 L500,50 L520,50 L540,10 L560,90 L580,50 L600,50 L700,50 L720,50 L740,30 L760,70 L780,50 L800,50 L900,50 L920,50 L940,20 L960,80 L980,50 L1000,50 L1100,50 L1120,50 L1140,20 L1160,80 L1180,50 L1200,50" /></svg></div>
@@ -204,6 +201,7 @@
             <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">OCR轉介信</div></div>
             <div class="feature-card" onclick="openQueue()"><div class="feature-icon"><i class="fas fa-hourglass-half" style="color:#28a745"></i></div><div class="feature-label">排隊通</div></div>
             <div class="feature-card" onclick="openAppointments()"><div class="feature-icon"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i></div><div class="feature-label">預約通</div></div>
+            <div class="feature-card" onclick="openMedication()"><div class="feature-icon"><i class="fas fa-pills" style="color:#dc3545"></i></div><div class="feature-label">藥物記錄</div></div>
             <div class="feature-card" onclick="openMore()"><div class="feature-icon"><i class="fas fa-ellipsis-h" style="color:#999"></i></div><div class="feature-label">更多</div></div>
         </div>
         
@@ -219,12 +217,14 @@
     
     <div class="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></div>
     
+    <!-- 診所搜尋 Modal -->
     <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 醫生搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <input type="text" class="search-input" id="searchInput" placeholder="輸入地區或專科 (如: 中環、心臟科)" onkeyup="if(event.key==='Enter') performSearch()">
-    <div class="filter-options"><span class="filter-chip" onclick="setSearchLocation('中環 診所')">中環</span><span class="filter-chip" onclick="setSearchLocation('尖沙咀 診所')">尖沙咀</span><span class="filter-chip" onclick="setSearchLocation('心臟科醫生')">心臟科</span></div>
+    <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱、地區或專科 (如: 中環診所、養和醫院)" onkeyup="if(event.key==='Enter') performSearch()">
+    <div class="filter-options"><span class="filter-chip" onclick="setSearchLocation('中環診所')">中環</span><span class="filter-chip" onclick="setSearchLocation('尖沙咀診所')">尖沙咀</span><span class="filter-chip" onclick="setSearchLocation('心臟科醫生')">心臟科</span><span class="filter-chip" onclick="setSearchLocation('兒科醫生')">兒科</span><span class="filter-chip" onclick="setSearchLocation('養和醫院')">養和醫院</span></div>
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="performSearch()">搜尋</button></div></div>
     
+    <!-- OCR Modal -->
     <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR轉介信</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
     <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p><p>Google Vision 真實識別 + AI 建議專科</p></div>
@@ -232,13 +232,27 @@
     <div id="ocrResult" style="display:none;"></div>
     <button class="btn-primary" onclick="resetOCR()">重新上傳</button></div></div>
     
+    <!-- 排隊通 Modal -->
     <div class="modal" id="queueModal"><div class="modal-content"><div class="modal-header"><span>🎟️ 排隊通</span><span class="close-btn" onclick="closeModal('queueModal')">✕</span></div><div id="queueDisplay"></div></div></div>
+    
+    <!-- 預約通 Modal -->
     <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div></div></div>
+    
+    <!-- 藥物記錄 Modal -->
+    <div class="modal" id="medicationModal"><div class="modal-content"><div class="modal-header"><span>💊 藥物記錄</span><span class="close-btn" onclick="closeModal('medicationModal')">✕</span></div>
+    <div class="ocr-preview" onclick="addMedicationViaOCR()"><i class="fas fa-camera"></i> 掃描藥袋 / 手寫藥名</div>
+    <div class="ocr-preview" onclick="addMedicationManual()"><i class="fas fa-pen"></i> 手動輸入藥物</div>
+    <div id="medicationList"></div>
+    <button class="btn-primary" onclick="analyzeMedications()">🤖 AI 分析藥物</button>
+    <div id="aiAnalysisResult" style="margin-top:15px;"></div></div></div>
+    
+    <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div><div id="moreServicesList" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;"></div></div></div>
     
     <script>
         const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
         let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+        let medications = JSON.parse(localStorage.getItem('medications') || '[]');
         let currentSearchType = 'clinic';
         
         const allServices = [
@@ -247,12 +261,11 @@
             { name: 'OCR轉介信', icon: 'fa-file-alt', action: 'openOCR()' },
             { name: '排隊通', icon: 'fa-hourglass-half', action: 'openQueue()' },
             { name: '預約通', icon: 'fa-calendar-alt', action: 'openAppointments()' },
-            { name: '藥物送遞', icon: 'fa-pills', action: "alert('💊 藥物送遞\\n\\n上傳處方，1小時送達')" },
+            { name: '藥物記錄', icon: 'fa-pills', action: 'openMedication()' },
+            { name: '藥物送遞', icon: 'fa-truck', action: "alert('💊 藥物送遞\\n\\n上傳處方，1小時送達')" },
             { name: '保險配對', icon: 'fa-shield-alt', action: "alert('🛡️ 保險配對\\n\\n輸入年齡即時報價')" },
             { name: '優惠資訊', icon: 'fa-tags', action: "alert('💰 優惠資訊\\n\\n體檢7折、洗牙$380')" },
-            { name: '健康建議', icon: 'fa-heartbeat', action: 'openHealthAdvice()' },
-            { name: '公私合作', icon: 'fa-handshake', action: "alert('🤝 公私合作\\n\\n長者醫療券計劃')" },
-            { name: '醫療報告', icon: 'fa-folder-medical', action: "alert('📁 醫療報告\\n\\n上傳儲存醫療報告')" }
+            { name: '健康建議', icon: 'fa-heartbeat', action: 'openHealthAdvice()' }
         ];
         
         setTimeout(() => {
@@ -262,6 +275,7 @@
                 document.getElementById('mainContent').style.display = 'block';
                 switchTab('news', document.querySelector('.nav-item'));
                 document.getElementById('moreServicesList').innerHTML = allServices.map(s => `<div class="clinic-card" onclick="${s.action}"><i class="fas ${s.icon}"></i> ${s.name}</div>`).join('');
+                displayMedications();
             }, 800);
         }, 2500);
         
@@ -273,24 +287,114 @@
         function openSearch(type) { currentSearchType = type; openModal('searchModal'); }
         function setSearchLocation(location) { document.getElementById('searchInput').value = location; performSearch(); }
         function openQueue() { if(appointments.length) openQueueWithAppointment(appointments[appointments.length-1].name); else { document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><p>未有排隊</p><button class="btn-primary" onclick="closeModal('queueModal');openSearch('clinic')">去預約</button></div>`; openModal('queueModal'); } }
-        function openAppointments() { const list = document.getElementById('appointmentList'); list.innerHTML = appointments.length ? appointments.map(a => `<div class="appointment-item"><div>📅 ${a.date}</div><div><strong>${a.name}</strong></div><div>✅ ${a.status}</div></div>`).join('') : '<div class="clinic-card">暫無預約</div>'; openModal('appointmentsModal'); }
+        function openAppointments() { const list = document.getElementById('appointmentList'); list.innerHTML = appointments.length ? appointments.map(a => `<div class="medication-item"><div>📅 ${a.date}</div><div><strong>${a.name}</strong></div><div>✅ ${a.status}</div></div>`).join('') : '<div class="clinic-card">暫無預約</div>'; openModal('appointmentsModal'); }
         function openMore() { openModal('moreModal'); }
         function openOCR() { openModal('ocrModal'); }
+        function openMedication() { openModal('medicationModal'); displayMedications(); }
         function openHealthAdvice() { const age = prompt('請輸入您的年齡：'); if(age) alert(`💡 AI 健康建議\n\n年齡 ${age} 歲建議：\n• 每年一次身體檢查\n${age>=50 ? '• 建議大腸癌篩查\n' : ''}${age>=65 ? '• 建議接種流感疫苗\n• 可使用長者醫療券' : ''}`); }
         
+        // 藥物記錄功能
+        function displayMedications() {
+            const list = document.getElementById('medicationList');
+            if(list) {
+                if(medications.length) {
+                    list.innerHTML = medications.map(m => `
+                        <div class="medication-item">
+                            <div><strong>💊 ${m.name}</strong> | ${m.dosage}</div>
+                            <div>🕒 每日 ${m.times} 次 | ${m.timing}</div>
+                            <div>📅 開始日期：${m.startDate}</div>
+                            <div style="font-size:12px; color:#666;">備註：${m.notes || '無'}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<div class="clinic-card">暫無藥物記錄<br>點擊「掃描藥袋」或「手動輸入」加入藥物</div>';
+                }
+            }
+        }
+        
+        function addMedicationViaOCR() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async function(e) {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = async function(ev) {
+                    try {
+                        const res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
+                            method: 'POST',
+                            body: JSON.stringify({ requests: [{ image: { content: ev.target.result.split(',')[1] }, features: [{ type: 'DOCUMENT_TEXT_DETECTION' }] }] })
+                        });
+                        const data = await res.json();
+                        const text = data.responses?.[0]?.fullTextAnnotation?.text || '';
+                        const name = prompt('AI 識別到藥物名稱，請確認或修改：', text.substring(0, 50) || '未知藥物');
+                        if(name) {
+                            const dosage = prompt('劑量 (如：每天1次，每次1粒)：', '每天1次，每次1粒');
+                            const timing = prompt('服用時間 (餐前/餐後/睡前)：', '餐後');
+                            const notes = prompt('備註 (選擇性)：', '');
+                            medications.push({ name, dosage, times: 1, timing, notes, startDate: new Date().toLocaleDateString() });
+                            localStorage.setItem('medications', JSON.stringify(medications));
+                            displayMedications();
+                            alert('✅ 藥物已加入記錄');
+                        }
+                    } catch(e) { alert('識別失敗'); }
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+        
+        function addMedicationManual() {
+            const name = prompt('藥物名稱：');
+            if(name) {
+                const dosage = prompt('劑量 (如：每天1次，每次1粒)：', '每天1次，每次1粒');
+                const timing = prompt('服用時間 (餐前/餐後/睡前)：', '餐後');
+                const notes = prompt('備註 (選擇性)：', '');
+                medications.push({ name, dosage, times: 1, timing, notes, startDate: new Date().toLocaleDateString() });
+                localStorage.setItem('medications', JSON.stringify(medications));
+                displayMedications();
+                alert('✅ 藥物已加入記錄');
+            }
+        }
+        
+        function analyzeMedications() {
+            if(medications.length === 0) {
+                document.getElementById('aiAnalysisResult').innerHTML = '<div class="clinic-card">請先加入藥物記錄</div>';
+                return;
+            }
+            let analysis = '<div class="clinic-card"><strong>🤖 AI 藥物分析報告</strong><br><br>';
+            const timings = medications.map(m => m.timing);
+            const hasBeforeMeal = timings.includes('餐前');
+            const hasAfterMeal = timings.includes('餐後');
+            if(hasBeforeMeal && hasAfterMeal) analysis += '⚠️ 同時有餐前和餐後藥物，請注意分開服用。<br>';
+            analysis += '📋 服用建議：<br>';
+            medications.forEach(m => {
+                analysis += `• ${m.name}：${m.dosage}，${m.timing}服用<br>`;
+                if(m.name.includes('阿士匹靈') || m.name.includes('aspirin')) analysis += `  ⚠️ 注意：此藥可能刺激胃部，建議餐後服用。<br>`;
+                if(m.name.includes('血壓') || m.name.includes('降血壓')) analysis += `  ⚠️ 注意：定時服用，勿自行停藥。<br>`;
+            });
+            analysis += '<br>📞 如有疑問，請諮詢醫生或藥劑師。</div>';
+            document.getElementById('aiAnalysisResult').innerHTML = analysis;
+        }
+        
+        // 診所搜尋（真實 Google Places API）
         async function performSearch() {
             const term = document.getElementById('searchInput').value.trim();
             const resultsDiv = document.getElementById('searchResults');
-            if(!term) { resultsDiv.innerHTML = '<div style="padding:20px;">請輸入地區或專科</div>'; return; }
+            if(!term) { resultsDiv.innerHTML = '<div style="padding:20px;">請輸入診所名稱、地區或專科</div>'; return; }
             resultsDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
             try {
-                const query = currentSearchType === 'specialist' ? `${term} 專科醫生 Hong Kong` : `${term} 診所 Hong Kong`;
-                const res = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`);
+                let query = term;
+                if(currentSearchType === 'specialist') query = `${term} 專科醫生 Hong Kong`;
+                else query = `${term} Hong Kong`;
+                const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`;
+                const res = await fetch(url);
                 const data = await res.json();
                 if(data.results?.length) {
-                    resultsDiv.innerHTML = data.results.slice(0, 15).map(p => `<div class="clinic-card" onclick="bookClinic('${p.name.replace(/'/g, "\\'")}', '${p.formatted_address || p.vicinity || ''}', '${p.rating || '新'}')"><div style="display:flex;justify-content:space-between;"><b>${p.name}</b><span>⭐ ${p.rating || '新'}</span></div><p>📍 ${p.formatted_address || p.vicinity}</p><button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button></div>`).join('');
-                } else resultsDiv.innerHTML = '<div style="padding:20px;">沒有找到診所</div>';
-            } catch(e) { resultsDiv.innerHTML = '<div style="padding:20px;">搜尋失敗</div>'; }
+                    resultsDiv.innerHTML = data.results.slice(0, 20).map(p => `<div class="clinic-card" onclick="bookClinic('${p.name.replace(/'/g, "\\'")}', '${p.formatted_address || p.vicinity || ''}', '${p.rating || '新'}')"><div style="display:flex;justify-content:space-between;"><b>${p.name}</b><span>⭐ ${p.rating || '新'}</span></div><p>📍 ${p.formatted_address || p.vicinity}</p><button style="margin-top:10px; background:#0066cc; color:white; border:none; padding:8px 16px; border-radius:20px;">📅 預約</button></div>`).join('');
+                } else resultsDiv.innerHTML = '<div style="padding:20px;">沒有找到診所，請嘗試其他關鍵字</div>';
+            } catch(e) { resultsDiv.innerHTML = '<div style="padding:20px;">搜尋失敗，請稍後再試</div>'; }
         }
         
         function bookClinic(name, address) {
@@ -307,10 +411,11 @@
             const num = 'A' + Math.floor(Math.random()*900+100);
             const ahead = Math.floor(Math.random()*8+1);
             const wait = ahead*5+10;
-            document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><div class="queue-number">🎫 ${num}</div><p>診所：${name}</p><p>前面人數：${ahead}</p><p>預計等候：${wait}分鐘</p><div class="progress-bar"><div class="progress-fill" style="width:${Math.max(10,100-ahead*8)}%"></div></div><button class="btn-primary" onclick="closeModal('queueModal')">關閉</button></div>`;
+            document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><div class="queue-number">🎫 ${num}</div><p>診所：${name}</p><p>前面人數：${ahead}</p><p>預計等候：${wait}分鐘</p><div class="progress-bar"><div style="height:10px; background:#0066cc; width:${Math.max(10,100-ahead*8)}%; border-radius:5px;"></div></div><button class="btn-primary" onclick="closeModal('queueModal')">關閉</button></div>`;
             openModal('queueModal');
         }
         
+        // OCR 轉介信
         async function processOCRImage(input) {
             const file = input.files[0];
             if(!file) return;
@@ -329,6 +434,7 @@
                     if(text.includes('心臟') || text.includes('cardiac')) specialty = '心臟科';
                     else if(text.includes('骨科') || text.includes('bone')) specialty = '骨科';
                     else if(text.includes('兒科') || text.includes('child')) specialty = '兒科';
+                    else if(text.includes('眼科') || text.includes('eye')) specialty = '眼科';
                     document.getElementById('ocrLoading').style.display = 'none';
                     document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ AI 識別結果</b><p style="margin-top:10px;">${text.substring(0,300)}</p><p style="margin-top:10px;">🤖 AI 建議專科：<b>${specialty}</b></p></div><button class="btn-primary" onclick="closeModal('ocrModal');openSearch('specialist');document.getElementById('searchInput').value='${specialty}醫生';performSearch();">🔍 搜尋 ${specialty}醫生</button>`;
                     document.getElementById('ocrResult').style.display = 'block';
@@ -342,15 +448,3 @@
         function switchTab(tab, el) {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             if(el) el.classList.add('active');
-            const c = document.getElementById('contentArea');
-            if(tab === 'news') c.innerHTML = `<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div>`;
-            else if(tab === 'services') c.innerHTML = `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">${allServices.map(s => `<div class="clinic-card" onclick="${s.action}"><i class="fas ${s.icon}"></i> ${s.name}</div>`).join('')}</div>`;
-            else if(tab === 'support') c.innerHTML = `<div class="clinic-card" onclick="alert('客服熱線：2121 8080')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp</div>`;
-            else c.innerHTML = `<div class="clinic-card" onclick="alert('訪客模式')">👤 訪客模式</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div>`;
-        }
-        
-        function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
-        if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-    </script>
-</body>
-</html>
