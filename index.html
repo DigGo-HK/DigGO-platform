@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - 真實版</title>
+    <title>DigGO 醫療探索平台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,7 +46,6 @@
         .splash-loading { width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        /* 主頁 */
         .main { display: none; min-height: 100vh; padding-bottom: 80px; }
         .status-bar { background: #0066cc; color: white; padding: 12px 16px; display: flex; justify-content: space-between; font-size: 14px; position: sticky; top: 0; z-index: 100; }
         .header { background: linear-gradient(135deg, #0066cc, #2a8bc2); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -189,12 +188,18 @@
     <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-        <div class="clinic-card" onclick="alert('藥物記錄功能開發中')">💊 藥物記錄</div>
-        <div class="clinic-card" onclick="alert('健康建議功能開發中')">💡 健康建議</div>
-        <div class="clinic-card" onclick="alert('保險配對功能開發中')">🛡️ 保險配對</div>
-        <div class="clinic-card" onclick="alert('藥物送遞功能開發中')">💊 藥物送遞</div>
-        <div class="clinic-card" onclick="alert('優惠資訊功能開發中')">💰 優惠資訊</div>
-        <div class="clinic-card" onclick="alert('公私合作功能開發中')">🤝 公私合作</div>
+        <div class="clinic-card" onclick="alert('💊 藥物記錄功能開發中')">💊 藥物記錄</div>
+        <div class="clinic-card" onclick="alert('💡 健康建議功能開發中')">💡 健康建議</div>
+        <div class="clinic-card" onclick="alert('🛡️ 保險配對功能開發中')">🛡️ 保險配對</div>
+        <div class="clinic-card" onclick="alert('💊 藥物送遞功能開發中')">💊 藥物送遞</div>
+        <div class="clinic-card" onclick="alert('💰 優惠資訊功能開發中')">💰 優惠資訊</div>
+        <div class="clinic-card" onclick="alert('🤝 公私合作功能開發中')">🤝 公私合作</div>
+        <div class="clinic-card" onclick="alert('📁 醫療報告功能開發中')">📁 醫療報告</div>
+        <div class="clinic-card" onclick="alert('❓ 專業查詢功能開發中')">❓ 專業查詢</div>
+        <div class="clinic-card" onclick="alert('💬 AI醫療助手功能開發中')">💬 AI醫療助手</div>
+        <div class="clinic-card" onclick="alert('📊 健康數據分析功能開發中')">📊 健康數據分析</div>
+        <div class="clinic-card" onclick="alert('🔔 服藥提醒功能開發中')">🔔 服藥提醒</div>
+        <div class="clinic-card" onclick="alert('📋 病歷摘要功能開發中')">📋 病歷摘要</div>
     </div></div></div>
     
     <script>
@@ -269,21 +274,23 @@
                                 <span>⭐ ${p.rating || '新'}</span>
                             </div>
                             <p>📍 ${p.formatted_address || p.vicinity || '地址待更新'}</p>
-                            <p>📞 ${p.formatted_phone_number || '電話待查詢'}</p>
+                            <p>📞 ${p.formatted_phone_number || '請致電查詢'}</p>
                             <div style="display:flex; gap:10px; margin-top:10px;">
-                                <button class="btn-primary" style="margin:0; padding:8px 16px; flex:1;" onclick="bookClinic('${p.name.replace(/'/g,"\\'")}', '${(p.formatted_address || p.vicinity || '').replace(/'/g,"\\'")}', '${p.formatted_phone_number || '待查詢'}')">📅 預約</button>
+                                <button class="btn-primary" style="margin:0; padding:8px 16px; flex:1;" onclick="bookClinic('${p.name.replace(/'/g,"\\'")}', '${(p.formatted_address || p.vicinity || '').replace(/'/g,"\\'")}', '${p.formatted_phone_number || '請致電查詢'}')">📅 預約</button>
                                 <button class="btn-secondary" style="margin:0; padding:8px 16px; flex:1;" onclick="doSearch()">🔄 重新搜尋</button>
                             </div>
                         </div>
                     `).join('');
                 } else div.innerHTML = '<div style="padding:20px;">沒有找到診所，請嘗試其他關鍵字</div>';
-            } catch(e) { div.innerHTML = '<div style="padding:20px;">搜尋失敗，請稍後再試</div>'; }
+            } catch(e) { 
+                console.error(e);
+                div.innerHTML = '<div style="padding:20px;">搜尋失敗，請稍後再試</div>'; 
+            }
         }
         
         // ==================== 預約功能 ====================
         function bookClinic(name, address, phone) {
             if(confirm(`確認預約 ${name}？\n地址：${address}\n電話：${phone}\n\n預約後會自動加入「預約通」及「排隊通」`)) {
-                // AI 自動記錄：存入 localStorage (模擬資料庫 + 診所後台)
                 const appointment = {
                     id: Date.now(),
                     name: name,
@@ -295,12 +302,8 @@
                 };
                 appointments.push(appointment);
                 localStorage.setItem('appointments', JSON.stringify(appointments));
-                
-                // AI 自動彈去預約通作紀錄
                 alert(`✅ 預約成功！\n\n診所：${name}\n日期：${appointment.date}\n時間：${appointment.time}\n\n已自動存入「預約通」`);
                 closeModal('searchModal');
-                
-                // 顯示成功預約並自動跳去排隊通
                 openQueue();
             }
         }
@@ -362,13 +365,13 @@
             switchTab('profile', document.querySelector('.nav-item'));
         }
         
-        // 底部導航
+        // 底部導航 - 12功能齊全
         function switchTab(tab, el) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             if(el) el.classList.add('active');
             let content = document.getElementById('content');
             if(tab === 'news') {
-                content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div>';
+                content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div><div class="clinic-card"><b>🏥 公私營協作計劃</b><br>公立轉介私營，縮短輪候</div>';
             } else if(tab === 'services') {
                 content.innerHTML = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">' +
                     '<div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div>' +
@@ -376,9 +379,16 @@
                     '<div class="clinic-card" onclick="openReferral()">📄 轉介信預約</div>' +
                     '<div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>' +
                     '<div class="clinic-card" onclick="openAppointments()">📅 預約通</div>' +
+                    '<div class="clinic-card" onclick="alert(\'💊 藥物記錄開發中\')">💊 藥物記錄</div>' +
+                    '<div class="clinic-card" onclick="alert(\'💡 健康建議開發中\')">💡 健康建議</div>' +
+                    '<div class="clinic-card" onclick="alert(\'🛡️ 保險配對開發中\')">🛡️ 保險配對</div>' +
+                    '<div class="clinic-card" onclick="alert(\'💊 藥物送遞開發中\')">💊 藥物送遞</div>' +
+                    '<div class="clinic-card" onclick="alert(\'💰 優惠資訊開發中\')">💰 優惠資訊</div>' +
+                    '<div class="clinic-card" onclick="alert(\'🤝 公私合作開發中\')">🤝 公私合作</div>' +
+                    '<div class="clinic-card" onclick="alert(\'📁 醫療報告開發中\')">📁 醫療報告</div>' +
                     '</div>';
             } else if(tab === 'support') {
-                content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div>';
+                content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open(\'https://wa.me/85212345678\')">💬 WhatsApp 查詢</div>';
             } else if(tab === 'profile') {
                 if(currentUser) {
                     content.innerHTML = '<div class="clinic-card"><b>👤 ' + currentUser.name + '</b><br>📱 ' + currentUser.phone + '<br>🎂 ' + (currentUser.age || '未提供') + '歲</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (' + appointments.length + ')</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>';
