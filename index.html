@@ -166,12 +166,11 @@
         </div>
     </div></div>
     
-    <!-- 搜尋 Modal -->
-    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 搜尋診所</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱或地區 (如: 中環診所)">
-    <div class="filter-options"><span class="filter-chip" onclick="setLocation('中環診所')">中環</span><span class="filter-chip" onclick="setLocation('尖沙咀診所')">尖沙咀</span><span class="filter-chip" onclick="setLocation('心臟科醫生')">心臟科</span></div>
+    <!-- 搜尋 Modal - 專為醫生名字設計 -->
+    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 搜尋醫生</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
+    <input type="text" class="search-input" id="searchInput" placeholder="請輸入醫生姓名 (如: 陳醫生、林醫生)">
     <div id="searchResults"></div>
-    <button class="btn-primary" onclick="doSearch()">搜尋</button></div></div>
+    <button class="btn-primary" onclick="doSearch()">搜尋醫生</button></div></div>
     
     <!-- 轉介信 Modal -->
     <div class="modal" id="referralModal"><div class="modal-content"><div class="modal-header"><span>📄 轉介信預約</span><span class="close-btn" onclick="closeModal('referralModal')">✕</span></div>
@@ -188,18 +187,14 @@
     <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-        <div class="clinic-card" onclick="alert('💊 藥物記錄功能開發中')">💊 藥物記錄</div>
-        <div class="clinic-card" onclick="alert('💡 健康建議功能開發中')">💡 健康建議</div>
-        <div class="clinic-card" onclick="alert('🛡️ 保險配對功能開發中')">🛡️ 保險配對</div>
-        <div class="clinic-card" onclick="alert('💊 藥物送遞功能開發中')">💊 藥物送遞</div>
-        <div class="clinic-card" onclick="alert('💰 優惠資訊功能開發中')">💰 優惠資訊</div>
-        <div class="clinic-card" onclick="alert('🤝 公私合作功能開發中')">🤝 公私合作</div>
-        <div class="clinic-card" onclick="alert('📁 醫療報告功能開發中')">📁 醫療報告</div>
-        <div class="clinic-card" onclick="alert('❓ 專業查詢功能開發中')">❓ 專業查詢</div>
-        <div class="clinic-card" onclick="alert('💬 AI醫療助手功能開發中')">💬 AI醫療助手</div>
-        <div class="clinic-card" onclick="alert('📊 健康數據分析功能開發中')">📊 健康數據分析</div>
-        <div class="clinic-card" onclick="alert('🔔 服藥提醒功能開發中')">🔔 服藥提醒</div>
-        <div class="clinic-card" onclick="alert('📋 病歷摘要功能開發中')">📋 病歷摘要</div>
+        <div class="clinic-card" onclick="alert('💊 藥物記錄開發中')">💊 藥物記錄</div>
+        <div class="clinic-card" onclick="alert('💡 健康建議開發中')">💡 健康建議</div>
+        <div class="clinic-card" onclick="alert('🛡️ 保險配對開發中')">🛡️ 保險配對</div>
+        <div class="clinic-card" onclick="alert('💊 藥物送遞開發中')">💊 藥物送遞</div>
+        <div class="clinic-card" onclick="alert('💰 優惠資訊開發中')">💰 優惠資訊</div>
+        <div class="clinic-card" onclick="alert('🤝 公私合作開發中')">🤝 公私合作</div>
+        <div class="clinic-card" onclick="alert('📁 醫療報告開發中')">📁 醫療報告</div>
+        <div class="clinic-card" onclick="alert('❓ 專業查詢開發中')">❓ 專業查詢</div>
     </div></div></div>
     
     <script>
@@ -254,16 +249,15 @@
         }
         function openMore() { openModal('moreModal'); }
         
-        function setLocation(loc) { document.getElementById('searchInput').value = loc; doSearch(); }
-        
-        // ==================== Google Places API 真實搜尋 ====================
+        // ==================== Google Places API 醫生搜尋 ====================
         async function doSearch() {
             let term = document.getElementById('searchInput').value.trim();
             let div = document.getElementById('searchResults');
-            if(!term) { div.innerHTML = '<div style="padding:20px;">請輸入診所名稱或地區</div>'; return; }
+            if(!term) { div.innerHTML = '<div style="padding:20px;">請輸入醫生姓名</div>'; return; }
             div.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
             try {
-                let query = searchType === 'specialist' ? term + ' 專科醫生 Hong Kong' : term + ' Hong Kong';
+                // 搜尋醫生：加上「醫生」關鍵字，提高準確度
+                let query = term + ' 醫生 Hong Kong';
                 let res = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`);
                 let data = await res.json();
                 if(data.results && data.results.length) {
@@ -281,7 +275,30 @@
                             </div>
                         </div>
                     `).join('');
-                } else div.innerHTML = '<div style="padding:20px;">沒有找到診所，請嘗試其他關鍵字</div>';
+                } else {
+                    // 如果搜尋唔到，試下用診所方式再搜
+                    let query2 = term + ' 診所 Hong Kong';
+                    let res2 = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query2)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`);
+                    let data2 = await res2.json();
+                    if(data2.results && data2.results.length) {
+                        div.innerHTML = data2.results.slice(0,10).map(p => `
+                            <div class="clinic-card">
+                                <div style="display:flex;justify-content:space-between;">
+                                    <b>${p.name}</b>
+                                    <span>⭐ ${p.rating || '新'}</span>
+                                </div>
+                                <p>📍 ${p.formatted_address || p.vicinity || '地址待更新'}</p>
+                                <p>📞 ${p.formatted_phone_number || '請致電查詢'}</p>
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <button class="btn-primary" style="margin:0; padding:8px 16px; flex:1;" onclick="bookClinic('${p.name.replace(/'/g,"\\'")}', '${(p.formatted_address || p.vicinity || '').replace(/'/g,"\\'")}', '${p.formatted_phone_number || '請致電查詢'}')">📅 預約</button>
+                                    <button class="btn-secondary" style="margin:0; padding:8px 16px; flex:1;" onclick="doSearch()">🔄 重新搜尋</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        div.innerHTML = '<div style="padding:20px;">沒有找到醫生，請嘗試其他姓名</div>';
+                    }
+                }
             } catch(e) { 
                 console.error(e);
                 div.innerHTML = '<div style="padding:20px;">搜尋失敗，請稍後再試</div>'; 
@@ -365,7 +382,7 @@
             switchTab('profile', document.querySelector('.nav-item'));
         }
         
-        // 底部導航 - 12功能齊全
+        // 底部導航
         function switchTab(tab, el) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             if(el) el.classList.add('active');
