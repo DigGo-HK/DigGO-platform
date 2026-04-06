@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台</title>
+    <title>DigGO 醫療探索平台 - 真實版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,47 +31,12 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .ecg-container {
-            position: absolute;
-            bottom: 5%;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            overflow: hidden;
-        }
-        .ecg-line {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            fill: none;
-            stroke: rgba(255,255,255,0.6);
-            stroke-width: 2;
-        }
-        .ecg-path {
-            stroke-dasharray: 2000;
-            stroke-dashoffset: 2000;
-            animation: drawECG 1.5s ease-in-out infinite alternate;
-        }
-        @keyframes drawECG {
-            0% { stroke-dashoffset: 2000; }
-            50% { stroke-dashoffset: 0; }
-            100% { stroke-dashoffset: 0; }
-        }
-        .heart-beat {
-            position: absolute;
-            bottom: 12%;
-            right: 5%;
-            font-size: 40px;
-            color: rgba(255,255,255,0.4);
-            animation: pulse 1s ease infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.4; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(0.95); opacity: 0.4; }
-        }
+        .ecg-container { position: absolute; bottom: 5%; left: 0; width: 100%; height: 80px; overflow: hidden; }
+        .ecg-line { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; fill: none; stroke: rgba(255,255,255,0.6); stroke-width: 2; }
+        .ecg-path { stroke-dasharray: 2000; stroke-dashoffset: 2000; animation: drawECG 1.5s ease-in-out infinite alternate; }
+        @keyframes drawECG { 0% { stroke-dashoffset: 2000; } 50% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; } }
+        .heart-beat { position: absolute; bottom: 12%; right: 5%; font-size: 40px; color: rgba(255,255,255,0.4); animation: pulse 1s ease infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.4; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(0.95); opacity: 0.4; } }
         .splash-content { text-align: center; color: white; z-index: 2; }
         .splash-logo { font-size: 80px; font-weight: 800; background: rgba(255,255,255,0.25); backdrop-filter: blur(8px); padding: 20px 30px; border-radius: 40px; display: inline-block; margin-bottom: 20px; }
         .splash-logo .dc { font-size: 80px; }
@@ -103,7 +68,6 @@
             display: flex;
             padding: 10px 20px 20px;
             border-top: 1px solid #eee;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
             z-index: 100;
         }
         .nav-item { text-align: center; flex: 1; cursor: pointer; }
@@ -149,26 +113,17 @@
         .form-group { margin-bottom: 15px; }
         .form-group input { width: 100%; padding: 12px; border-radius: 30px; border: 1px solid #ddd; font-size: 16px; }
         .filter-chip { background: #f0f0f0; padding: 8px 16px; border-radius: 30px; font-size: 14px; cursor: pointer; display: inline-block; margin: 5px; }
+        .appointment-item { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0066cc; }
     </style>
 </head>
 <body>
     <!-- 心電圖啟動畫面 -->
     <div class="splash" id="splash">
         <div class="heart-beat"><i class="fas fa-heartbeat"></i></div>
-        <div class="ecg-container">
-            <svg class="ecg-line" viewBox="0 0 1200 80" preserveAspectRatio="none">
-                <path class="ecg-path" d="M0,40 L100,40 L120,40 L140,10 L160,70 L180,40 L200,40 L300,40 L320,40 L340,10 L360,70 L380,40 L400,40 L500,40 L520,40 L540,5 L560,75 L580,40 L600,40 L700,40 L720,40 L740,20 L760,60 L780,40 L800,40 L900,40 L920,40 L940,10 L960,70 L980,40 L1000,40 L1100,40 L1120,40 L1140,10 L1160,70 L1180,40 L1200,40" />
-            </svg>
-        </div>
-        <div class="splash-content">
-            <div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div>
-            <div class="splash-title">DigGO</div>
-            <div class="splash-subtitle">醫療探索平台</div>
-            <div class="splash-loading"></div>
-        </div>
+        <div class="ecg-container"><svg class="ecg-line" viewBox="0 0 1200 80" preserveAspectRatio="none"><path class="ecg-path" d="M0,40 L100,40 L120,40 L140,10 L160,70 L180,40 L200,40 L300,40 L320,40 L340,10 L360,70 L380,40 L400,40 L500,40 L520,40 L540,5 L560,75 L580,40 L600,40 L700,40 L720,40 L740,20 L760,60 L780,40 L800,40 L900,40 L920,40 L940,10 L960,70 L980,40 L1000,40 L1100,40 L1120,40 L1140,10 L1160,70 L1180,40 L1200,40" /></svg></div>
+        <div class="splash-content"><div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div><div class="splash-title">DigGO</div><div class="splash-subtitle">醫療探索平台</div><div class="splash-loading"></div></div>
     </div>
 
-    <!-- 主頁 -->
     <div class="main" id="main">
         <div class="status-bar"><span id="time"></span><span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span></div>
         <div class="header">
@@ -200,8 +155,6 @@
         <div id="stepPhone">
             <div class="form-group"><input type="tel" id="phone" placeholder="手機號碼"></div>
             <button class="btn-primary" onclick="sendOTP()">發送驗證碼</button>
-            <div style="text-align:center; margin:15px 0">或</div>
-            <button class="btn-secondary" onclick="alert('智方便登入示範')"><i class="fas fa-id-card"></i> 智方便</button>
         </div>
         <div id="stepOTP" style="display:none;">
             <div class="form-group"><input type="text" id="otp" placeholder="驗證碼"></div>
@@ -210,14 +163,13 @@
         <div id="stepProfile" style="display:none;">
             <div class="form-group"><input type="text" id="name" placeholder="姓名"></div>
             <div class="form-group"><input type="number" id="age" placeholder="年齡"></div>
-            <div class="form-group"><input type="password" id="pwd" placeholder="密碼"></div>
             <button class="btn-primary" onclick="register()">完成註冊</button>
         </div>
     </div></div>
     
     <!-- 搜尋 Modal -->
-    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱或地區 (如: 中環)">
+    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 搜尋診所</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
+    <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱或地區 (如: 中環診所)">
     <div class="filter-options"><span class="filter-chip" onclick="setLocation('中環診所')">中環</span><span class="filter-chip" onclick="setLocation('尖沙咀診所')">尖沙咀</span><span class="filter-chip" onclick="setLocation('心臟科醫生')">心臟科</span></div>
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="doSearch()">搜尋</button></div></div>
@@ -237,41 +189,17 @@
     <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-        <div class="clinic-card" onclick="openMedication()">💊 藥物記錄</div>
-        <div class="clinic-card" onclick="openHealthAdvice()">💡 健康建議</div>
-        <div class="clinic-card" onclick="openInsurance()">🛡️ 保險配對</div>
-        <div class="clinic-card" onclick="alert('💊 藥物送遞\\n\\n上傳處方，1小時送達')">💊 藥物送遞</div>
-        <div class="clinic-card" onclick="alert('💰 優惠資訊\\n\\n體檢7折、洗牙$380')">💰 優惠資訊</div>
-        <div class="clinic-card" onclick="alert('🤝 公私合作\\n\\n長者醫療券計劃')">🤝 公私合作</div>
+        <div class="clinic-card" onclick="alert('藥物記錄功能開發中')">💊 藥物記錄</div>
+        <div class="clinic-card" onclick="alert('健康建議功能開發中')">💡 健康建議</div>
+        <div class="clinic-card" onclick="alert('保險配對功能開發中')">🛡️ 保險配對</div>
+        <div class="clinic-card" onclick="alert('藥物送遞功能開發中')">💊 藥物送遞</div>
+        <div class="clinic-card" onclick="alert('優惠資訊功能開發中')">💰 優惠資訊</div>
+        <div class="clinic-card" onclick="alert('公私合作功能開發中')">🤝 公私合作</div>
     </div></div></div>
-    
-    <!-- 藥物記錄 Modal -->
-    <div class="modal" id="medicationModal"><div class="modal-content"><div class="modal-header"><span>💊 藥物記錄</span><span class="close-btn" onclick="closeModal('medicationModal')">✕</span></div>
-    <div class="ocr-preview" onclick="addMedication()"><i class="fas fa-pen"></i> 手動輸入藥物</div>
-    <div id="medicationList"></div>
-    <button class="btn-primary" onclick="analyzeMeds()">🤖 AI 分析藥物</button>
-    <div id="medAnalysis"></div></div></div>
-    
-    <!-- 健康建議 Modal -->
-    <div class="modal" id="healthModal"><div class="modal-content"><div class="modal-header"><span>💡 健康建議</span><span class="close-btn" onclick="closeModal('healthModal')">✕</span></div>
-    <div class="form-group"><input type="number" id="adviceAge" placeholder="年齡"></div>
-    <div class="form-group">
-        <label><input type="radio" name="gender" value="男"> 男</label>
-        <label><input type="radio" name="gender" value="女"> 女</label>
-    </div>
-    <button class="btn-primary" onclick="getHealthAdvice()">生成建議</button>
-    <div id="adviceResult"></div></div></div>
-    
-    <!-- 保險配對 Modal -->
-    <div class="modal" id="insuranceModal"><div class="modal-content"><div class="modal-header"><span>🛡️ 保險配對</span><span class="close-btn" onclick="closeModal('insuranceModal')">✕</span></div>
-    <div class="form-group"><input type="number" id="insAge" placeholder="年齡"></div>
-    <button class="btn-primary" onclick="matchInsurance()">開始配對</button>
-    <div id="insResult"></div></div></div>
     
     <script>
         const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
         let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-        let medications = JSON.parse(localStorage.getItem('medications') || '[]');
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         let pendingPhone = '';
         let searchType = 'doctor';
@@ -285,7 +213,6 @@
                 document.getElementById('main').style.display = 'block';
                 switchTab('news', document.querySelector('.nav-item'));
                 if(currentUser) document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + currentUser.name;
-                displayMeds();
             }, 500);
         }, 3000);
         
@@ -316,18 +243,15 @@
             }
         }
         function openAppointments() {
-            let html = appointments.length ? appointments.map(a => '<div class="clinic-card">📅 ' + a.date + '<br><b>' + a.name + '</b><br>✅ 已確認</div>').join('') : '<div class="clinic-card">暫無預約</div>';
+            let html = appointments.length ? appointments.map(a => '<div class="appointment-item">📅 ' + a.date + '<br><b>' + a.name + '</b><br>📍 ' + a.address + '<br>📞 ' + a.phone + '<br>✅ 已確認</div>').join('') : '<div class="clinic-card">暫無預約</div>';
             document.getElementById('appointmentList').innerHTML = html;
             openModal('appointmentsModal');
         }
         function openMore() { openModal('moreModal'); }
-        function openMedication() { openModal('medicationModal'); displayMeds(); }
-        function openHealthAdvice() { openModal('healthModal'); }
-        function openInsurance() { openModal('insuranceModal'); }
         
         function setLocation(loc) { document.getElementById('searchInput').value = loc; doSearch(); }
         
-        // Google Places 搜尋
+        // ==================== Google Places API 真實搜尋 ====================
         async function doSearch() {
             let term = document.getElementById('searchInput').value.trim();
             let div = document.getElementById('searchResults');
@@ -338,28 +262,50 @@
                 let res = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`);
                 let data = await res.json();
                 if(data.results && data.results.length) {
-                    div.innerHTML = data.results.slice(0,8).map(p => `
-                        <div class="clinic-card" onclick="book('${p.name.replace(/'/g,"\\'")}', '${p.formatted_address || p.vicinity || ''}')">
-                            <b>${p.name}</b> ⭐ ${p.rating || '新'}<br>
-                            📍 ${p.formatted_address || p.vicinity}<br>
-                            <button style="margin-top:8px;background:#0066cc;color:white;border:none;padding:8px 16px;border-radius:20px;">📅 預約</button>
+                    div.innerHTML = data.results.slice(0,10).map(p => `
+                        <div class="clinic-card">
+                            <div style="display:flex;justify-content:space-between;">
+                                <b>${p.name}</b>
+                                <span>⭐ ${p.rating || '新'}</span>
+                            </div>
+                            <p>📍 ${p.formatted_address || p.vicinity || '地址待更新'}</p>
+                            <p>📞 ${p.formatted_phone_number || '電話待查詢'}</p>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn-primary" style="margin:0; padding:8px 16px; flex:1;" onclick="bookClinic('${p.name.replace(/'/g,"\\'")}', '${(p.formatted_address || p.vicinity || '').replace(/'/g,"\\'")}', '${p.formatted_phone_number || '待查詢'}')">📅 預約</button>
+                                <button class="btn-secondary" style="margin:0; padding:8px 16px; flex:1;" onclick="doSearch()">🔄 重新搜尋</button>
+                            </div>
                         </div>
                     `).join('');
                 } else div.innerHTML = '<div style="padding:20px;">沒有找到診所，請嘗試其他關鍵字</div>';
-            } catch(e) { div.innerHTML = '<div style="padding:20px;">搜尋失敗</div>'; }
+            } catch(e) { div.innerHTML = '<div style="padding:20px;">搜尋失敗，請稍後再試</div>'; }
         }
         
-        function book(name, addr) {
-            if(confirm(`預約 ${name}？\n${addr}\n\n預約後自動加入排隊`)) {
-                appointments.push({ id: Date.now(), name, addr, date: new Date().toLocaleDateString(), status: '已確認' });
+        // ==================== 預約功能 ====================
+        function bookClinic(name, address, phone) {
+            if(confirm(`確認預約 ${name}？\n地址：${address}\n電話：${phone}\n\n預約後會自動加入「預約通」及「排隊通」`)) {
+                // AI 自動記錄：存入 localStorage (模擬資料庫 + 診所後台)
+                const appointment = {
+                    id: Date.now(),
+                    name: name,
+                    address: address,
+                    phone: phone,
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString(),
+                    status: '已確認'
+                };
+                appointments.push(appointment);
                 localStorage.setItem('appointments', JSON.stringify(appointments));
-                alert('✅ 已預約 ' + name);
+                
+                // AI 自動彈去預約通作紀錄
+                alert(`✅ 預約成功！\n\n診所：${name}\n日期：${appointment.date}\n時間：${appointment.time}\n\n已自動存入「預約通」`);
                 closeModal('searchModal');
+                
+                // 顯示成功預約並自動跳去排隊通
                 openQueue();
             }
         }
         
-        // Google Vision OCR
+        // ==================== Google Vision OCR ====================
         async function doOCR(input) {
             let file = input.files[0];
             if(!file) return;
@@ -384,57 +330,6 @@
                 } catch(e) { document.getElementById('ocrResult').innerHTML = '<div style="padding:20px;">識別失敗</div>'; }
             };
             reader.readAsDataURL(file);
-        }
-        
-        // 藥物記錄
-        function displayMeds() {
-            let list = document.getElementById('medicationList');
-            if(medications.length) {
-                list.innerHTML = medications.map(m => `<div class="clinic-card"><b>💊 ${m.name}</b><br>💊 ${m.dosage}<br>🕒 ${m.timing}<br>📅 ${m.date}</div>`).join('');
-            } else {
-                list.innerHTML = '<div class="clinic-card">暫無藥物記錄<br>點擊「手動輸入藥物」</div>';
-            }
-        }
-        function addMedication() {
-            let name = prompt('藥物名稱：');
-            if(name) {
-                let timing = prompt('服用時間 (餐前/餐後/睡前)：', '餐後');
-                let dosage = prompt('劑量：', '每天1次，每次1粒');
-                medications.push({ name, dosage, timing, date: new Date().toLocaleDateString() });
-                localStorage.setItem('medications', JSON.stringify(medications));
-                displayMeds();
-                alert('✅ 藥物已加入');
-            }
-        }
-        function analyzeMeds() {
-            if(!medications.length) { document.getElementById('medAnalysis').innerHTML = '<div class="clinic-card">請先加入藥物記錄</div>'; return; }
-            let html = '<div class="clinic-card"><b>🤖 AI 藥物分析</b><br><br>';
-            for(let m of medications) {
-                html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><b>💊 ${m.name}</b><br>🕒 ${m.timing}<br>📌 請諮詢醫生</div>`;
-            }
-            html += '</div>';
-            document.getElementById('medAnalysis').innerHTML = html;
-        }
-        
-        // AI 健康建議
-        function getHealthAdvice() {
-            let age = document.getElementById('adviceAge').value;
-            let gender = document.querySelector('input[name="gender"]:checked')?.value;
-            if(!age || !gender) { alert('請輸入年齡和性別'); return; }
-            let advice = `<div class="clinic-card"><b>🤖 AI 健康建議</b><br><br>📊 ${age}歲 ${gender}<br><br>📋 建議檢查：<br>• 每年一次身體檢查<br>${age>=50?'• 大腸癌篩查<br>':''}${age>=40?'• 心血管檢查<br>':''}<br>💡 保持均衡飲食、適量運動。</div>`;
-            document.getElementById('adviceResult').innerHTML = advice;
-        }
-        
-        // AI 保險配對
-        function matchInsurance() {
-            let age = document.getElementById('insAge').value;
-            if(!age) { alert('請輸入年齡'); return; }
-            let html = '<div class="clinic-card"><b>🤖 AI 保險推薦</b><br><br>';
-            if(age < 30) html += '<div style="padding:10px;background:#e6f2ff;border-radius:12px;">基本醫療保險<br>💰 $280/月</div>';
-            else if(age < 50) html += '<div style="padding:10px;background:#e6f2ff;border-radius:12px;">AXA 安盛「智安心」<br>💰 $450/月</div>';
-            else html += '<div style="padding:10px;background:#e6f2ff;border-radius:12px;">保誠「銀髮醫療保」<br>💰 $680/月</div>';
-            html += '</div>';
-            document.getElementById('insResult').innerHTML = html;
         }
         
         // 登入註冊
@@ -473,7 +368,7 @@
             if(el) el.classList.add('active');
             let content = document.getElementById('content');
             if(tab === 'news') {
-                content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div><div class="clinic-card"><b>🏥 公私營協作計劃</b><br>公立轉介私營，縮短輪候</div>';
+                content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div>';
             } else if(tab === 'services') {
                 content.innerHTML = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">' +
                     '<div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div>' +
@@ -481,19 +376,12 @@
                     '<div class="clinic-card" onclick="openReferral()">📄 轉介信預約</div>' +
                     '<div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>' +
                     '<div class="clinic-card" onclick="openAppointments()">📅 預約通</div>' +
-                    '<div class="clinic-card" onclick="openMedication()">💊 藥物記錄</div>' +
-                    '<div class="clinic-card" onclick="openHealthAdvice()">💡 健康建議</div>' +
-                    '<div class="clinic-card" onclick="openInsurance()">🛡️ 保險配對</div>' +
-                    '<div class="clinic-card" onclick="alert(\'💊 藥物送遞\')">💊 藥物送遞</div>' +
-                    '<div class="clinic-card" onclick="alert(\'💰 優惠資訊\')">💰 優惠資訊</div>' +
-                    '<div class="clinic-card" onclick="alert(\'🤝 公私合作\')">🤝 公私合作</div>' +
-                    '<div class="clinic-card" onclick="alert(\'📁 醫療報告\')">📁 醫療報告</div>' +
                     '</div>';
             } else if(tab === 'support') {
-                content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open(\'https://wa.me/85212345678\')">💬 WhatsApp 查詢</div>';
+                content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div>';
             } else if(tab === 'profile') {
                 if(currentUser) {
-                    content.innerHTML = '<div class="clinic-card"><b>👤 ' + currentUser.name + '</b><br>📱 ' + currentUser.phone + '<br>🎂 ' + (currentUser.age || '未提供') + '歲</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (' + appointments.length + ')</div><div class="clinic-card" onclick="openMedication()">💊 藥物記錄 (' + medications.length + ')</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>';
+                    content.innerHTML = '<div class="clinic-card"><b>👤 ' + currentUser.name + '</b><br>📱 ' + currentUser.phone + '<br>🎂 ' + (currentUser.age || '未提供') + '歲</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (' + appointments.length + ')</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>';
                 } else {
                     content.innerHTML = '<div class="clinic-card" onclick="openLogin()">👤 請先登入</div>';
                 }
