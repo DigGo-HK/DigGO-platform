@@ -1,25 +1,342 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigGO 測試</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>DigGO 醫療探索平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial; text-align: center; padding: 50px; }
-        button { padding: 20px; margin: 10px; background: #0066cc; color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto; background: #f5f7fb; color: #333; }
+        
+        /* 啟動畫面 */
+        .splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a5c8e, #0066cc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+        .splash-logo {
+            text-align: center;
+            color: white;
+        }
+        .splash-logo .dc { font-size: 80px; font-weight: 800; }
+        .splash-logo .box { font-size: 48px; margin-top: -10px; }
+        .splash-title { font-size: 32px; font-weight: 700; margin-top: 20px; }
+        
+        /* 主頁 */
+        .main { display: none; padding-bottom: 80px; }
+        .status-bar { background: #0066cc; color: white; padding: 12px 16px; display: flex; justify-content: space-between; font-size: 14px; }
+        .header { background: linear-gradient(135deg, #0066cc, #2a8bc2); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 28px; font-weight: 800; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; }
+        .login-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
+        
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 20px; background: white; margin: 15px; border-radius: 20px; }
+        .card { text-align: center; padding: 16px 8px; cursor: pointer; border-radius: 16px; }
+        .card:active { background: #e6f2ff; transform: scale(0.96); }
+        .card i { font-size: 32px; margin-bottom: 8px; display: block; }
+        .card span { font-size: 13px; font-weight: 500; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            padding: 10px 20px 20px;
+            border-top: 1px solid #eee;
+        }
+        .nav-item { text-align: center; flex: 1; cursor: pointer; }
+        .nav-item:active { transform: scale(0.95); }
+        .nav-icon { font-size: 24px; color: #666; }
+        .nav-label { font-size: 12px; color: #666; margin-top: 4px; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 25px;
+        }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 20px; font-weight: 600; }
+        .close-btn { font-size: 24px; cursor: pointer; color: #999; }
+        .search-input { width: 100%; padding: 12px; border-radius: 30px; border: 1px solid #ddd; margin-bottom: 15px; }
+        .clinic-card { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; cursor: pointer; }
+        .btn-primary { background: #0066cc; color: white; border: none; padding: 15px; border-radius: 30px; width: 100%; cursor: pointer; margin-top: 20px; }
+        .ocr-preview { background: #f0f0f0; border-radius: 16px; padding: 20px; text-align: center; margin: 20px 0; border: 2px dashed #999; cursor: pointer; }
+        .loading { text-align: center; padding: 20px; color: #0066cc; }
+        .queue-number { font-size: 48px; font-weight: 800; color: #0066cc; text-align: center; margin: 20px 0; }
+        .progress-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <h1>DigGO 功能測試</h1>
-    <button onclick="testFunction()">點擊測試</button>
-    <p id="result"></p>
+    <!-- 啟動畫面 -->
+    <div class="splash" id="splash">
+        <div class="splash-logo">
+            <div class="dc">D.C</div>
+            <div class="box">□</div>
+            <div class="splash-title">DigGO</div>
+            <div style="font-size: 14px; margin-top: 10px;">醫療探索平台</div>
+        </div>
+    </div>
+
+    <!-- 主頁 -->
+    <div class="main" id="main">
+        <div class="status-bar"><span id="time"></span><span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span></div>
+        <div class="header">
+            <div class="logo">D.C □</div>
+            <button class="login-btn" id="loginBtn" onclick="openLogin()"><i class="fas fa-user-circle"></i> 登入</button>
+        </div>
+        
+        <div class="grid-3">
+            <div class="card" onclick="searchDoctor()"><i class="fas fa-search" style="color:#0066cc"></i><span>醫生搜尋</span></div>
+            <div class="card" onclick="searchSpecialist()"><i class="fas fa-user-md" style="color:#6f42c1"></i><span>專科醫生</span></div>
+            <div class="card" onclick="openReferral()"><i class="fas fa-file-alt" style="color:#fd7e14"></i><span>轉介信預約</span></div>
+            <div class="card" onclick="openQueue()"><i class="fas fa-hourglass-half" style="color:#28a745"></i><span>排隊通</span></div>
+            <div class="card" onclick="openAppointments()"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i><span>預約通</span></div>
+            <div class="card" onclick="openMore()"><i class="fas fa-ellipsis-h" style="color:#999"></i><span>更多</span></div>
+        </div>
+        
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="switchTab('news')"><div class="nav-icon"><i class="fas fa-newspaper"></i></div><div class="nav-label">最新消息</div></div>
+            <div class="nav-item" onclick="switchTab('services')"><div class="nav-icon"><i class="fas fa-th-large"></i></div><div class="nav-label">所有服務</div></div>
+            <div class="nav-item" onclick="switchTab('support')"><div class="nav-icon"><i class="fas fa-headset"></i></div><div class="nav-label">支援</div></div>
+            <div class="nav-item" onclick="switchTab('profile')"><div class="nav-icon"><i class="fas fa-user"></i></div><div class="nav-label">我的</div></div>
+        </div>
+        
+        <div id="content" style="padding: 20px;"></div>
+    </div>
+    
+    <!-- 登入 Modal -->
+    <div class="modal" id="loginModal"><div class="modal-content"><div class="modal-header"><span>登入</span><span class="close-btn" onclick="closeModal('loginModal')">✕</span></div>
+        <input type="tel" id="phone" placeholder="手機號碼" style="width:100%; padding:12px; border-radius:30px; border:1px solid #ddd; margin-bottom:15px;">
+        <button class="btn-primary" onclick="sendOTP()">發送驗證碼</button>
+        <div id="otpDiv" style="display:none; margin-top:15px;">
+            <input type="text" id="otp" placeholder="驗證碼" style="width:100%; padding:12px; border-radius:30px; border:1px solid #ddd;">
+            <button class="btn-primary" onclick="verifyOTP()" style="margin-top:10px;">驗證</button>
+        </div>
+        <div id="regDiv" style="display:none; margin-top:15px;">
+            <input type="text" id="name" placeholder="姓名" style="width:100%; padding:12px; border-radius:30px; border:1px solid #ddd; margin-bottom:10px;">
+            <button class="btn-primary" onclick="register()">完成註冊</button>
+        </div>
+    </div></div>
+    
+    <!-- 搜尋 Modal -->
+    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 搜尋</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
+    <input type="text" class="search-input" id="searchInput" placeholder="輸入診所名稱或地區 (如: 中環)">
+    <div id="searchResults"></div>
+    <button class="btn-primary" onclick="doSearch()">搜尋</button></div></div>
+    
+    <!-- 轉介信 Modal -->
+    <div class="modal" id="referralModal"><div class="modal-content"><div class="modal-header"><span>📄 轉介信預約</span><span class="close-btn" onclick="closeModal('referralModal')">✕</span></div>
+    <input type="file" id="ocrFile" accept="image/*" style="display:none" onchange="doOCR(this)">
+    <div class="ocr-preview" onclick="document.getElementById('ocrFile').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳轉介信</p></div>
+    <div id="ocrResult"></div></div></div>
+    
+    <!-- 排隊 Modal -->
+    <div class="modal" id="queueModal"><div class="modal-content"><div class="modal-header"><span>🎟️ 排隊通</span><span class="close-btn" onclick="closeModal('queueModal')">✕</span></div><div id="queueDisplay"></div></div></div>
+    
+    <!-- 預約 Modal -->
+    <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div></div></div>
+    
+    <!-- 更多 Modal -->
+    <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div class="clinic-card" onclick="alert('藥物記錄功能')">💊 藥物記錄</div>
+        <div class="clinic-card" onclick="alert('健康建議功能')">💡 健康建議</div>
+        <div class="clinic-card" onclick="alert('保險配對功能')">🛡️ 保險配對</div>
+        <div class="clinic-card" onclick="alert('藥物送遞功能')">💊 藥物送遞</div>
+        <div class="clinic-card" onclick="alert('優惠資訊功能')">💰 優惠資訊</div>
+        <div class="clinic-card" onclick="alert('公私合作功能')">🤝 公私合作</div>
+    </div></div></div>
     
     <script>
-        function testFunction() {
-            document.getElementById('result').innerHTML = '✅ 按鈕有反應！JavaScript 正常運作！';
-            alert('按鈕被點擊了！');
+        const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
+        let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+        let currentUser = null;
+        let pendingPhone = '';
+        let searchType = 'doctor';
+        
+        // 啟動畫面
+        setTimeout(() => {
+            let splash = document.getElementById('splash');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                document.getElementById('main').style.display = 'block';
+                switchTab('news');
+                let saved = localStorage.getItem('currentUser');
+                if(saved) { currentUser = JSON.parse(saved); document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + currentUser.name; }
+            }, 500);
+        }, 2000);
+        
+        function updateTime() {
+            let now = new Date();
+            document.getElementById('time').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
         }
-        console.log('頁面已載入');
+        updateTime();
+        setInterval(updateTime, 60000);
+        
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        
+        // 主功能
+        function searchDoctor() { searchType = 'doctor'; openModal('searchModal'); }
+        function searchSpecialist() { searchType = 'specialist'; openModal('searchModal'); }
+        function openReferral() { openModal('referralModal'); }
+        function openQueue() {
+            if(appointments.length > 0) {
+                let last = appointments[appointments.length-1];
+                let num = 'A' + Math.floor(Math.random()*900+100);
+                let ahead = Math.floor(Math.random()*8)+1;
+                document.getElementById('queueDisplay').innerHTML = '<div style="text-align:center;"><div class="queue-number">🎫 ' + num + '</div><p>' + last.name + '</p><p>👥 前面 ' + ahead + ' 人</p><p>⏰ 預計等候：' + (15+ahead*2) + ' 分鐘</p><div class="progress-bar"><div style="height:10px;background:#0066cc;width:' + (100-ahead*8) + '%"></div></div><button class="btn-primary" onclick="closeModal(\'queueModal\')">關閉</button></div>';
+                openModal('queueModal');
+            } else {
+                document.getElementById('queueDisplay').innerHTML = '<div style="text-align:center;"><p>未有排隊</p><button class="btn-primary" onclick="closeModal(\'queueModal\');searchDoctor()">去預約</button></div>';
+                openModal('queueModal');
+            }
+        }
+        function openAppointments() {
+            let html = appointments.length ? appointments.map(a => '<div class="clinic-card">📅 ' + a.date + '<br><b>' + a.name + '</b><br>✅ 已確認</div>').join('') : '<div class="clinic-card">暫無預約</div>';
+            document.getElementById('appointmentList').innerHTML = html;
+            openModal('appointmentsModal');
+        }
+        function openMore() { openModal('moreModal'); }
+        
+        // Google Places 搜尋
+        async function doSearch() {
+            let term = document.getElementById('searchInput').value.trim();
+            let div = document.getElementById('searchResults');
+            if(!term) { div.innerHTML = '<div style="padding:20px;">請輸入診所名稱或地區</div>'; return; }
+            div.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
+            try {
+                let query = searchType === 'specialist' ? term + ' 專科醫生 Hong Kong' : term + ' Hong Kong';
+                let res = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`);
+                let data = await res.json();
+                if(data.results && data.results.length) {
+                    div.innerHTML = data.results.slice(0,8).map(p => `
+                        <div class="clinic-card" onclick="book('${p.name.replace(/'/g,"\\'")}', '${p.formatted_address || p.vicinity || ''}')">
+                            <b>${p.name}</b> ⭐ ${p.rating || '新'}<br>
+                            📍 ${p.formatted_address || p.vicinity}<br>
+                            <button style="margin-top:8px;background:#0066cc;color:white;border:none;padding:8px 16px;border-radius:20px;">📅 預約</button>
+                        </div>
+                    `).join('');
+                } else div.innerHTML = '<div style="padding:20px;">沒有找到診所</div>';
+            } catch(e) { div.innerHTML = '<div style="padding:20px;">搜尋失敗</div>'; }
+        }
+        
+        function book(name, addr) {
+            if(confirm(`預約 ${name}？\n${addr}`)) {
+                appointments.push({ id: Date.now(), name, addr, date: new Date().toLocaleDateString(), status: '已確認' });
+                localStorage.setItem('appointments', JSON.stringify(appointments));
+                alert('✅ 已預約 ' + name);
+                closeModal('searchModal');
+                openQueue();
+            }
+        }
+        
+        // Google Vision OCR
+        async function doOCR(input) {
+            let file = input.files[0];
+            if(!file) return;
+            let reader = new FileReader();
+            reader.onload = async function(e) {
+                document.getElementById('ocrResult').innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> AI識別中...</div>';
+                try {
+                    let res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
+                        method: 'POST',
+                        body: JSON.stringify({ requests: [{ image: { content: e.target.result.split(',')[1] }, features: [{ type: 'DOCUMENT_TEXT_DETECTION' }] }] })
+                    });
+                    let data = await res.json();
+                    let text = data.responses?.[0]?.fullTextAnnotation?.text || '未識別';
+                    let specialty = text.includes('心臟') ? '心臟科' : (text.includes('骨科') ? '骨科' : '一般門診');
+                    document.getElementById('ocrResult').innerHTML = `
+                        <div style="background:#e6f2ff;padding:15px;border-radius:16px;">
+                            <b>✅ 識別結果</b><p>${text.substring(0,200)}</p>
+                            <p>📋 建議專科：${specialty}</p>
+                        </div>
+                        <button class="btn-primary" onclick="closeModal('referralModal');searchSpecialist();document.getElementById('searchInput').value='${specialty}醫生';doSearch();">🔍 搜尋 ${specialty}醫生</button>
+                    `;
+                } catch(e) { document.getElementById('ocrResult').innerHTML = '<div style="padding:20px;">識別失敗</div>'; }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 登入
+        function openLogin() { openModal('loginModal'); }
+        function sendOTP() {
+            let phone = document.getElementById('phone').value;
+            if(!phone || phone.length<8) { alert('請輸入正確手機號碼'); return; }
+            pendingPhone = phone;
+            let otp = Math.floor(100000+Math.random()*900000);
+            alert('驗證碼：' + otp);
+            localStorage.setItem('pendingOTP', otp);
+            document.getElementById('otpDiv').style.display = 'block';
+        }
+        function verifyOTP() {
+            if(document.getElementById('otp').value === localStorage.getItem('pendingOTP')) {
+                document.getElementById('regDiv').style.display = 'block';
+            } else alert('驗證碼錯誤');
+        }
+        function register() {
+            let name = document.getElementById('name').value;
+            if(!name) { alert('請輸入姓名'); return; }
+            currentUser = { phone: pendingPhone, name: name };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + name;
+            closeModal('loginModal');
+            alert('註冊成功！');
+            switchTab('profile');
+        }
+        
+        // 底部導航
+        function switchTab(tab) {
+            let content = document.getElementById('content');
+            if(tab === 'news') {
+                content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗</b><br>合資格人士免費接種</div>';
+            } else if(tab === 'services') {
+                content.innerHTML = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">' +
+                    '<div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div>' +
+                    '<div class="clinic-card" onclick="searchSpecialist()">👨‍⚕️ 專科醫生</div>' +
+                    '<div class="clinic-card" onclick="openReferral()">📄 轉介信預約</div>' +
+                    '<div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>' +
+                    '<div class="clinic-card" onclick="openAppointments()">📅 預約通</div>' +
+                    '<div class="clinic-card" onclick="alert(\'藥物記錄\')">💊 藥物記錄</div>' +
+                    '<div class="clinic-card" onclick="alert(\'健康建議\')">💡 健康建議</div>' +
+                    '<div class="clinic-card" onclick="alert(\'保險配對\')">🛡️ 保險配對</div>' +
+                    '</div>';
+            } else if(tab === 'support') {
+                content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服 2121 8080\')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open(\'https://wa.me/85212345678\')">💬 WhatsApp</div>';
+            } else if(tab === 'profile') {
+                content.innerHTML = currentUser ? 
+                    '<div class="clinic-card"><b>👤 ' + currentUser.name + '</b><br>📱 ' + currentUser.phone + '</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (' + appointments.length + ')</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>' :
+                    '<div class="clinic-card" onclick="openLogin()">👤 請先登入</div>';
+            }
+        }
     </script>
 </body>
 </html>
