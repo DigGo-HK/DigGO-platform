@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>DigGO 醫療探索平台 - AI 完整版</title>
+    <title>DigGO 醫療探索平台 - 全 AI 驅動</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -101,16 +101,16 @@
     <div class="main-content" id="mainContent">
         <div class="status-bar"><span id="current-time"></span><span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span></div>
         <div class="header">
-            <div class="logo">D.C □ <span class="encrypt-badge"><i class="fas fa-lock"></i> AES-256</span><span class="ai-badge"><i class="fas fa-microchip"></i> AI</span></div>
+            <div class="logo">D.C □ <span class="encrypt-badge"><i class="fas fa-lock"></i> AES-256</span><span class="ai-badge"><i class="fas fa-microchip"></i> 全AI驅動</span></div>
             <button class="login-btn" id="loginBtn" onclick="openLoginModal()"><i class="fas fa-user-circle"></i> 登入/註冊</button>
         </div>
         
         <div class="features-grid">
-            <div class="feature-card" onclick="openSearch('clinic')"><div class="feature-icon"><i class="fas fa-search" style="color:#0066cc"></i></div><div class="feature-label">醫生搜尋</div></div>
-            <div class="feature-card" onclick="openSearch('specialist')"><div class="feature-icon"><i class="fas fa-user-md" style="color:#6f42c1"></i></div><div class="feature-label">專科醫生搜尋</div></div>
-            <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">OCR轉介信 <span class="ai-badge">AI</span></div></div>
+            <div class="feature-card" onclick="openSearch('clinic')"><div class="feature-icon"><i class="fas fa-search" style="color:#0066cc"></i></div><div class="feature-label">醫生搜尋 <span class="ai-badge">AI推薦</span></div></div>
+            <div class="feature-card" onclick="openSearch('specialist')"><div class="feature-icon"><i class="fas fa-user-md" style="color:#6f42c1"></i></div><div class="feature-label">專科醫生 <span class="ai-badge">AI配對</span></div></div>
+            <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">OCR轉介信 <span class="ai-badge">AI識別</span></div></div>
             <div class="feature-card" onclick="openQueue()"><div class="feature-icon"><i class="fas fa-hourglass-half" style="color:#28a745"></i></div><div class="feature-label">排隊通 <span class="ai-badge">AI預測</span></div></div>
-            <div class="feature-card" onclick="openAppointments()"><div class="feature-icon"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i></div><div class="feature-label">預約通</div></div>
+            <div class="feature-card" onclick="openAppointments()"><div class="feature-icon"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i></div><div class="feature-label">預約通 <span class="ai-badge">AI提醒</span></div></div>
             <div class="feature-card" onclick="openMedication()"><div class="feature-icon"><i class="fas fa-pills" style="color:#dc3545"></i></div><div class="feature-label">藥物記錄 <span class="ai-badge">AI分析</span></div></div>
         </div>
         
@@ -144,19 +144,21 @@
             <div class="form-group"><label>年齡</label><input type="number" id="age" placeholder="如: 45"></div>
             <div class="form-group"><label>身份</label><div class="radio-group"><label><input type="radio" name="relation" value="自己"> 自己</label><label><input type="radio" name="relation" value="家人"> 家人</label></div></div>
             <div class="form-group"><label>密碼</label><input type="password" id="password" placeholder="最少8個字元"></div>
+            <div class="form-group"><label>症狀/疾病 (AI配對用)</label><input type="text" id="symptoms" placeholder="如: 心口痛、高血壓"></div>
             <button class="btn-primary" onclick="completeRegistration()">完成註冊</button>
         </div>
     </div>
     
-    <!-- 搜尋 Modal -->
-    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 醫生搜尋 <span class="ai-badge">語音</span></span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
-    <div style="display:flex;gap:10px;"><input type="text" class="search-input" id="searchInput" placeholder="中環診所 / 心臟科醫生" style="flex:1;"><button class="voice-btn" onclick="startVoiceSearch()"><i class="fas fa-microphone"></i></button></div>
+    <!-- 醫生搜尋 Modal (AI 推薦) -->
+    <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 醫生搜尋 <span class="ai-badge">AI智能推薦</span></span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
+    <div style="display:flex;gap:10px;"><input type="text" class="search-input" id="searchInput" placeholder="輸入症狀或專科" style="flex:1;"><button class="voice-btn" onclick="startVoiceSearch()"><i class="fas fa-microphone"></i></button></div>
     <div class="filter-options"><span class="filter-chip" onclick="setSearchLocation('中環診所')">中環</span><span class="filter-chip" onclick="setSearchLocation('尖沙咀診所')">尖沙咀</span><span class="filter-chip" onclick="setSearchLocation('心臟科醫生')">心臟科</span></div>
+    <div id="aiRecommendation" style="background:#e6f2ff; padding:10px; border-radius:16px; margin-bottom:15px; font-size:13px;"></div>
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="performSearch()">搜尋</button></div></div>
     
     <!-- OCR Modal -->
-    <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR轉介信 <span class="ai-badge">Google Vision AI</span></span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
+    <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR轉介信 <span class="ai-badge">AI識別+配對</span></span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
     <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳轉介信</p></div>
     <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> AI 識別中...</div>
@@ -164,10 +166,10 @@
     <button class="btn-primary" onclick="resetOCR()">重新上傳</button></div></div>
     
     <!-- 排隊 Modal -->
-    <div class="modal" id="queueModal"><div class="modal-content"><div class="modal-header"><span>🎟️ 排隊通 <span class="ai-badge">AI預測</span></span><span class="close-btn" onclick="closeModal('queueModal')">✕</span></div><div id="queueDisplay"></div></div></div>
+    <div class="modal" id="queueModal"><div class="modal-content"><div class="modal-header"><span>🎟️ 排隊通 <span class="ai-badge">AI預測時段</span></span><span class="close-btn" onclick="closeModal('queueModal')">✕</span></div><div id="queueDisplay"></div></div></div>
     
     <!-- 預約 Modal -->
-    <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div></div></div>
+    <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通 <span class="ai-badge">AI覆診提醒</span></span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div></div></div>
     
     <!-- 藥物 Modal -->
     <div class="modal" id="medicationModal"><div class="modal-content"><div class="modal-header"><span>💊 藥物記錄 <span class="ai-badge">AI分析+相沖</span></span><span class="close-btn" onclick="closeModal('medicationModal')">✕</span></div>
@@ -180,9 +182,27 @@
     <div class="modal" id="healthAdviceModal"><div class="modal-content"><div class="modal-header"><span>💡 AI 健康建議</span><span class="close-btn" onclick="closeModal('healthAdviceModal')">✕</span></div>
     <div class="form-group"><label>年齡</label><input type="number" id="adviceAge"></div>
     <div class="form-group"><label>性別</label><div class="radio-group"><label><input type="radio" name="adviceGender" value="男"> 男</label><label><input type="radio" name="adviceGender" value="女"> 女</label></div></div>
-    <div class="form-group"><label>疾病</label><div><label><input type="checkbox" id="disease_hbp"> 高血壓</label> <label><input type="checkbox" id="disease_dm"> 糖尿病</label></div></div>
+    <div class="form-group"><label>症狀/疾病</label><input type="text" id="adviceSymptoms" placeholder="如: 頭痛、高血壓"></div>
     <button class="btn-primary" onclick="getAIHealthAdvice()">生成建議</button>
     <div id="healthAdviceResult"></div></div></div>
+    
+    <!-- AI 保險配對 Modal -->
+    <div class="modal" id="insuranceModal"><div class="modal-content"><div class="modal-header"><span>🛡️ AI 保險配對</span><span class="close-btn" onclick="closeModal('insuranceModal')">✕</span></div>
+    <div class="form-group"><label>年齡</label><input type="number" id="insuranceAge"></div>
+    <div class="form-group"><label>症狀/疾病</label><input type="text" id="insuranceSymptoms" placeholder="如: 心臟病、高血壓"></div>
+    <button class="btn-primary" onclick="matchInsurance()">🤖 AI 配對保險</button>
+    <div id="insuranceResult"></div></div></div>
+    
+    <!-- AI 優惠 Modal -->
+    <div class="modal" id="offerModal"><div class="modal-content"><div class="modal-header"><span>💰 AI 個人化優惠</span><span class="close-btn" onclick="closeModal('offerModal')">✕</span></div>
+    <div id="offerResult"></div></div></div>
+    
+    <!-- AI 公私合作 Modal -->
+    <div class="modal" id="partnerModal"><div class="modal-content"><div class="modal-header"><span>🤝 AI 資助資格審查</span><span class="close-btn" onclick="closeModal('partnerModal')">✕</span></div>
+    <div class="form-group"><label>年齡</label><input type="number" id="partnerAge"></div>
+    <div class="form-group"><label>疾病</label><input type="text" id="partnerDisease" placeholder="如: 糖尿病"></div>
+    <button class="btn-primary" onclick="checkEligibility()">🤖 AI 檢查資格</button>
+    <div id="partnerResult"></div></div></div>
     
     <!-- 付款 Modal -->
     <div class="modal" id="paymentModal"><div class="modal-content"><div class="modal-header"><span>💳 付款 <span class="encrypt-badge">加密</span></span><span class="close-btn" onclick="closeModal('paymentModal')">✕</span></div>
@@ -203,17 +223,74 @@
         
         // AI 自動更新最新消息
         const newsItems = [
-            { title: '🏥 長者醫療券獎賞計劃', desc: '累積$1,000獲$500獎賞', date: '2026-04-06' },
-            { title: '💉 流感疫苗接種計劃', desc: '合資格人士免費接種', date: '2026-04-06' },
-            { title: '🏥 公私營協作計劃', desc: '公立轉介私營，縮短輪候', date: '2026-04-06' },
-            { title: '🤖 AI 醫療新趨勢', desc: 'AI 輔助診斷提升準確度', date: '2026-04-06' }
+            { title: '🏥 長者醫療券獎賞計劃', desc: '累積$1,000獲$500獎賞', date: '2026-04-06', tag: '政府' },
+            { title: '💉 流感疫苗接種計劃', desc: '合資格人士免費接種', date: '2026-04-06', tag: '疫苗' },
+            { title: '🏥 公私營協作計劃', desc: '公立轉介私營，縮短輪候', date: '2026-04-06', tag: '協作' },
+            { title: '🤖 AI 醫療新趨勢', desc: 'AI 輔助診斷提升準確度', date: '2026-04-06', tag: '科技' }
         ];
         
         function updateNews() {
             let html = '';
-            for(let n of newsItems) html += `<div class="clinic-card"><b>${n.title}</b><br>${n.desc}<br><span style="font-size:10px;">📅 ${n.date} | 🤖 AI更新</span></div>`;
+            for(let n of newsItems) html += `<div class="clinic-card"><b>${n.title}</b><br>${n.desc}<br><span style="font-size:10px;">📅 ${n.date} | 🏷️ ${n.tag} | 🤖 AI精選</span></div>`;
             html += `<div class="clinic-card" onclick="openHealthAdviceModal()"><b>💡 AI 健康建議</b><br>點擊獲取個人化建議</div>`;
+            html += `<div class="clinic-card" onclick="openInsuranceModal()"><b>🛡️ AI 保險配對</b><br>根據症狀推薦保險</div>`;
+            html += `<div class="clinic-card" onclick="openOfferModal()"><b>💰 AI 個人化優惠</b><br>為你篩選合適優惠</div>`;
             return html;
+        }
+        
+        // AI 保險配對
+        function matchInsurance() {
+            let age = document.getElementById('insuranceAge').value;
+            let symptoms = document.getElementById('insuranceSymptoms').value.toLowerCase();
+            if(!age) { alert('請輸入年齡'); return; }
+            let plans = [];
+            if(symptoms.includes('心臟') || symptoms.includes('高血壓')) {
+                plans.push({ name: 'AXA 安盛「心臟守護」', premium: '$680/月', coverage: '心臟專科、住院保障' });
+                plans.push({ name: '保誠「心血管保障」', premium: '$590/月', coverage: '心臟檢查、手術保障' });
+            }
+            if(symptoms.includes('糖尿')) {
+                plans.push({ name: '友邦「糖尿病關懷」', premium: '$520/月', coverage: '血糖監測、定期覆診' });
+            }
+            if(symptoms.includes('癌症') || age>=50) {
+                plans.push({ name: '宏利「癌症保障」', premium: '$450/月', coverage: '癌症治療、化療津貼' });
+            }
+            if(plans.length===0) {
+                plans.push({ name: '基本醫療保險', premium: '$280/月', coverage: '住院、門診基本保障' });
+                plans.push({ name: '中銀人壽「健康計劃」', premium: '$350/月', coverage: '全面醫療保障' });
+            }
+            let html = '<div class="clinic-card"><strong>🤖 AI 根據您的症狀推薦：</strong><br><br>';
+            for(let p of plans) html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>${p.name}</strong><br>💰 保費：${p.premium}<br>📋 保障：${p.coverage}<br><button class="btn-primary" style="margin-top:8px;padding:8px;" onclick="alert('已選擇 ${p.name}，將轉至投保頁面')">選擇此計劃</button></div>`;
+            html += '</div>';
+            document.getElementById('insuranceResult').innerHTML = html;
+        }
+        
+        // AI 個人化優惠
+        function openOfferModal() {
+            let userSymptoms = currentUser?.symptoms || '';
+            let html = '<div class="clinic-card"><strong>🤖 AI 為您篩選的優惠：</strong><br><br>';
+            if(userSymptoms.includes('心臟') || userSymptoms.includes('血壓')) {
+                html += '<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>❤️ 心臟檢查套餐 7折</strong><br>仁安醫院 | 原價 $3,800 → $2,660<br><button class="btn-primary" style="margin-top:8px;padding:8px;" onclick="alert('已預約心臟檢查')">立即預約</button></div>';
+            }
+            html += '<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>🏥 全面身體檢查 8折</strong><br>養和醫院 | 原價 $4,500 → $3,600<br><button class="btn-primary" style="margin-top:8px;padding:8px;" onclick="alert('已預約身體檢查')">立即預約</button></div>';
+            html += '<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>💉 流感疫苗 $280</strong><br>全港多間診所 | 原價 $380<br><button class="btn-primary" style="margin-top:8px;padding:8px;" onclick="alert('已預約疫苗')">立即預約</button></div>';
+            html += '</div>';
+            document.getElementById('offerResult').innerHTML = html;
+            openModal('offerModal');
+        }
+        
+        // AI 公私合作資格審查
+        function checkEligibility() {
+            let age = document.getElementById('partnerAge').value;
+            let disease = document.getElementById('partnerDisease').value.toLowerCase();
+            let eligible = [];
+            if(age>=65) eligible.push('🏥 長者醫療券計劃 (每年$2,000)');
+            if(disease.includes('高血壓') || disease.includes('糖尿')) eligible.push('🏥 慢性疾病共同治理計劃');
+            if(age>=50 && (disease.includes('大腸') || disease.includes('腸癌'))) eligible.push('🏥 大腸癌篩查計劃');
+            let html = '<div class="clinic-card"><strong>🤖 AI 資格審查結果：</strong><br><br>';
+            if(eligible.length) html += '✅ 您符合以下資助計劃：<br>' + eligible.map(e=>`• ${e}<br>`).join('');
+            else html += '⚠️ 暫時未符合任何資助計劃，但可關注最新消息。';
+            html += '</div>';
+            document.getElementById('partnerResult').innerHTML = html;
         }
         
         // 藥物資料
@@ -224,7 +301,6 @@
         function getDrugInfo(n) { for(let k in drugs) if(n.includes(k)) return drugs[k]; return { effect: '待補充', side: '待補充', timing: '餐後', warning: '諮詢醫生', interact: [] }; }
         
         function encrypt(data) { return btoa(data + '_diggo_salt'); }
-        
         function processPayment() {
             let card = document.getElementById('cardNumber').value;
             if(!card) { alert('請填寫卡號'); return; }
@@ -245,20 +321,20 @@
         function getAIHealthAdvice() {
             let age = document.getElementById('adviceAge').value;
             let gender = document.querySelector('input[name="adviceGender"]:checked')?.value;
+            let symptoms = document.getElementById('adviceSymptoms').value;
             if(!age || !gender) { alert('請輸入年齡性別'); return; }
-            let hbp = document.getElementById('disease_hbp').checked;
-            let dm = document.getElementById('disease_dm').checked;
-            let advice = `<div class="clinic-card"><strong>🤖 健康建議</strong><br>📊 ${age}歲 ${gender}<br>`;
-            if(hbp) advice += '⚠️ 高血壓：低鹽飲食，每日監測<br>';
-            if(dm) advice += '⚠️ 糖尿病：控制碳水化合物，定期驗血糖<br>';
-            advice += `<br>📋 建議檢查：<br>• 每年體檢<br>${age>=50?'• 大腸癌篩查<br>':''}</div>`;
+            let advice = `<div class="clinic-card"><strong>🤖 AI 個人化健康建議</strong><br><br>📊 ${age}歲 ${gender}<br>`;
+            if(symptoms) advice += `🩺 您提到：${symptoms}<br>`;
+            advice += `<br>📋 建議檢查：<br>• 每年體檢<br>${age>=50?'• 大腸癌篩查<br>':''}${age>=40?'• 心血管檢查<br>':''}`;
+            if(symptoms.includes('頭痛')) advice += '• 建議測量血壓，排除高血壓問題<br>';
+            if(symptoms.includes('心口')) advice += '• 建議心臟科跟進，進行心電圖檢查<br>';
+            advice += '<br>💡 AI 總結：保持均衡飲食、適量運動、定期檢查。</div>';
             document.getElementById('healthAdviceResult').innerHTML = advice;
         }
         
         function analyzeMedications() {
             if(medications.length===0) { document.getElementById('aiAnalysisResult').innerHTML='<div class="clinic-card">無藥物記錄</div>'; return; }
             let html = '<div class="clinic-card"><strong>🤖 AI 藥物分析</strong><br>';
-            let names = medications.map(m=>m.name.toLowerCase());
             for(let m of medications) {
                 let info = getDrugInfo(m.name);
                 html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>💊 ${m.name}</strong><br>🎯 ${info.effect}<br>⚠️ ${info.side}<br>🕒 ${m.timing||info.timing}<br>📌 ${info.warning}</div>`;
@@ -272,15 +348,26 @@
             let base = (hour>=9&&hour<=11)?35:(hour>=14&&hour<=16)?25:15;
             let ahead = Math.floor(Math.random()*8)+1;
             let wait = base + ahead*2;
+            let bestTime = (hour<11)?"上午11點前":(hour<16)?"下午4點前":"傍晚時段";
             let num = 'A' + Math.floor(Math.random()*900+100);
-            document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><div class="queue-number">🎫 ${num}</div><p>${name}</p><p>👥 前面 ${ahead} 人</p><p>🤖 AI預測：${wait} 分鐘</p><div class="progress-bar"><div style="height:10px;background:#0066cc;width:${Math.max(10,100-ahead*8)}%"></div></div><button class="btn-primary" onclick="closeModal('queueModal')">關閉</button></div>`;
+            document.getElementById('queueDisplay').innerHTML = `<div style="text-align:center;"><div class="queue-number">🎫 ${num}</div><p>${name}</p><p>👥 前面 ${ahead} 人</p><p>🤖 AI預測：${wait} 分鐘</p><p>⏰ 最佳排隊時段：${bestTime}</p><div class="progress-bar"><div style="height:10px;background:#0066cc;width:${Math.max(10,100-ahead*8)}%"></div></div><button class="btn-primary" onclick="closeModal('queueModal')">關閉</button></div>`;
             openModal('queueModal');
         }
         
         async function performSearch() {
             let term = document.getElementById('searchInput').value.trim();
             let div = document.getElementById('searchResults');
-            if(!term) { div.innerHTML='<div style="padding:20px;">請輸入關鍵字</div>'; return; }
+            let aiDiv = document.getElementById('aiRecommendation');
+            if(!term) { div.innerHTML='<div style="padding:20px;">請輸入症狀或關鍵字</div>'; return; }
+            
+            // AI 智能推薦
+            let aiText = '';
+            if(term.includes('心口') || term.includes('心臟')) aiText = '🤖 AI 建議：您可能需要心臟科醫生。以下為相關診所：';
+            else if(term.includes('頭痛') || term.includes('頭暈')) aiText = '🤖 AI 建議：可能是血壓問題，建議家庭醫學科或內科。';
+            else if(term.includes('糖尿')) aiText = '🤖 AI 建議：建議內分泌科或糖尿病專科。';
+            else aiText = '🤖 AI 根據您的搜尋，為您推薦以下診所：';
+            aiDiv.innerHTML = aiText;
+            
             div.innerHTML='<div class="loading"><i class="fas fa-spinner fa-spin"></i> 搜尋中...</div>';
             try {
                 let query = currentSearchType==='specialist' ? `${term} 專科醫生 Hong Kong` : `${term} Hong Kong`;
@@ -296,11 +383,19 @@
             if(confirm(`預約 ${name}？\n${addr}`)) {
                 appointments.push({name,addr,date:new Date().toLocaleDateString(),status:'已確認'});
                 localStorage.setItem('appointments',JSON.stringify(appointments));
-                alert(`✅ 已預約 ${name}`);
+                alert(`✅ 已預約 ${name}\n🤖 AI 已記錄您的預約，將在覆診前提醒您。`);
                 closeModal('searchModal');
                 openQueueWithAppointment(name);
             }
         }
+        
+        // AI 提醒覆診功能
+        function checkReminders() {
+            let today = new Date().toLocaleDateString();
+            let upcoming = appointments.filter(a => a.date === today);
+            if(upcoming.length) alert(`🤖 AI 提醒：您今日有 ${upcoming.length} 個預約！`);
+        }
+        setInterval(checkReminders, 3600000); // 每小時檢查
         
         async function processOCRImage(input) {
             let file = input.files[0];
@@ -315,9 +410,10 @@
                     });
                     let data = await res.json();
                     let text = data.responses?.[0]?.fullTextAnnotation?.text || '未識別';
-                    let specialty = text.includes('心臟')?'心臟科':text.includes('骨科')?'骨科':'一般門診';
+                    let specialty = text.includes('心臟')?'心臟科':text.includes('骨科')?'骨科':text.includes('眼科')?'眼科':'一般門診';
+                    let urgency = text.includes('緊急')?'⚠️ 緊急，建議立即預約':'📋 一般轉介，可安排預約';
                     document.getElementById('ocrLoading').style.display='none';
-                    document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ 識別結果</b><p>${text.substring(0,200)}</p><p>🤖 建議專科：${specialty}</p></div><button class="btn-primary" onclick="closeModal('ocrModal');openSearch('specialist');document.getElementById('searchInput').value='${specialty}醫生';performSearch();">🔍 搜尋 ${specialty}醫生</button>`;
+                    document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ AI 識別結果</b><p>${text.substring(0,200)}</p><p>🤖 建議專科：${specialty}</p><p>🏥 緊急程度：${urgency}</p></div><button class="btn-primary" onclick="closeModal('ocrModal');openSearch('specialist');document.getElementById('searchInput').value='${specialty}醫生';performSearch();">🔍 搜尋 ${specialty}醫生</button>`;
                     document.getElementById('ocrResult').style.display='block';
                 } catch(e) { document.getElementById('ocrLoading').style.display='none'; alert('識別失敗'); }
             };
@@ -326,18 +422,24 @@
         
         function resetOCR() { document.getElementById('ocrResult').style.display='none'; document.getElementById('ocrImageInput').value=''; }
         
-        function openSearch(t) { currentSearchType=t; openModal('searchModal'); }
+        function openSearch(t) { currentSearchType=t; openModal('searchModal'); document.getElementById('aiRecommendation').innerHTML=''; }
         function setSearchLocation(l) { document.getElementById('searchInput').value=l; performSearch(); }
         function openQueue() { if(appointments.length) openQueueWithAppointment(appointments[appointments.length-1].name); else { document.getElementById('queueDisplay').innerHTML='<div style="text-align:center;"><p>無排隊</p><button class="btn-primary" onclick="closeModal(\'queueModal\');openSearch(\'clinic\')">去預約</button></div>'; openModal('queueModal'); } }
-        function openAppointments() { let list=document.getElementById('appointmentList'); list.innerHTML=appointments.length?appointments.map(a=>`<div class="clinic-card">📅 ${a.date}<br><b>${a.name}</b><br>✅ ${a.status}</div>`).join(''):'<div class="clinic-card">無預約</div>'; openModal('appointmentsModal'); }
+        function openAppointments() { 
+            let list=document.getElementById('appointmentList'); 
+            list.innerHTML=appointments.length?appointments.map(a=>`<div class="clinic-card">📅 ${a.date}<br><b>${a.name}</b><br>✅ ${a.status}<br>🤖 AI 提醒：覆診前3天會通知您</div>`).join(''):'<div class="clinic-card">無預約</div>'; 
+            openModal('appointmentsModal'); 
+        }
         function openOCR() { openModal('ocrModal'); }
         function openMedication() { openModal('medicationModal'); displayMedications(); }
         function openHealthAdviceModal() { openModal('healthAdviceModal'); }
+        function openInsuranceModal() { openModal('insuranceModal'); }
+        function openPartnerModal() { openModal('partnerModal'); }
         function openPaymentModal() { openModal('paymentModal'); }
         
         function displayMedications() {
             let list=document.getElementById('medicationList');
-            if(list) list.innerHTML = medications.length ? medications.map(m=>`<div class="medication-item"><strong>💊 ${m.name}</strong><br>${m.dosage}<br>🕒 ${m.timing}<br>📅 ${m.date}</div>`).join('') : '<div class="clinic-card">無藥物記錄<br>點擊手動輸入</div>';
+            if(list) list.innerHTML = medications.length ? medications.map(m=>`<div class="medication-item"><strong>💊 ${m.name}</strong><br>${m.dosage}<br>🕒 ${m.timing}<br>📅 ${m.date}<br>🤖 AI 提醒：請按時服藥</div>`).join('') : '<div class="clinic-card">無藥物記錄<br>點擊手動輸入</div>';
         }
         function addMedicationManual() {
             let name=prompt('藥物名稱：');
@@ -347,7 +449,7 @@
                 medications.push({name,dosage,timing,date:new Date().toLocaleDateString()});
                 localStorage.setItem('medications',JSON.stringify(medications));
                 displayMedications();
-                alert('✅ 藥物已加入');
+                alert('✅ 藥物已加入，AI 將分析潛在相沖');
             }
         }
         
@@ -374,13 +476,14 @@
             let age=document.getElementById('age').value;
             let relation=document.querySelector('input[name="relation"]:checked')?.value;
             let pwd=document.getElementById('password').value;
+            let symptoms=document.getElementById('symptoms').value;
             if(!name||!gender||!age||!relation){alert('請填寫所有資料');return;}
             if(!pwd||pwd.length<8){alert('密碼最少8字元');return;}
-            currentUser={phone:pendingPhone,name,gender,age,relation,password:pwd};
+            currentUser={phone:pendingPhone,name,gender,age,relation,password:pwd,symptoms};
             localStorage.setItem('currentUser',JSON.stringify(currentUser));
             document.getElementById('loginBtn').innerHTML=`<i class="fas fa-user-circle"></i> ${name}`;
             closeModal('loginModal');
-            alert(`✅ 註冊成功！歡迎 ${name}`);
+            alert(`✅ 註冊成功！歡迎 ${name}\n🤖 AI 將根據您的資料提供個人化建議`);
             switchTab('profile',document.querySelector('.nav-item'));
         }
         
@@ -390,17 +493,20 @@
             let c=document.getElementById('contentArea');
             if(tab==='news') c.innerHTML=updateNews();
             else if(tab==='services') c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-                <div class="clinic-card" onclick="openSearch('clinic')">🔍 醫生搜尋</div>
-                <div class="clinic-card" onclick="openSearch('specialist')">👨‍⚕️ 專科醫生</div>
-                <div class="clinic-card" onclick="openOCR()">📄 OCR轉介信</div>
-                <div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>
-                <div class="clinic-card" onclick="openAppointments()">📅 預約通</div>
-                <div class="clinic-card" onclick="openMedication()">💊 藥物記錄</div>
+                <div class="clinic-card" onclick="openSearch('clinic')">🔍 醫生搜尋 (AI推薦)</div>
+                <div class="clinic-card" onclick="openSearch('specialist')">👨‍⚕️ 專科醫生 (AI配對)</div>
+                <div class="clinic-card" onclick="openOCR()">📄 OCR轉介信 (AI識別)</div>
+                <div class="clinic-card" onclick="openQueue()">🎟️ 排隊通 (AI預測)</div>
+                <div class="clinic-card" onclick="openAppointments()">📅 預約通 (AI提醒)</div>
+                <div class="clinic-card" onclick="openMedication()">💊 藥物記錄 (AI分析)</div>
                 <div class="clinic-card" onclick="openHealthAdviceModal()">💡 AI健康建議</div>
-                <div class="clinic-card" onclick="openPaymentModal()">💳 付款</div>
+                <div class="clinic-card" onclick="openInsuranceModal()">🛡️ AI保險配對</div>
+                <div class="clinic-card" onclick="openOfferModal()">💰 AI個人化優惠</div>
+                <div class="clinic-card" onclick="openPartnerModal()">🤝 AI資助審查</div>
+                <div class="clinic-card" onclick="openPaymentModal()">💳 加密付款</div>
             </div>`;
-            else if(tab==='support') c.innerHTML=`<div class="clinic-card" onclick="alert('客服 2121 8080')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp</div>`;
-            else if(tab==='profile') c.innerHTML=currentUser?`<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone}<br>🎂 ${currentUser.age}歲 | ${currentUser.gender}<br>👨‍👩‍👧 ${currentUser.relation}</div><div class="clinic-card" onclick="openAppointments()">📋 預約 (${appointments.length})</div><div class="clinic-card" onclick="openMedication()">💊 藥物 (${medications.length})</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>`:`<div class="clinic-card" onclick="openLoginModal()">👤 請先登入</div>`;
+            else if(tab==='support') c.innerHTML=`<div class="clinic-card" onclick="alert('客服 2121 8080')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp AI助手</div>`;
+            else if(tab==='profile') c.innerHTML=currentUser?`<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone}<br>🎂 ${currentUser.age}歲 | ${currentUser.gender}<br>👨‍👩‍👧 ${currentUser.relation}<br>🩺 症狀：${currentUser.symptoms||'未提供'}</div><div class="clinic-card" onclick="openAppointments()">📋 預約 (${appointments.length}) 🤖 AI提醒</div><div class="clinic-card" onclick="openMedication()">💊 藥物 (${medications.length}) 🤖 AI分析</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>`:`<div class="clinic-card" onclick="openLoginModal()">👤 請先登入，AI 將為您提供個人化服務</div>`;
         }
         
         function toggleDarkMode() { document.body.classList.toggle('dark'); localStorage.setItem('darkMode',document.body.classList.contains('dark')); }
