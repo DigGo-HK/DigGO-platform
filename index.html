@@ -87,7 +87,6 @@
         .progress-bar { height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; margin: 20px 0; }
         .medication-item { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0066cc; }
         .voice-btn { background: #f0f0f0; border: none; padding: 12px; border-radius: 30px; cursor: pointer; margin-left: 10px; }
-        .ai-badge { background: #28a745; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; }
         .encrypt-badge { background: #0066cc; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; }
     </style>
 </head>
@@ -101,15 +100,15 @@
     <div class="main-content" id="mainContent">
         <div class="status-bar"><span id="current-time"></span><span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span></div>
         <div class="header">
-            <div class="logo">D.C □ <span class="encrypt-badge"><i class="fas fa-lock"></i> AES-256</span><span class="ai-badge"><i class="fas fa-microchip"></i> AI</span></div>
+            <div class="logo">D.C □ <span class="encrypt-badge"><i class="fas fa-lock"></i> 加密保障</span></div>
             <button class="login-btn" id="loginBtn" onclick="openLoginModal()"><i class="fas fa-user-circle"></i> 登入/註冊</button>
         </div>
         
-        <!-- 6大功能：第6個係「更多」 -->
+        <!-- 6大功能 -->
         <div class="features-grid">
             <div class="feature-card" onclick="openSearch('clinic')"><div class="feature-icon"><i class="fas fa-search" style="color:#0066cc"></i></div><div class="feature-label">醫生搜尋</div></div>
             <div class="feature-card" onclick="openSearch('specialist')"><div class="feature-icon"><i class="fas fa-user-md" style="color:#6f42c1"></i></div><div class="feature-label">專科醫生</div></div>
-            <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">OCR轉介信 <span class="ai-badge">AI</span></div></div>
+            <div class="feature-card" onclick="openOCR()"><div class="feature-icon"><i class="fas fa-file-alt" style="color:#fd7e14"></i></div><div class="feature-label">轉介信預約</div></div>
             <div class="feature-card" onclick="openQueue()"><div class="feature-icon"><i class="fas fa-hourglass-half" style="color:#28a745"></i></div><div class="feature-label">排隊通</div></div>
             <div class="feature-card" onclick="openAppointments()"><div class="feature-icon"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i></div><div class="feature-label">預約通</div></div>
             <div class="feature-card" onclick="openMore()"><div class="feature-icon"><i class="fas fa-ellipsis-h" style="color:#999"></i></div><div class="feature-label">更多</div></div>
@@ -156,11 +155,11 @@
     <div id="searchResults"></div>
     <button class="btn-primary" onclick="performSearch()">搜尋</button></div></div>
     
-    <!-- OCR Modal -->
-    <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 OCR轉介信</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
+    <!-- 轉介信預約 Modal (OCR) -->
+    <div class="modal" id="ocrModal"><div class="modal-content"><div class="modal-header"><span>📄 轉介信預約</span><span class="close-btn" onclick="closeModal('ocrModal')">✕</span></div>
     <input type="file" id="ocrImageInput" accept="image/*" style="display:none" onchange="processOCRImage(this)">
-    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p></div>
-    <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> AI 識別中...</div>
+    <div class="ocr-preview" onclick="document.getElementById('ocrImageInput').click()"><i class="fas fa-cloud-upload-alt" style="font-size:48px;color:#0066cc;"></i><p>上傳公立醫院轉介信</p><p>自動識別檢查項目，配對私營診所</p></div>
+    <div id="ocrLoading" style="display:none; text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> 識別中...</div>
     <div id="ocrResult" style="display:none;"></div>
     <button class="btn-primary" onclick="resetOCR()">重新上傳</button></div></div>
     
@@ -170,11 +169,11 @@
     <!-- 預約 Modal -->
     <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div></div></div>
     
-    <!-- 更多 Modal（藥物記錄放喺呢度） -->
+    <!-- 更多 Modal -->
     <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
     <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 12px;">
         <div class="clinic-card" onclick="openMedication()">💊 藥物記錄</div>
-        <div class="clinic-card" onclick="openHealthAdvice()">💡 AI健康建議</div>
+        <div class="clinic-card" onclick="openHealthAdvice()">💡 健康建議</div>
         <div class="clinic-card" onclick="openInsurance()">🛡️ 保險配對</div>
         <div class="clinic-card" onclick="alert('💊 藥物送遞\\n\\n上傳處方，1小時送達')">💊 藥物送遞</div>
         <div class="clinic-card" onclick="alert('💰 優惠資訊\\n\\n體檢7折、洗牙$380')">💰 優惠資訊</div>
@@ -185,14 +184,14 @@
     <div class="modal" id="medicationModal"><div class="modal-content"><div class="modal-header"><span>💊 藥物記錄</span><span class="close-btn" onclick="closeModal('medicationModal')">✕</span></div>
     <div class="ocr-preview" onclick="addMedicationManual()"><i class="fas fa-pen"></i> 手動輸入藥物</div>
     <div id="medicationList"></div>
-    <button class="btn-primary" onclick="analyzeMedications()">🤖 AI 分析藥物</button>
+    <button class="btn-primary" onclick="analyzeMedications()">分析藥物</button>
     <div id="aiAnalysisResult" style="margin-top:15px;"></div></div></div>
     
-    <!-- AI 健康建議 Modal -->
-    <div class="modal" id="healthAdviceModal"><div class="modal-content"><div class="modal-header"><span>💡 AI 健康建議</span><span class="close-btn" onclick="closeModal('healthAdviceModal')">✕</span></div>
+    <!-- 健康建議 Modal -->
+    <div class="modal" id="healthAdviceModal"><div class="modal-content"><div class="modal-header"><span>💡 健康建議</span><span class="close-btn" onclick="closeModal('healthAdviceModal')">✕</span></div>
     <div class="form-group"><label>年齡</label><input type="number" id="adviceAge" placeholder="如: 45"></div>
     <div class="form-group"><label>性別</label><div class="radio-group"><label><input type="radio" name="adviceGender" value="男"> 男</label><label><input type="radio" name="adviceGender" value="女"> 女</label></div></div>
-    <button class="btn-primary" onclick="getAIHealthAdvice()">生成建議</button>
+    <button class="btn-primary" onclick="getHealthAdvice()">生成建議</button>
     <div id="healthAdviceResult"></div></div></div>
     
     <!-- 保險配對 Modal -->
@@ -227,12 +226,12 @@
         function openHealthAdvice() { openModal('healthAdviceModal'); }
         function openInsurance() { openModal('insuranceModal'); }
         
-        // AI 健康建議
-        function getAIHealthAdvice() {
+        // 健康建議
+        function getHealthAdvice() {
             let age = document.getElementById('adviceAge').value;
             let gender = document.querySelector('input[name="adviceGender"]:checked')?.value;
             if(!age || !gender) { alert('請輸入年齡和性別'); return; }
-            let advice = `<div class="clinic-card"><strong>🤖 AI 個人化健康建議</strong><br><br>📊 ${age}歲 ${gender}<br><br>📋 建議檢查：<br>• 每年一次身體檢查<br>${age>=50?'• 大腸癌篩查<br>':''}${age>=40?'• 心血管檢查<br>':''}<br>💡 保持均衡飲食、適量運動、定期檢查。</div>`;
+            let advice = `<div class="clinic-card"><strong>健康建議</strong><br><br>📊 ${age}歲 ${gender}<br><br>📋 建議檢查：<br>• 每年一次身體檢查<br>${age>=50?'• 大腸癌篩查<br>':''}${age>=40?'• 心血管檢查<br>':''}<br>💡 保持均衡飲食、適量運動、定期檢查。</div>`;
             document.getElementById('healthAdviceResult').innerHTML = advice;
         }
         
@@ -240,7 +239,7 @@
         function matchInsurance() {
             let age = document.getElementById('insuranceAge').value;
             if(!age) { alert('請輸入年齡'); return; }
-            let html = '<div class="clinic-card"><strong>🤖 為您推薦的保險計劃：</strong><br><br>';
+            let html = '<div class="clinic-card"><strong>為您推薦的保險計劃：</strong><br><br>';
             html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>AXA 安盛「智安心」</strong><br>💰 每月 $450<br>📋 住院保障 $500,000/年</div>`;
             html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>保誠「醫療保」</strong><br>💰 每月 $380<br>📋 住院保障 $400,000/年</div>`;
             html += '</div>';
@@ -250,9 +249,9 @@
         // 藥物分析
         function analyzeMedications() {
             if(medications.length===0) { document.getElementById('aiAnalysisResult').innerHTML='<div class="clinic-card">請先加入藥物記錄</div>'; return; }
-            let html = '<div class="clinic-card"><strong>🤖 AI 藥物分析報告</strong><br><br>';
+            let html = '<div class="clinic-card"><strong>藥物分析</strong><br><br>';
             for(let m of medications) {
-                html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>💊 ${m.name}</strong><br>🎯 作用：待補充<br>⚠️ 副作用：待補充<br>🕒 ${m.timing}<br>📌 請諮詢醫生</div>`;
+                html += `<div style="margin-top:10px;padding:10px;background:#e6f2ff;border-radius:12px;"><strong>💊 ${m.name}</strong><br>💊 劑量：${m.dosage}<br>🕒 ${m.timing}<br>📌 請諮詢醫生</div>`;
             }
             html += '</div>';
             document.getElementById('aiAnalysisResult').innerHTML = html;
@@ -343,7 +342,7 @@
                     else if(text.includes('骨科')) specialty = '骨科';
                     else if(text.includes('兒科')) specialty = '兒科';
                     document.getElementById('ocrLoading').style.display='none';
-                    document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ 識別結果</b><p>${text.substring(0,200)}</p><p>🤖 AI 建議專科：<b>${specialty}</b></p></div><button class="btn-primary" onclick="closeModal('ocrModal');openSearch('specialist');document.getElementById('searchInput').value='${specialty}醫生';performSearch();">🔍 搜尋 ${specialty}醫生</button>`;
+                    document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ 識別結果</b><p>${text.substring(0,200)}</p><p>📋 建議專科：<b>${specialty}</b></p></div><button class="btn-primary" onclick="closeModal('ocrModal');openSearch('specialist');document.getElementById('searchInput').value='${specialty}醫生';performSearch();">🔍 搜尋 ${specialty}醫生</button>`;
                     document.getElementById('ocrResult').style.display='block';
                 } catch(e) { document.getElementById('ocrLoading').style.display='none'; alert('識別失敗'); }
             };
@@ -403,11 +402,11 @@
             else if(tab==='services') c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
                 <div class="clinic-card" onclick="openSearch('clinic')">🔍 醫生搜尋</div>
                 <div class="clinic-card" onclick="openSearch('specialist')">👨‍⚕️ 專科醫生</div>
-                <div class="clinic-card" onclick="openOCR()">📄 OCR轉介信</div>
+                <div class="clinic-card" onclick="openOCR()">📄 轉介信預約</div>
                 <div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>
                 <div class="clinic-card" onclick="openAppointments()">📅 預約通</div>
                 <div class="clinic-card" onclick="openMedication()">💊 藥物記錄</div>
-                <div class="clinic-card" onclick="openHealthAdvice()">💡 AI健康建議</div>
+                <div class="clinic-card" onclick="openHealthAdvice()">💡 健康建議</div>
                 <div class="clinic-card" onclick="openInsurance()">🛡️ 保險配對</div>
             </div>`;
             else if(tab==='support') c.innerHTML=`<div class="clinic-card" onclick="alert('客服熱線：2121 8080\\n辦公時間：星期一至五 9am-6pm')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open('https://wa.me/85212345678')">💬 WhatsApp 查詢</div><div class="clinic-card" onclick="alert('📧 support@diggo.hk')">📧 電郵查詢</div>`;
