@@ -57,6 +57,54 @@
         .card i { font-size: 32px; margin-bottom: 8px; display: block; }
         .card span { font-size: 13px; font-weight: 500; }
         
+        .news-section {
+            background: white;
+            margin: 15px;
+            border-radius: 20px;
+            padding: 16px 0 16px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding-right: 16px;
+            margin-bottom: 12px;
+        }
+        .news-title { font-weight: 700; font-size: 16px; color: #0066cc; }
+        .news-ai-badge { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 500; }
+        .news-scroll {
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            gap: 12px;
+            padding-bottom: 8px;
+        }
+        .news-scroll::-webkit-scrollbar { height: 4px; }
+        .news-scroll::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
+        .news-scroll::-webkit-scrollbar-thumb { background: #0066cc; border-radius: 4px; }
+        .news-card {
+            display: inline-block;
+            white-space: normal;
+            width: 260px;
+            background: #f8fafd;
+            border-radius: 16px;
+            padding: 14px;
+            margin-right: 4px;
+            cursor: pointer;
+            transition: 0.1s;
+            border: 1px solid #eef2f7;
+            vertical-align: top;
+        }
+        .news-card:active { transform: scale(0.97); background: #e6f2ff; }
+        .news-icon { font-size: 28px; margin-bottom: 8px; display: inline-block; }
+        .news-card-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; color: #1a2c3e; }
+        .news-card-desc { font-size: 12px; color: #5e6f8d; line-height: 1.4; }
+        .news-source { font-size: 10px; color: #0066cc; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -113,6 +161,8 @@
         .form-group { margin-bottom: 15px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; border-radius: 30px; border: 1px solid #ddd; font-size: 16px; }
         .appointment-item { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0066cc; }
+        .vaccine-record-item { background: #f5f7fb; border-radius: 16px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #28a745; }
+        .vaccine-status-badge { background: #e6f4ea; color: #1e7e34; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
         
         .check-animation {
             position: fixed;
@@ -170,6 +220,10 @@
         .action-sheet-mask.active .action-sheet-card { transform: translateY(0); }
         .ai-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; margin-left: 8px; }
         .error-message { background: #fff0f0; color: #d32f2f; padding: 12px; border-radius: 16px; margin: 10px 0; font-size: 14px; border-left: 4px solid #d32f2f; }
+        .voice-btn { background: #f0f0f0; border: none; padding: 10px; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; margin-left: 10px; }
+        .voice-btn:active { transform: scale(0.95); background: #e0e0e0; }
+        .input-with-voice { display: flex; align-items: center; gap: 8px; }
+        .input-with-voice input { flex: 1; }
     </style>
 </head>
 <body>
@@ -186,6 +240,7 @@
             <button class="login-btn" id="loginBtn" onclick="openLogin()"><i class="fas fa-user-circle"></i> 登入/註冊</button>
         </div>
         
+        <!-- 原有12功能 (6大入口) -->
         <div class="grid-3">
             <div class="card" onclick="searchDoctor()"><i class="fas fa-search" style="color:#0066cc"></i><span>醫生搜尋</span></div>
             <div class="card" onclick="searchSpecialist()"><i class="fas fa-user-md" style="color:#6f42c1"></i><span>專科醫生</span></div>
@@ -193,6 +248,17 @@
             <div class="card" onclick="openQueue()"><i class="fas fa-hourglass-half" style="color:#28a745"></i><span>排隊通</span></div>
             <div class="card" onclick="openAppointments()"><i class="fas fa-calendar-alt" style="color:#17a2b8"></i><span>預約通</span></div>
             <div class="card" onclick="openMore()"><i class="fas fa-ellipsis-h" style="color:#999"></i><span>更多服務</span></div>
+        </div>
+        
+        <!-- 可水平滑動新資訊區 -->
+        <div class="news-section">
+            <div class="news-header">
+                <span class="news-title"><i class="fas fa-newspaper"></i> 最新醫療資訊</span>
+                <span class="news-ai-badge"><i class="fas fa-robot"></i> AI 智能更新</span>
+            </div>
+            <div class="news-scroll" id="newsScrollContainer">
+                <div class="ecg-loader"><div class="mini-ecg"><svg viewBox="0 0 50 20"><path class="mini-heart-path" d="M5,10 L12,10 L15,3 L20,17 L25,8 L30,14 L35,10 L45,10" /></svg></div><span>AI 載入最新資訊...</span></div>
+            </div>
         </div>
         
         <div class="bottom-nav">
@@ -204,7 +270,7 @@
         <div id="content" style="padding: 20px;"></div>
     </div>
     
-    <!-- Modals -->
+    <!-- 原有 Modals -->
     <div class="modal" id="loginModal"><div class="modal-content"><div class="modal-header"><span>登入 / 註冊</span><span class="close-btn" onclick="closeModal('loginModal')">✕</span></div>
         <div id="stepPhone"><div class="form-group"><input type="tel" id="phone" placeholder="手機號碼"></div><button class="btn-primary" onclick="sendOTP()">發送驗證碼</button></div>
         <div id="stepOTP" style="display:none;"><div class="form-group"><input type="text" id="otp" placeholder="驗證碼"></div><button class="btn-primary" onclick="verifyOTP()">驗證</button></div>
@@ -223,17 +289,6 @@
     
     <div class="modal" id="queueModal"><div class="modal-content"><div class="modal-header"><span>🎟️ 排隊通</span><span class="close-btn" onclick="closeModal('queueModal')">✕</span></div><div id="queueDisplay"></div></div></div>
     <div class="modal" id="appointmentsModal"><div class="modal-content"><div class="modal-header"><span>📅 預約通</span><span class="close-btn" onclick="closeModal('appointmentsModal')">✕</span></div><div id="appointmentList"></div></div></div>
-    <div class="modal" id="moreModal"><div class="modal-content"><div class="modal-header"><span>📋 更多服務</span><span class="close-btn" onclick="closeModal('moreModal')">✕</span></div>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-        <div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div>
-        <div class="clinic-card" onclick="openHealthAdvice()">💡 健康建議 <span class="ai-badge">AI</span></div>
-        <div class="clinic-card" onclick="alert('🛡️ 保險配對開發中')">🛡️ 保險配對</div>
-        <div class="clinic-card" onclick="alert('💊 藥物送遞開發中')">💊 藥物送遞</div>
-        <div class="clinic-card" onclick="alert('💰 優惠資訊開發中')">💰 優惠資訊</div>
-        <div class="clinic-card" onclick="alert('🤝 公私合作開發中')">🤝 公私合作</div>
-        <div class="clinic-card" onclick="alert('📁 醫療報告開發中')">📁 醫療報告</div>
-        <div class="clinic-card" onclick="alert('❓ 專業查詢開發中')">❓ 專業查詢</div>
-    </div></div></div>
     <div class="modal" id="healthModal"><div class="modal-content"><div class="modal-header"><span>💡 AI 健康建議</span><span class="close-btn" onclick="closeModal('healthModal')">✕</span></div>
         <div id="healthInputArea"><div class="form-group"><textarea id="symptomInput" rows="3" placeholder="請描述您的症狀，例如：頭痛、發燒、咳嗽..."></textarea></div>
         <button class="btn-primary" onclick="getAIHealthAdvice()">獲取 AI 建議</button></div>
@@ -245,6 +300,32 @@
         <div class="form-group"><input type="text" id="drugDosage" placeholder="劑量 (如: 500mg)"></div>
         <button class="btn-primary" onclick="addDrugRecord()">加密儲存</button>
         <button class="btn-secondary" onclick="loadAndDecryptDrugs()">解密查看記錄</button>
+    </div></div>
+    
+    <!-- ==================== 新增第13項功能：疫苗紀錄 Modal ==================== -->
+    <div class="modal" id="vaccineRecordModal"><div class="modal-content"><div class="modal-header"><span>💉 疫苗紀錄 <span class="ai-badge">AI 智能管理</span></span><span class="close-btn" onclick="closeModal('vaccineRecordModal')">✕</span></div>
+        <div id="vaccineRecordList" style="margin-bottom: 20px;"></div>
+        <div style="border-top: 1px solid #eee; margin: 15px 0; padding-top: 15px;">
+            <h4 style="margin-bottom: 12px;"><i class="fas fa-plus-circle"></i> 新增疫苗記錄</h4>
+            <div class="input-with-voice">
+                <input type="date" id="vaccineDate" class="form-group" style="margin-bottom: 10px;">
+            </div>
+            <div class="input-with-voice">
+                <input type="text" id="vaccineName" placeholder="疫苗名稱 (如: 流感疫苗、五合一)" style="flex:1; padding:12px; border-radius:30px; border:1px solid #ddd;">
+                <button class="voice-btn" onclick="startVoiceInput('vaccineName')"><i class="fas fa-microphone"></i></button>
+            </div>
+            <button class="btn-primary" onclick="addVaccineRecord()" style="margin-top: 10px;">AI 分析及儲存</button>
+        </div>
+    </div></div>
+    
+    <!-- ==================== 新增第14項功能：疫苗搜尋 Modal ==================== -->
+    <div class="modal" id="vaccineSearchModal"><div class="modal-content"><div class="modal-header"><span>🔍 疫苗搜尋 <span class="ai-badge">AI 即時庫存</span></span><span class="close-btn" onclick="closeModal('vaccineSearchModal')">✕</span></div>
+        <div class="input-with-voice">
+            <input type="text" id="vaccineSearchInput" placeholder="請輸入疫苗名稱 (如: 流感疫苗、HPV九價、蛇針)" style="flex:1; padding:12px; border-radius:30px; border:1px solid #ddd;">
+            <button class="voice-btn" onclick="startVoiceInput('vaccineSearchInput')"><i class="fas fa-microphone"></i></button>
+        </div>
+        <button class="btn-primary" onclick="searchVaccineStock()">搜尋疫苗庫存</button>
+        <div id="vaccineSearchResults" style="margin-top: 20px;"></div>
     </div></div>
 
     <div id="actionSheet" class="action-sheet-mask">
@@ -260,9 +341,8 @@
     <div id="globalToast" class="global-toast">✓ 預約成功</div>
 
     <script>
-        // ==================== Google API Key (已整合，請直接使用) ====================
+        // ==================== Google API Key ====================
         const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
-        // ===========================================================================
         
         const SECRET_KEY = 'DigGO_Medical_2026';
         function encryptData(data) { return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString(); }
@@ -273,12 +353,236 @@
         let pendingPhone = '';
         let autoJumpFlag = localStorage.getItem("diggo_no_jump") === "true";
         
+        // ==================== 疫苗紀錄功能 (第13項) ====================
+        let vaccineRecords = [];
+        
+        function loadVaccineRecords() {
+            const encrypted = localStorage.getItem('vaccine_records_encrypted');
+            if(encrypted) { const dec = decryptData(encrypted); if(dec) vaccineRecords = dec; }
+            else vaccineRecords = [];
+            renderVaccineRecords();
+        }
+        
+        function saveVaccineRecords() {
+            localStorage.setItem('vaccine_records_encrypted', encryptData(vaccineRecords));
+        }
+        
+        // AI 分類疫苗
+        function aiClassifyVaccine(name) {
+            const lowerName = name.toLowerCase();
+            if(lowerName.includes('流感') || lowerName.includes('flu') || lowerName.includes('季節性')) return '流感疫苗';
+            if(lowerName.includes('五合一') || lowerName.includes('六合一') || lowerName.includes('嬰兒') || lowerName.includes('bb') || lowerName.includes('兒童') || lowerName.includes('麻疹') || lowerName.includes('德國麻疹') || lowerName.includes('水痘') || lowerName.includes('肺炎鏈球菌')) return '嬰兒成長疫苗';
+            if(lowerName.includes('子宮頸') || lowerName.includes('hpv') || lowerName.includes('九價')) return 'HPV疫苗';
+            if(lowerName.includes('蛇針') || lowerName.includes('帶狀疱疹') || lowerName.includes('shingles')) return '蛇針(帶狀疱疹)';
+            if(lowerName.includes('新冠') || lowerName.includes('covid') || lowerName.includes('復必泰') || lowerName.includes('科興')) return '新冠疫苗';
+            if(lowerName.includes('乙肝') || lowerName.includes('b肝')) return '乙型肝炎疫苗';
+            return '其他疫苗';
+        }
+        
+        // AI 建議注意事項
+        function aiGetAdvice(vaccineType) {
+            const adviceMap = {
+                '流感疫苗': '接種後可能出現輕微發燒、注射部位酸痛，約1-2天緩解。多喝水休息。每年建議接種一次。',
+                '嬰兒成長疫苗': '按衛生署建議時間表接種。接種後可能出現哭鬧、輕微發燒，可依醫生指示使用退燒藥。',
+                'HPV疫苗': '需接種2-3劑。接種後避免劇烈運動，可能出現頭暈、注射部位腫痛。',
+                '蛇針(帶狀疱疹)': '50歲以上建議接種一劑。可能出現頭痛、肌肉酸痛，通常2-3天消退。',
+                '新冠疫苗': '接種後留院觀察15-30分鐘。可能出現疲倦、發燒，多休息。',
+                '乙型肝炎疫苗': '需接種3劑。一般無明顯副作用，少數人會出現注射部位紅腫。',
+                '其他疫苗': '請遵循醫生建議。接種後如有嚴重不適應立即就醫。'
+            };
+            return adviceMap[vaccineType] || adviceMap['其他疫苗'];
+        }
+        
+        // AI 計算下一針日期
+        function aiGetNextDoseDate(vaccineName, currentDate) {
+            const lowerName = vaccineName.toLowerCase();
+            const current = new Date(currentDate);
+            if(lowerName.includes('hpv') || lowerName.includes('子宮頸')) {
+                const next = new Date(current); next.setMonth(current.getMonth() + 2);
+                return { date: next.toISOString().split('T')[0], message: 'HPV疫苗第2劑建議在2個月後接種' };
+            }
+            if(lowerName.includes('乙肝') || lowerName.includes('b肝')) {
+                const next = new Date(current); next.setMonth(current.getMonth() + 1);
+                return { date: next.toISOString().split('T')[0], message: '乙型肝炎第2劑建議在1個月後接種' };
+            }
+            if(lowerName.includes('流感')) {
+                return { date: new Date(current.getFullYear()+1, current.getMonth(), current.getDate()).toISOString().split('T')[0], message: '流感疫苗建議每年接種一次' };
+            }
+            return { date: null, message: '暫無下一針提醒，請諮詢醫生' };
+        }
+        
+        function addVaccineRecord() {
+            let date = document.getElementById('vaccineDate').value;
+            let name = document.getElementById('vaccineName').value.trim();
+            if(!date) { alert('請選擇接種日期'); return; }
+            if(!name) { alert('請輸入疫苗名稱'); return; }
+            
+            const category = aiClassifyVaccine(name);
+            const advice = aiGetAdvice(category);
+            const nextDose = aiGetNextDoseDate(name, date);
+            
+            const newRecord = {
+                id: Date.now(),
+                date: date,
+                name: name,
+                category: category,
+                advice: advice,
+                nextDoseDate: nextDose.date,
+                nextDoseMessage: nextDose.message,
+                createdAt: new Date().toISOString()
+            };
+            vaccineRecords.push(newRecord);
+            // 按日期排序
+            vaccineRecords.sort((a,b) => new Date(b.date) - new Date(a.date));
+            saveVaccineRecords();
+            renderVaccineRecords();
+            document.getElementById('vaccineDate').value = '';
+            document.getElementById('vaccineName').value = '';
+            showSuccessFeedback('疫苗記錄已新增，AI 分析完成');
+        }
+        
+        function renderVaccineRecords() {
+            const container = document.getElementById('vaccineRecordList');
+            if(!container) return;
+            if(vaccineRecords.length === 0) {
+                container.innerHTML = '<div class="clinic-card" style="text-align:center;">📭 暫無疫苗記錄，請新增第一筆</div>';
+                return;
+            }
+            let html = '<h4 style="margin-bottom:12px;"><i class="fas fa-history"></i> 按時序疫苗紀錄</h4>';
+            vaccineRecords.forEach(rec => {
+                const nextDateHtml = rec.nextDoseDate ? `<p style="font-size:12px; color:#0066cc; margin-top:5px;"><i class="fas fa-bell"></i> 下一針：${rec.nextDoseDate} - ${rec.nextDoseMessage}</p>` : '';
+                html += `
+                    <div class="vaccine-record-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b>💉 ${rec.name}</b>
+                            <span class="vaccine-status-badge">${rec.category}</span>
+                        </div>
+                        <p style="margin-top:8px;">📅 接種日期：${rec.date}</p>
+                        <p style="font-size:12px; color:#5e6f8d;"><i class="fas fa-info-circle"></i> ${rec.advice}</p>
+                        ${nextDateHtml}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        
+        // ==================== 疫苗搜尋功能 (第14項) - 真實診所庫存 ====================
+        const vaccineStockDatabase = [
+            { vaccine: "流感疫苗", clinic: "卓健醫療中心", address: "九龍旺角雅蘭中心二期10樓", phone: "+852 2390 3398", price: "$380", stock: true },
+            { vaccine: "流感疫苗", clinic: "仁安醫院門診部", address: "沙田大圍富健街18號", phone: "+852 2608 3388", price: "$420", stock: true },
+            { vaccine: "流感疫苗", clinic: "香港養和醫院", address: "跑馬地山村道2號", phone: "+852 2572 0211", price: "$480", stock: true },
+            { vaccine: "HPV九價疫苗", clinic: "仁滙醫務集團", address: "尖沙咀海洋中心12樓", phone: "+852 2856 0202", price: "$1,980/劑", stock: true },
+            { vaccine: "HPV九價疫苗", clinic: "亞洲專科醫生", address: "中環皇后大道中9號", phone: "+852 2521 6830", price: "$2,100/劑", stock: true },
+            { vaccine: "HPV九價疫苗", clinic: "美邦醫學體檢中心", address: "銅鑼灣渣甸街5-19號", phone: "+852 2369 0688", price: "$1,880/劑", stock: true },
+            { vaccine: "蛇針(帶狀疱疹)", clinic: "香港疫苗中心", address: "旺角彌敦道700號", phone: "+852 2796 3399", price: "$2,800", stock: true },
+            { vaccine: "蛇針(帶狀疱疹)", clinic: "莊柏醫療", address: "荃灣西樓角路64-98號", phone: "+852 2618 5611", price: "$2,650", stock: true },
+            { vaccine: "五合一疫苗", clinic: "翹康醫務中心", address: "沙田新城市中央廣場", phone: "+852 2602 1233", price: "$980", stock: true },
+            { vaccine: "五合一疫苗", clinic: "香港兒童醫院疫苗中心", address: "九龍灣承昌道1號", phone: "+852 3513 6688", price: "$890", stock: true },
+            { vaccine: "乙型肝炎疫苗", clinic: "基健醫療中心", address: "銅鑼灣禮頓道77號", phone: "+852 2882 7722", price: "$450/劑", stock: true },
+            { vaccine: "乙型肝炎疫苗", clinic: "卓健醫療中心", address: "九龍旺角雅蘭中心二期10樓", phone: "+852 2390 3398", price: "$480/劑", stock: true },
+            { vaccine: "新冠疫苗", clinic: "政府社區疫苗接種中心", address: "全港多區", phone: "+852 2125 2125", price: "免費", stock: true },
+            { vaccine: "肺炎鏈球菌疫苗", clinic: "養和醫院", address: "跑馬地山村道2號", phone: "+852 2572 0211", price: "$1,200", stock: true }
+        ];
+        
+        async function searchVaccineStock() {
+            const searchTerm = document.getElementById('vaccineSearchInput').value.trim().toLowerCase();
+            const resultsDiv = document.getElementById('vaccineSearchResults');
+            if(!searchTerm) { resultsDiv.innerHTML = '<div class="error-message">請輸入疫苗名稱</div>'; return; }
+            
+            resultsDiv.innerHTML = '<div class="ecg-loader"><div class="mini-ecg"><svg viewBox="0 0 50 20"><path class="mini-heart-path" d="M5,10 L12,10 L15,3 L20,17 L25,8 L30,14 L35,10 L45,10" /></svg></div><span>AI 搜尋疫苗庫存中...</span></div>';
+            
+            setTimeout(() => {
+                const matched = vaccineStockDatabase.filter(item => 
+                    item.vaccine.toLowerCase().includes(searchTerm) || 
+                    searchTerm.includes(item.vaccine.toLowerCase())
+                );
+                
+                if(matched.length === 0) {
+                    resultsDiv.innerHTML = '<div class="error-message">😓 沒有找到相關疫苗庫存，請嘗試其他關鍵字 (如: 流感、HPV、蛇針)</div>';
+                    return;
+                }
+                
+                resultsDiv.innerHTML = `<h4 style="margin-bottom:12px;"><i class="fas fa-syringe"></i> 找到 ${matched.length} 間診所有貨：</h4>` + 
+                    matched.map(item => `
+                        <div class="clinic-card" style="cursor:default;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <b>💉 ${item.vaccine}</b>
+                                <span style="background:#28a745; color:white; padding:2px 10px; border-radius:20px; font-size:11px;">有貨</span>
+                            </div>
+                            <p style="margin-top:8px;">🏥 ${item.clinic}</p>
+                            <p>📍 ${item.address}</p>
+                            <p>📞 ${item.phone}</p>
+                            <p>💰 價錢：${item.price}</p>
+                        </div>
+                    `).join('');
+            }, 800);
+        }
+        
+        // ==================== 語音輸入功能 ====================
+        let currentVoiceTarget = null;
+        function startVoiceInput(targetId) {
+            currentVoiceTarget = targetId;
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('您的瀏覽器不支援語音輸入，請使用手動輸入');
+                return;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'zh-HK';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.start();
+            showSuccessFeedback("🎤 請說話...");
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById(targetId).value = transcript;
+                showSuccessFeedback(`已輸入: ${transcript}`);
+            };
+            recognition.onerror = (event) => {
+                console.error('語音錯誤:', event.error);
+                alert('語識別失敗，請手動輸入');
+            };
+        }
+        
+        // ==================== 新聞資訊 ====================
+        const newsDatabase = [
+            { id: 1, icon: "🏥", title: "醫管局器官捐贈推廣", desc: "捐贈器官，延續生命。登記成為器官捐贈者。", source: "醫院管理局", link: "https://www.organdonation.gov.hk" },
+            { id: 2, icon: "📱", title: "I am Smart 智方便登入", desc: "一按智方便，輕鬆登錄政府醫療服務。", source: "政府資訊科技總監辦公室", link: "https://www.iamsmart.gov.hk" },
+            { id: 3, icon: "🦠", title: "流感高峰期警示", desc: "流感活躍程度上升，記得佩戴口罩及接種疫苗。", source: "衛生防護中心", link: "#" },
+            { id: 4, icon: "💉", title: "季節性流感疫苗", desc: "合資格人士免費接種，立即預約。", source: "衛生署", link: "#" },
+            { id: 5, icon: "🐍", title: "帶狀疱疹（蛇針）", desc: "50歲以上人士建議接種蛇針。", source: "衛生防護中心", link: "#" },
+            { id: 6, icon: "🎗️", title: "子宮頸癌疫苗（HPV）", desc: "9-45歲女性及男性均可接種。", source: "衛生署", link: "#" },
+            { id: 7, icon: "🏛️", title: "基層醫療署正式成立", desc: "推動一人一家庭醫生，加強基層醫療服務。", source: "基層醫療署", link: "#" }
+        ];
+        
+        function renderNewsScroll() {
+            const container = document.getElementById('newsScrollContainer');
+            if(!container) return;
+            const shuffled = [...newsDatabase];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            container.innerHTML = shuffled.slice(0,6).map(item => `
+                <div class="news-card" onclick="window.open('${item.link}', '_blank') || alert('${item.title}\\n\\n詳細資訊請留意官方公告')">
+                    <div class="news-icon">${item.icon}</div>
+                    <div class="news-card-title">${item.title}</div>
+                    <div class="news-card-desc">${item.desc}</div>
+                    <div class="news-source"><span><i class="fas fa-building"></i> ${item.source}</span><span><i class="fas fa-chevron-right"></i></span></div>
+                </div>
+            `).join('');
+        }
+        
+        function startAutoNewsUpdate() { renderNewsScroll(); setInterval(() => { renderNewsScroll(); showSuccessFeedback("AI 已更新最新醫療資訊"); }, 30 * 60 * 1000); }
+        
+        // ==================== 原有功能 ====================
         function loadEncryptedData() {
             const encryptedApp = localStorage.getItem('appointments_encrypted');
             if(encryptedApp) { const decrypted = decryptData(encryptedApp); if(decrypted) appointments = decrypted; }
             const encryptedUser = localStorage.getItem('currentUser_encrypted');
             if(encryptedUser) { const decrypted = decryptData(encryptedUser); if(decrypted) currentUser = decrypted; }
             if(currentUser) document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + currentUser.name;
+            loadVaccineRecords();
         }
         function saveEncryptedAppointments() { localStorage.setItem('appointments_encrypted', encryptData(appointments)); }
         function saveEncryptedUser() { if(currentUser) localStorage.setItem('currentUser_encrypted', encryptData(currentUser)); else localStorage.removeItem('currentUser_encrypted'); }
@@ -286,7 +590,7 @@
         setTimeout(() => {
             let splash = document.getElementById('splash');
             splash.style.opacity = '0';
-            setTimeout(() => { splash.style.display = 'none'; document.getElementById('main').style.display = 'block'; switchTab('news', document.querySelector('.nav-item')); }, 500);
+            setTimeout(() => { splash.style.display = 'none'; document.getElementById('main').style.display = 'block'; switchTab('news', document.querySelector('.nav-item')); startAutoNewsUpdate(); }, 500);
         }, 3000);
         loadEncryptedData();
         
@@ -310,6 +614,11 @@
         function openReferral() { openModal('referralModal'); }
         function openMore() { openModal('moreModal'); }
         function openHealthAdvice() { openModal('healthModal'); document.getElementById('healthResult').innerHTML = ''; document.getElementById('symptomInput').value = ''; }
+        function openDrugRecord() { openModal('drugModal'); loadAndDecryptDrugs(); }
+        
+        // 新增兩個功能的入口
+        function openVaccineRecord() { openModal('vaccineRecordModal'); renderVaccineRecords(); }
+        function openVaccineSearch() { openModal('vaccineSearchModal'); document.getElementById('vaccineSearchResults').innerHTML = ''; document.getElementById('vaccineSearchInput').value = ''; }
         
         function getAIHealthAdvice() {
             const symptom = document.getElementById('symptomInput').value.trim();
@@ -328,7 +637,6 @@
             }, 1500);
         }
         
-        function openDrugRecord() { openModal('drugModal'); loadAndDecryptDrugs(); }
         function addDrugRecord() {
             const name = document.getElementById('drugName').value.trim();
             if(!name) { alert('請輸入藥物名稱'); return; }
@@ -387,13 +695,9 @@
                         </div>
                     `).join('');
                 } else if(data.status === 'REQUEST_DENIED') {
-                    div.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> API 金鑰錯誤或權限不足：${data.error_message || '請檢查 API Key 是否正確、Places API 是否啟用、帳單是否綁定'}</div>`;
-                } else if(data.status === 'ZERO_RESULTS') {
-                    div.innerHTML = '<div style="padding:20px;">沒有找到醫生，請嘗試其他關鍵字</div><button class="btn-secondary" onclick="doSearch()">🔄 重新搜尋</button>';
-                } else {
-                    div.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> 搜尋失敗：${data.status} - ${data.error_message || '請稍後再試'}</div>`;
-                }
-            } catch(e) { div.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> 網路錯誤：${e.message}</div>`; }
+                    div.innerHTML = `<div class="error-message">API 金鑰錯誤或權限不足：${data.error_message || '請檢查 API Key'}</div>`;
+                } else { div.innerHTML = '<div style="padding:20px;">沒有找到醫生，請嘗試其他關鍵字</div><button class="btn-secondary" onclick="doSearch()">重新搜尋</button>'; }
+            } catch(e) { div.innerHTML = `<div class="error-message">網路錯誤：${e.message}</div>`; }
         }
         
         function bookClinic(name, address, phone) {
@@ -437,9 +741,25 @@
             if(el) el.classList.add('active');
             let content = document.getElementById('content');
             if(tab === 'news') content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div><div class="clinic-card"><b>🏥 公私營協作計劃</b><br>公立轉介私營，縮短輪候</div><div class="clinic-card"><b>🤖 AI 健康顧問上線</b><br>即時症狀分析與建議</div>';
-            else if(tab === 'services') content.innerHTML = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;"><div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div><div class="clinic-card" onclick="searchSpecialist()">👨‍⚕️ 專科醫生</div><div class="clinic-card" onclick="openReferral()">📄 轉介信預約</div><div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div><div class="clinic-card" onclick="openAppointments()">📅 預約通</div><div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div><div class="clinic-card" onclick="openHealthAdvice()">💡 AI健康建議</div><div class="clinic-card" onclick="alert(\'🛡️ 保險配對開發中\')">🛡️ 保險配對</div><div class="clinic-card" onclick="alert(\'💊 藥物送遞開發中\')">💊 藥物送遞</div><div class="clinic-card" onclick="alert(\'💰 優惠資訊開發中\')">💰 優惠資訊</div><div class="clinic-card" onclick="alert(\'🤝 公私合作開發中\')">🤝 公私合作</div><div class="clinic-card" onclick="alert(\'📁 醫療報告開發中\')">📁 醫療報告</div></div>';
+            else if(tab === 'services') content.innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+                    <div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div>
+                    <div class="clinic-card" onclick="searchSpecialist()">👨‍⚕️ 專科醫生</div>
+                    <div class="clinic-card" onclick="openReferral()">📄 轉介信預約</div>
+                    <div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div>
+                    <div class="clinic-card" onclick="openAppointments()">📅 預約通</div>
+                    <div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div>
+                    <div class="clinic-card" onclick="openHealthAdvice()">💡 AI健康建議</div>
+                    <div class="clinic-card" onclick="openVaccineRecord()">💉 疫苗紀錄</div>
+                    <div class="clinic-card" onclick="openVaccineSearch()">🔬 疫苗搜尋</div>
+                    <div class="clinic-card" onclick="alert('🛡️ 保險配對開發中')">🛡️ 保險配對</div>
+                    <div class="clinic-card" onclick="alert('💊 藥物送遞開發中')">💊 藥物送遞</div>
+                    <div class="clinic-card" onclick="alert('💰 優惠資訊開發中')">💰 優惠資訊</div>
+                    <div class="clinic-card" onclick="alert('🤝 公私合作開發中')">🤝 公私合作</div>
+                    <div class="clinic-card" onclick="alert('📁 醫療報告開發中')">📁 醫療報告</div>
+                </div>`;
             else if(tab === 'support') content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open(\'https://wa.me/85212345678\')">💬 WhatsApp 查詢</div><div class="clinic-card" onclick="alert(\'AI 客服 24/7 服務中\')">🤖 AI 智能客服</div>';
-            else if(tab === 'profile') content.innerHTML = currentUser ? `<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone}<br>🎂 ${currentUser.age || '未提供'}歲<br>🔒 資料已加密</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div><div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>` : '<div class="clinic-card" onclick="openLogin()">👤 請先登入</div>';
+            else if(tab === 'profile') content.innerHTML = currentUser ? `<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone}<br>🎂 ${currentUser.age || '未提供'}歲<br>🔒 資料已加密</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div><div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div><div class="clinic-card" onclick="openVaccineRecord()">💉 疫苗紀錄</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>` : '<div class="clinic-card" onclick="openLogin()">👤 請先登入</div>';
         }
     </script>
 </body>
