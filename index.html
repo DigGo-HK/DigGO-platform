@@ -260,9 +260,9 @@
     <div id="globalToast" class="global-toast">✓ 預約成功</div>
 
     <script>
-        // ==================== 請在這裡貼上您的 API Key ====================
-        const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY_HERE';
-        // ================================================================
+        // ==================== Google API Key (已整合，請直接使用) ====================
+        const GOOGLE_API_KEY = 'AIzaSyDGuc__VBmGzzQPg8PUuFuhZ2GKdasEtRU';
+        // ===========================================================================
         
         const SECRET_KEY = 'DigGO_Medical_2026';
         function encryptData(data) { return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString(); }
@@ -363,4 +363,84 @@
             let html = appointments.length ? appointments.map(a => `<div class="appointment-item"><div style="display:flex;justify-content:space-between;"><b>📅 ${a.name}</b><span style="background:#e0f0ff;padding:2px 12px;border-radius:30px;">${a.status || '等待中'}</span></div><p>📍 ${a.address}</p><p>📞 ${a.phone}</p><p>🎫 排隊號碼: ${a.queueNumber || 'A'+Math.floor(Math.random()*900+100)}</p><button class="btn-secondary" style="margin-top:8px;padding:6px;" onclick="resetAndResearchFromBooking()">🔄 重新搜尋該診所</button></div>`).join('') : '<div class="clinic-card">暫無預約</div>';
             document.getElementById('appointmentList').innerHTML = html; openModal('appointmentsModal');
         }
-        function resetAndResearchFrom
+        function resetAndResearchFromBooking() { closeModal('appointmentsModal'); if(document.getElementById('searchInput')) document.getElementById('searchInput').value = ''; searchDoctor(); showSuccessFeedback("已重置搜尋"); }
+        
+        async function doSearch() {
+            let term = document.getElementById('searchInput').value.trim();
+            let div = document.getElementById('searchResults');
+            if(!term) { div.innerHTML = '<div style="padding:20px;">請輸入醫生姓名或專科</div>'; return; }
+            div.innerHTML = '<div class="ecg-loader"><div class="mini-ecg"><svg viewBox="0 0 50 20"><path class="mini-heart-path" d="M5,10 L12,10 L15,3 L20,17 L25,8 L30,14 L35,10 L45,10" /></svg></div><span>搜尋中...</span></div>';
+            try {
+                let query = term + ' 醫生 診所 Hong Kong';
+                let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=22.3193,114.1694&radius=10000&key=${GOOGLE_API_KEY}`;
+                let res = await fetch(url);
+                let data = await res.json();
+                if(data.status === 'OK' && data.results && data.results.length) {
+                    div.innerHTML = data.results.slice(0,8).map(p => `
+                        <div class="clinic-card">
+                            <div style="display:flex;justify-content:space-between;"><b>${p.name}</b><span>⭐ ${p.rating || '新'}</span></div>
+                            <p>📍 ${p.formatted_address || p.vicinity || '地址待更新'}</p>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <button class="btn-primary" style="margin:0; padding:8px 16px; flex:1;" onclick="bookClinic('${p.name.replace(/'/g,"\\'")}', '${(p.formatted_address || p.vicinity || '').replace(/'/g,"\\'")}', '${p.formatted_phone_number || '請致電查詢'}')">📅 預約</button>
+                                <button class="btn-secondary" style="margin:0; padding:8px 16px; flex:1;" onclick="doSearch()">🔄 重新搜尋</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else if(data.status === 'REQUEST_DENIED') {
+                    div.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> API 金鑰錯誤或權限不足：${data.error_message || '請檢查 API Key 是否正確、Places API 是否啟用、帳單是否綁定'}</div>`;
+                } else if(data.status === 'ZERO_RESULTS') {
+                    div.innerHTML = '<div style="padding:20px;">沒有找到醫生，請嘗試其他關鍵字</div><button class="btn-secondary" onclick="doSearch()">🔄 重新搜尋</button>';
+                } else {
+                    div.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> 搜尋失敗：${data.status} - ${data.error_message || '請稍後再試'}</div>`;
+                }
+            } catch(e) { div.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> 網路錯誤：${e.message}</div>`; }
+        }
+        
+        function bookClinic(name, address, phone) {
+            const newAppointment = { id: Date.now(), name, address, phone, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString(), status: '等待中', queueNumber: 'A' + Math.floor(Math.random()*900+100) };
+            appointments.push(newAppointment); saveEncryptedAppointments(); showSuccessFeedback(`已預約 ${name}`); closeModal('searchModal');
+            if(autoJumpFlag) { alert(`✅ 預約成功！\n診所：${name}\n已存入預約通。`); }
+            else {
+                const sheet = document.getElementById('actionSheet'); sheet.classList.add('active');
+                let timeout = setTimeout(() => { if(sheet.classList.contains('active')) { sheet.classList.remove('active'); openQueue(); showSuccessFeedback("已跳轉至排隊通"); } }, 3000);
+                window.currentSheetTimeout = timeout;
+                document.getElementById('actionConfirmBtn').onclick = () => { clearTimeout(window.currentSheetTimeout); sheet.classList.remove('active'); openQueue(); showSuccessFeedback("已跳轉至排隊通"); };
+                document.getElementById('actionCancelBtn').onclick = () => { clearTimeout(window.currentSheetTimeout); sheet.classList.remove('active'); autoJumpFlag = true; localStorage.setItem("diggo_no_jump", "true"); showSuccessFeedback("預約完成，已留在當前頁面"); };
+            }
+        }
+        
+        async function doOCR(input) {
+            let file = input.files[0]; if(!file) return;
+            let reader = new FileReader();
+            reader.onload = async function(e) {
+                document.getElementById('ocrResult').innerHTML = '<div class="ecg-loader"><div class="mini-ecg"><svg viewBox="0 0 50 20"><path class="mini-heart-path" d="M5,10 L12,10 L15,3 L20,17 L25,8 L30,14 L35,10 L45,10" /></svg></div><span>AI 辨識中...</span></div>';
+                try {
+                    let res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
+                        method: 'POST', body: JSON.stringify({ requests: [{ image: { content: e.target.result.split(',')[1] }, features: [{ type: 'DOCUMENT_TEXT_DETECTION' }] }] })
+                    });
+                    let data = await res.json();
+                    if(data.error) { document.getElementById('ocrResult').innerHTML = `<div class="error-message">OCR 錯誤：${data.error.message}</div>`; return; }
+                    let text = data.responses?.[0]?.fullTextAnnotation?.text || '未識別';
+                    let specialty = text.includes('心臟') ? '心臟科' : (text.includes('骨科') ? '骨科' : (text.includes('兒科') ? '兒科' : (text.includes('眼科') ? '眼科' : '一般門診')));
+                    document.getElementById('ocrResult').innerHTML = `<div style="background:#e6f2ff;padding:15px;border-radius:16px;"><b>✅ AI 識別結果</b><p>${text.substring(0,200)}</p><p>📋 建議專科：${specialty}</p></div><button class="btn-primary" onclick="closeModal('referralModal');searchSpecialist();document.getElementById('searchInput').value='${specialty}';doSearch();">🔍 搜尋 ${specialty}醫生</button>`;
+                } catch(e) { document.getElementById('ocrResult').innerHTML = `<div class="error-message">辨識失敗：${e.message}</div>`; }
+            }; reader.readAsDataURL(file);
+        }
+        
+        function openLogin() { openModal('loginModal'); }
+        function sendOTP() { let phone = document.getElementById('phone').value; if(!phone || phone.length<8) { alert('請輸入正確手機號碼'); return; } pendingPhone = phone; let otp = Math.floor(100000+Math.random()*900000); alert('驗證碼：' + otp); localStorage.setItem('pendingOTP', otp); document.getElementById('stepPhone').style.display = 'none'; document.getElementById('stepOTP').style.display = 'block'; }
+        function verifyOTP() { if(document.getElementById('otp').value === localStorage.getItem('pendingOTP')) { document.getElementById('stepOTP').style.display = 'none'; document.getElementById('stepProfile').style.display = 'block'; } else alert('驗證碼錯誤'); }
+        function register() { let name = document.getElementById('name').value; if(!name) { alert('請輸入姓名'); return; } currentUser = { phone: pendingPhone, name: name, age: document.getElementById('age').value }; saveEncryptedUser(); document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + name; closeModal('loginModal'); alert('✅ 註冊成功！'); switchTab('profile', document.querySelector('.nav-item')); }
+        
+        function switchTab(tab, el) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if(el) el.classList.add('active');
+            let content = document.getElementById('content');
+            if(tab === 'news') content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div><div class="clinic-card"><b>🏥 公私營協作計劃</b><br>公立轉介私營，縮短輪候</div><div class="clinic-card"><b>🤖 AI 健康顧問上線</b><br>即時症狀分析與建議</div>';
+            else if(tab === 'services') content.innerHTML = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;"><div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div><div class="clinic-card" onclick="searchSpecialist()">👨‍⚕️ 專科醫生</div><div class="clinic-card" onclick="openReferral()">📄 轉介信預約</div><div class="clinic-card" onclick="openQueue()">🎟️ 排隊通</div><div class="clinic-card" onclick="openAppointments()">📅 預約通</div><div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div><div class="clinic-card" onclick="openHealthAdvice()">💡 AI健康建議</div><div class="clinic-card" onclick="alert(\'🛡️ 保險配對開發中\')">🛡️ 保險配對</div><div class="clinic-card" onclick="alert(\'💊 藥物送遞開發中\')">💊 藥物送遞</div><div class="clinic-card" onclick="alert(\'💰 優惠資訊開發中\')">💰 優惠資訊</div><div class="clinic-card" onclick="alert(\'🤝 公私合作開發中\')">🤝 公私合作</div><div class="clinic-card" onclick="alert(\'📁 醫療報告開發中\')">📁 醫療報告</div></div>';
+            else if(tab === 'support') content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div><div class="clinic-card" onclick="window.open(\'https://wa.me/85212345678\')">💬 WhatsApp 查詢</div><div class="clinic-card" onclick="alert(\'AI 客服 24/7 服務中\')">🤖 AI 智能客服</div>';
+            else if(tab === 'profile') content.innerHTML = currentUser ? `<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone}<br>🎂 ${currentUser.age || '未提供'}歲<br>🔒 資料已加密</div><div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div><div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div><div class="clinic-card" onclick="localStorage.clear();location.reload()">🚪 登出</div>` : '<div class="clinic-card" onclick="openLogin()">👤 請先登入</div>';
+        }
+    </script>
+</body>
+</html>
