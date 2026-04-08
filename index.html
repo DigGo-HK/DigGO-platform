@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>DigGO 醫療探索平台 | AI 智慧醫療</title>
+    <title>DigGO™ 醫療探索平台 | AI 智慧醫療</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
@@ -25,6 +25,20 @@
             z-index: 10000;
             transition: opacity 0.5s;
             overflow: hidden;
+            position: relative;
+        }
+        /* 啟動畫面右上角 Logo */
+        .splash-logo-corner {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 48px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
@@ -47,7 +61,28 @@
         .main { display: none; min-height: 100vh; padding-bottom: 80px; }
         .status-bar { background: #0066cc; color: white; padding: 12px 16px; display: flex; justify-content: space-between; font-size: 14px; position: sticky; top: 0; z-index: 100; }
         .header { background: linear-gradient(135deg, #0066cc, #2a8bc2); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 28px; font-weight: 800; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; }
+        .logo { 
+            font-size: 24px; 
+            font-weight: 800; 
+            background: rgba(255,255,255,0.2); 
+            padding: 5px 15px; 
+            border-radius: 30px; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-text { 
+            background: linear-gradient(135deg, #fff, #e0f0ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .tm-sup { 
+            font-size: 12px; 
+            vertical-align: super; 
+            font-weight: 400;
+            color: rgba(255,255,255,0.9);
+        }
         .login-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 30px; cursor: pointer; transition: 0.1s; }
         .login-btn:active { transform: scale(0.96); }
         
@@ -224,16 +259,29 @@
     </style>
 </head>
 <body>
+    <!-- 啟動畫面 - 右上角有藍色心心+聽診器 -->
     <div class="splash" id="splash">
+        <div class="splash-logo-corner">💙🩺</div>
         <div class="heart-beat"><i class="fas fa-heartbeat"></i></div>
         <div class="ecg-container"><svg class="ecg-line" viewBox="0 0 1200 80"><path class="ecg-path" d="M0,40 L100,40 L120,40 L140,10 L160,70 L180,40 L200,40 L300,40 L320,40 L340,10 L360,70 L380,40 L400,40 L500,40 L520,40 L540,5 L560,75 L580,40 L600,40 L700,40 L720,40 L740,20 L760,60 L780,40 L800,40 L900,40 L920,40 L940,10 L960,70 L980,40 L1000,40 L1100,40 L1120,40 L1140,10 L1160,70 L1180,40 L1200,40" /></svg></div>
-        <div class="splash-content"><div class="splash-logo"><div class="dc">D.C</div><div class="box">□</div></div><div class="splash-title">DigGO</div><div class="splash-subtitle">AI 醫療探索平台</div><div class="splash-loading"></div></div>
+        <div class="splash-content">
+            <div class="splash-logo">
+                <div class="dc">D.C</div>
+                <div class="box">□</div>
+            </div>
+            <div class="splash-title">DigGO</div>
+            <div class="splash-subtitle">AI 醫療探索平台</div>
+            <div class="splash-loading"></div>
+        </div>
     </div>
 
     <div class="main" id="main">
         <div class="status-bar"><span id="time"></span><span><i class="fas fa-signal"></i> <i class="fas fa-wifi"></i> <i class="fas fa-battery-full"></i></span></div>
         <div class="header">
-            <div class="logo">D.C □ <span class="ai-badge">AI</span></div>
+            <div class="logo">
+                <span class="logo-text">DigGO</span><span class="tm-sup">™</span>
+                <span class="ai-badge">AI</span>
+            </div>
             <button class="login-btn" id="loginBtn" onclick="openLogin()"><i class="fas fa-user-circle"></i> 登入/註冊</button>
         </div>
         
@@ -272,7 +320,7 @@
         <div id="content" style="padding: 20px;"></div>
     </div>
     
-    <!-- ==================== 新版登入 Modal (右上角模式) ==================== -->
+    <!-- ==================== 新版登入 Modal ==================== -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -284,7 +332,6 @@
                 請選擇你的登入方式
             </div>
             
-            <!-- 登入方式切換 -->
             <div style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #eee;">
                 <div id="loginTabEmail" class="login-tab" onclick="switchLoginTab('email')" style="padding-bottom: 8px; cursor: pointer; font-weight: 500; color: #0066cc; border-bottom: 2px solid #0066cc;">
                     電郵地址
@@ -294,43 +341,36 @@
                 </div>
             </div>
             
-            <!-- 電郵登入表單 -->
             <div id="loginFormEmail">
                 <div class="form-group">
                     <input type="email" id="loginEmail" placeholder="電郵地址" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd; font-size:16px;">
                 </div>
             </div>
             
-            <!-- 電話登入表單 -->
             <div id="loginFormPhone" style="display:none;">
                 <div class="form-group">
                     <input type="tel" id="loginPhone" placeholder="手提電話號碼" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd; font-size:16px;">
                 </div>
             </div>
             
-            <!-- 保持登入選項 -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
                 <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666;">
                     <input type="checkbox" id="keepLoggedIn"> 保持登入
                 </label>
             </div>
             
-            <!-- 繼續按鈕 -->
             <button class="btn-primary" onclick="handleLogin()" style="margin-top: 0;">繼續</button>
             
-            <!-- 分隔線 -->
             <div style="display: flex; align-items: center; margin: 24px 0; color: #999; font-size: 14px;">
                 <hr style="flex:1; border: none; border-top: 1px solid #eee;">
                 <span style="padding: 0 12px;">或使用</span>
                 <hr style="flex:1; border: none; border-top: 1px solid #eee;">
             </div>
             
-            <!-- 智方便登入按鈕 -->
             <button class="btn-secondary" onclick="loginWithiAMSmart()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #f0f0f0; color: #333;">
                 <i class="fas fa-id-card"></i> 智方便
             </button>
             
-            <!-- 註冊連結 -->
             <div style="text-align: center; margin-top: 20px; font-size: 14px;">
                 還沒有帳戶？ <a href="#" onclick="switchToRegister(); return false;" style="color: #0066cc; text-decoration: none;">立即註冊</a>
             </div>
@@ -481,7 +521,7 @@
         function resetAutoPlay() { if(autoPlayInterval) clearInterval(autoPlayInterval); startAutoPlay(); }
         function openPosterLink(url, title) { if(url && url !== '#') window.open(url, '_blank'); else alert(`🔔 ${title}\n\n詳細資訊請留意官方公告。`); }
         
-        // ==================== 新版登入/註冊功能 ====================
+        // ==================== 登入/註冊功能 ====================
         let currentLoginTab = 'email';
         
         function switchLoginTab(tab) {
@@ -520,8 +560,6 @@
             }
             
             const keepLoggedIn = document.getElementById('keepLoggedIn').checked;
-            
-            // 模擬登入 - 檢查是否有註冊記錄
             const encryptedUsers = localStorage.getItem('registered_users_encrypted');
             let users = [];
             if(encryptedUsers) { const dec = decryptData(encryptedUsers); if(dec) users = dec; }
@@ -541,15 +579,8 @@
             }
         }
         
-        function switchToRegister() {
-            closeModal('loginModal');
-            openModal('registerModal');
-        }
-        
-        function switchToLogin() {
-            closeModal('registerModal');
-            openModal('loginModal');
-        }
+        function switchToRegister() { closeModal('loginModal'); openModal('registerModal'); }
+        function switchToLogin() { closeModal('registerModal'); openModal('loginModal'); }
         
         function registerNewUser() {
             const name = document.getElementById('regName').value.trim();
@@ -561,18 +592,15 @@
             if(!email && !phone) { alert('請填寫電郵地址或手提電話號碼'); return; }
             
             const newUser = { name, email, phone, age: age || '', registeredAt: new Date().toISOString() };
-            
             const encryptedUsers = localStorage.getItem('registered_users_encrypted');
             let users = [];
             if(encryptedUsers) { const dec = decryptData(encryptedUsers); if(dec) users = dec; }
             
-            // 檢查是否重複
             const exists = users.some(u => (u.email && u.email === email) || (u.phone && u.phone === phone));
             if(exists) { alert('此電郵或電話已被註冊'); return; }
             
             users.push(newUser);
             localStorage.setItem('registered_users_encrypted', encryptData(users));
-            
             currentUser = newUser;
             saveEncryptedUser();
             document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + currentUser.name;
@@ -581,9 +609,7 @@
             switchTab('profile', document.querySelector('.nav-item'));
         }
         
-        function loginWithiAMSmart() {
-            alert('智方便登入開發中，將連接至政府智方便系統。\n\n示範模式：請先使用電郵或電話註冊/登入。');
-        }
+        function loginWithiAMSmart() { alert('智方便登入開發中，將連接至政府智方便系統。\n\n示範模式：請先使用電郵或電話註冊/登入。'); }
         
         // 疫苗紀錄功能
         function loadVaccineRecords() {
