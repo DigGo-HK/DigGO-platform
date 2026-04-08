@@ -220,6 +220,7 @@
         .voice-btn:active { transform: scale(0.95); }
         .input-with-voice { display: flex; align-items: center; gap: 8px; }
         .input-with-voice input { flex: 1; }
+        .login-tab { transition: all 0.2s ease; }
     </style>
 </head>
 <body>
@@ -271,13 +272,104 @@
         <div id="content" style="padding: 20px;"></div>
     </div>
     
-    <!-- Modals -->
-    <div class="modal" id="loginModal"><div class="modal-content"><div class="modal-header"><span>登入 / 註冊</span><span class="close-btn" onclick="closeModal('loginModal')">✕</span></div>
-        <div id="stepPhone"><div class="form-group"><input type="tel" id="phone" placeholder="手機號碼"></div><button class="btn-primary" onclick="sendOTP()">發送驗證碼</button></div>
-        <div id="stepOTP" style="display:none;"><div class="form-group"><input type="text" id="otp" placeholder="驗證碼"></div><button class="btn-primary" onclick="verifyOTP()">驗證</button></div>
-        <div id="stepProfile" style="display:none;"><div class="form-group"><input type="text" id="name" placeholder="姓名"></div><div class="form-group"><input type="number" id="age" placeholder="年齡"></div><button class="btn-primary" onclick="register()">完成註冊</button></div>
-    </div></div>
+    <!-- ==================== 新版登入 Modal (右上角模式) ==================== -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>登入</span>
+                <span class="close-btn" onclick="closeModal('loginModal')">✕</span>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 24px; color: #666; font-size: 14px;">
+                請選擇你的登入方式
+            </div>
+            
+            <!-- 登入方式切換 -->
+            <div style="display: flex; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid #eee;">
+                <div id="loginTabEmail" class="login-tab" onclick="switchLoginTab('email')" style="padding-bottom: 8px; cursor: pointer; font-weight: 500; color: #0066cc; border-bottom: 2px solid #0066cc;">
+                    電郵地址
+                </div>
+                <div id="loginTabPhone" class="login-tab" onclick="switchLoginTab('phone')" style="padding-bottom: 8px; cursor: pointer; font-weight: 500; color: #999; border-bottom: 2px solid transparent;">
+                    手提電話號碼
+                </div>
+            </div>
+            
+            <!-- 電郵登入表單 -->
+            <div id="loginFormEmail">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="電郵地址" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd; font-size:16px;">
+                </div>
+            </div>
+            
+            <!-- 電話登入表單 -->
+            <div id="loginFormPhone" style="display:none;">
+                <div class="form-group">
+                    <input type="tel" id="loginPhone" placeholder="手提電話號碼" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd; font-size:16px;">
+                </div>
+            </div>
+            
+            <!-- 保持登入選項 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666;">
+                    <input type="checkbox" id="keepLoggedIn"> 保持登入
+                </label>
+            </div>
+            
+            <!-- 繼續按鈕 -->
+            <button class="btn-primary" onclick="handleLogin()" style="margin-top: 0;">繼續</button>
+            
+            <!-- 分隔線 -->
+            <div style="display: flex; align-items: center; margin: 24px 0; color: #999; font-size: 14px;">
+                <hr style="flex:1; border: none; border-top: 1px solid #eee;">
+                <span style="padding: 0 12px;">或使用</span>
+                <hr style="flex:1; border: none; border-top: 1px solid #eee;">
+            </div>
+            
+            <!-- 智方便登入按鈕 -->
+            <button class="btn-secondary" onclick="loginWithiAMSmart()" style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #f0f0f0; color: #333;">
+                <i class="fas fa-id-card"></i> 智方便
+            </button>
+            
+            <!-- 註冊連結 -->
+            <div style="text-align: center; margin-top: 20px; font-size: 14px;">
+                還沒有帳戶？ <a href="#" onclick="switchToRegister(); return false;" style="color: #0066cc; text-decoration: none;">立即註冊</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 新版註冊 Modal ==================== -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>註冊</span>
+                <span class="close-btn" onclick="closeModal('registerModal')">✕</span>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 24px; color: #666; font-size: 14px;">
+                建立新帳戶
+            </div>
+            
+            <div class="form-group">
+                <input type="text" id="regName" placeholder="姓名" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd;">
+            </div>
+            <div class="form-group">
+                <input type="email" id="regEmail" placeholder="電郵地址" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd;">
+            </div>
+            <div class="form-group">
+                <input type="tel" id="regPhone" placeholder="手提電話號碼" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd;">
+            </div>
+            <div class="form-group">
+                <input type="number" id="regAge" placeholder="年齡 (選填)" style="width:100%; padding:14px; border-radius:30px; border:1px solid #ddd;">
+            </div>
+            <button class="btn-primary" onclick="registerNewUser()">註冊</button>
+            
+            <div style="text-align: center; margin-top: 20px; font-size: 14px;">
+                已有帳戶？ <a href="#" onclick="switchToLogin(); return false;" style="color: #0066cc; text-decoration: none;">返回登入</a>
+            </div>
+        </div>
+    </div>
     
+    <!-- 原有其他 Modals -->
     <div class="modal" id="searchModal"><div class="modal-content"><div class="modal-header"><span>🔍 搜尋醫生</span><span class="close-btn" onclick="closeModal('searchModal')">✕</span></div>
     <input type="text" class="search-input" id="searchInput" placeholder="請輸入醫生姓名或專科">
     <div id="searchResults"></div>
@@ -347,7 +439,6 @@
         
         let appointments = [];
         let currentUser = null;
-        let pendingPhone = '';
         let autoJumpFlag = localStorage.getItem("diggo_no_jump") === "true";
         let vaccineRecords = [];
         
@@ -389,6 +480,110 @@
         function startAutoPlay() { if(autoPlayInterval) clearInterval(autoPlayInterval); autoPlayInterval = setInterval(() => { goToSlide((currentSlide + 1) % posterData.length); }, 5000); }
         function resetAutoPlay() { if(autoPlayInterval) clearInterval(autoPlayInterval); startAutoPlay(); }
         function openPosterLink(url, title) { if(url && url !== '#') window.open(url, '_blank'); else alert(`🔔 ${title}\n\n詳細資訊請留意官方公告。`); }
+        
+        // ==================== 新版登入/註冊功能 ====================
+        let currentLoginTab = 'email';
+        
+        function switchLoginTab(tab) {
+            currentLoginTab = tab;
+            const emailTab = document.getElementById('loginTabEmail');
+            const phoneTab = document.getElementById('loginTabPhone');
+            const emailForm = document.getElementById('loginFormEmail');
+            const phoneForm = document.getElementById('loginFormPhone');
+            
+            if(tab === 'email') {
+                emailTab.style.color = '#0066cc';
+                emailTab.style.borderBottom = '2px solid #0066cc';
+                phoneTab.style.color = '#999';
+                phoneTab.style.borderBottom = '2px solid transparent';
+                emailForm.style.display = 'block';
+                phoneForm.style.display = 'none';
+            } else {
+                phoneTab.style.color = '#0066cc';
+                phoneTab.style.borderBottom = '2px solid #0066cc';
+                emailTab.style.color = '#999';
+                emailTab.style.borderBottom = '2px solid transparent';
+                emailForm.style.display = 'none';
+                phoneForm.style.display = 'block';
+            }
+        }
+        
+        function handleLogin() {
+            let identifier = '';
+            if(currentLoginTab === 'email') {
+                identifier = document.getElementById('loginEmail').value.trim();
+                if(!identifier) { alert('請輸入電郵地址'); return; }
+                if(!identifier.includes('@')) { alert('請輸入有效的電郵地址'); return; }
+            } else {
+                identifier = document.getElementById('loginPhone').value.trim();
+                if(!identifier || identifier.length < 8) { alert('請輸入有效的手提電話號碼'); return; }
+            }
+            
+            const keepLoggedIn = document.getElementById('keepLoggedIn').checked;
+            
+            // 模擬登入 - 檢查是否有註冊記錄
+            const encryptedUsers = localStorage.getItem('registered_users_encrypted');
+            let users = [];
+            if(encryptedUsers) { const dec = decryptData(encryptedUsers); if(dec) users = dec; }
+            
+            const foundUser = users.find(u => u.email === identifier || u.phone === identifier);
+            if(foundUser) {
+                currentUser = foundUser;
+                saveEncryptedUser();
+                document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + currentUser.name;
+                closeModal('loginModal');
+                showSuccessFeedback(`歡迎回來，${currentUser.name}`);
+                if(keepLoggedIn) localStorage.setItem('keepLoggedIn', 'true');
+                switchTab('profile', document.querySelector('.nav-item'));
+            } else {
+                alert('未找到帳戶，請先註冊');
+                switchToRegister();
+            }
+        }
+        
+        function switchToRegister() {
+            closeModal('loginModal');
+            openModal('registerModal');
+        }
+        
+        function switchToLogin() {
+            closeModal('registerModal');
+            openModal('loginModal');
+        }
+        
+        function registerNewUser() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const age = document.getElementById('regAge').value;
+            
+            if(!name) { alert('請輸入姓名'); return; }
+            if(!email && !phone) { alert('請填寫電郵地址或手提電話號碼'); return; }
+            
+            const newUser = { name, email, phone, age: age || '', registeredAt: new Date().toISOString() };
+            
+            const encryptedUsers = localStorage.getItem('registered_users_encrypted');
+            let users = [];
+            if(encryptedUsers) { const dec = decryptData(encryptedUsers); if(dec) users = dec; }
+            
+            // 檢查是否重複
+            const exists = users.some(u => (u.email && u.email === email) || (u.phone && u.phone === phone));
+            if(exists) { alert('此電郵或電話已被註冊'); return; }
+            
+            users.push(newUser);
+            localStorage.setItem('registered_users_encrypted', encryptData(users));
+            
+            currentUser = newUser;
+            saveEncryptedUser();
+            document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + currentUser.name;
+            closeModal('registerModal');
+            showSuccessFeedback(`註冊成功！歡迎 ${name}`);
+            switchTab('profile', document.querySelector('.nav-item'));
+        }
+        
+        function loginWithiAMSmart() {
+            alert('智方便登入開發中，將連接至政府智方便系統。\n\n示範模式：請先使用電郵或電話註冊/登入。');
+        }
         
         // 疫苗紀錄功能
         function loadVaccineRecords() {
@@ -512,6 +707,7 @@
         function openDrugRecord() { openModal('drugModal'); loadAndDecryptDrugs(); }
         function openVaccineRecord() { openModal('vaccineRecordModal'); renderVaccineRecords(); }
         function openVaccineSearch() { openModal('vaccineSearchModal'); document.getElementById('vaccineSearchResults').innerHTML = ''; document.getElementById('vaccineSearchInput').value = ''; }
+        function openLogin() { openModal('loginModal'); }
         
         function getAIHealthAdvice() {
             const symptom = document.getElementById('symptomInput').value.trim();
@@ -618,11 +814,6 @@
             }; reader.readAsDataURL(file);
         }
         
-        function openLogin() { openModal('loginModal'); }
-        function sendOTP() { let phone = document.getElementById('phone').value; if(!phone || phone.length<8) { alert('請輸入正確手機號碼'); return; } pendingPhone = phone; let otp = Math.floor(100000+Math.random()*900000); alert('驗證碼：' + otp); localStorage.setItem('pendingOTP', otp); document.getElementById('stepPhone').style.display = 'none'; document.getElementById('stepOTP').style.display = 'block'; }
-        function verifyOTP() { if(document.getElementById('otp').value === localStorage.getItem('pendingOTP')) { document.getElementById('stepOTP').style.display = 'none'; document.getElementById('stepProfile').style.display = 'block'; } else alert('驗證碼錯誤'); }
-        function register() { let name = document.getElementById('name').value; if(!name) { alert('請輸入姓名'); return; } currentUser = { phone: pendingPhone, name: name, age: document.getElementById('age').value }; saveEncryptedUser(); document.getElementById('loginBtn').innerHTML = '<i class="fas fa-user-circle"></i> ' + name; closeModal('loginModal'); alert('註冊成功！'); switchTab('profile', document.querySelector('.nav-item')); }
-        
         function switchTab(tab, el) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             if(el) el.classList.add('active');
@@ -630,7 +821,6 @@
             if(tab === 'news') {
                 content.innerHTML = '<div class="clinic-card"><b>🏥 長者醫療券獎賞計劃</b><br>累積$1,000獲$500獎賞</div><div class="clinic-card"><b>💉 流感疫苗接種計劃</b><br>合資格人士免費接種</div><div class="clinic-card"><b>🤖 AI 健康顧問上線</b><br>即時症狀分析與建議</div>';
             } else if(tab === 'services') {
-                // ==================== 完整14項功能 ====================
                 content.innerHTML = `
                     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
                         <div class="clinic-card" onclick="searchDoctor()">🔍 醫生搜尋</div>
@@ -653,7 +843,7 @@
                 content.innerHTML = '<div class="clinic-card" onclick="alert(\'客服熱線：2121 8080\')">📞 聯絡我們</div><div class="clinic-card" onclick="alert(\'AI 客服 24/7\')">🤖 AI 智能客服</div>';
             } else if(tab === 'profile') {
                 content.innerHTML = currentUser ? 
-                    `<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone}<br>🔒 資料已加密</div>
+                    `<div class="clinic-card"><b>👤 ${currentUser.name}</b><br>📱 ${currentUser.phone || currentUser.email || '未提供'}<br>🔒 資料已加密</div>
                      <div class="clinic-card" onclick="openAppointments()">📋 預約紀錄 (${appointments.length})</div>
                      <div class="clinic-card" onclick="openDrugRecord()">💊 藥物記錄</div>
                      <div class="clinic-card" onclick="openVaccineRecord()">💉 疫苗紀錄</div>
